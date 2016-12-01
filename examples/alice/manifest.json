@@ -1,0 +1,47 @@
+{
+  "@context": "http://idpf.org/epub.jsonld",
+
+  "metadata": {
+    "@type": "http://schema.org/EBook",
+    "title": "Alice's Adventures in Wonderland",
+    "author": "Lewis Carroll",
+    "identifier": "https://standardebooks.org/ebooks/lewis-carroll/alices-adventures-in-wonderland",
+    "language": "en-GB",
+    "modified": "2016-10-31T20:11:46Z"
+  },
+
+  "links": [
+    {"rel": "cover", "href": "images/cover.jpg", "type": "image/jpeg", "height": 2100, "width": 1400}, 
+    {"rel": "self", "href": "http://d8c0cd82.ngrok.io/read/manifest.json", "type": "application/webpub+json"}
+  ],
+
+  "spine": [
+    {"href": "text/titlepage.xhtml", "type": "text/html", "title": "Title Page"},
+    {"href": "text/imprint.xhtml", "type": "text/html", "title": "Imprint"},
+    {"href": "text/epigraph.xhtml", "type": "text/html", "title": "Epigraph"},
+    {"href": "text/halftitle.xhtml", "type": "text/html", "title": "Half Title"},
+    {"href": "text/chapter-1.xhtml", "type": "text/html", "title": "Chapter 1"},
+    {"href": "text/chapter-2.xhtml", "type": "text/html", "title": "Chapter 2"}, 
+    {"href": "text/chapter-3.xhtml", "type": "text/html", "title": "Chapter 3"}, 
+    {"href": "text/chapter-4.xhtml", "type": "text/html", "title": "Chapter 4"}, 
+    {"href": "text/chapter-5.xhtml", "type": "text/html", "title": "Chapter 5"}, 
+    {"href": "text/chapter-6.xhtml", "type": "text/html", "title": "Chapter 6"},
+    {"href": "text/chapter-7.xhtml", "type": "text/html", "title": "Chapter 7"},
+    {"href": "text/chapter-8.xhtml", "type": "text/html", "title": "Chapter 8"},
+    {"href": "text/chapter-9.xhtml", "type": "text/html", "title": "Chapter 9"},
+    {"href": "text/chapter-10.xhtml", "type": "text/html", "title": "Chapter 10"},
+    {"href": "text/chapter-11.xhtml", "type": "text/html", "title": "Chapter 11"},
+    {"href": "text/chapter-12.xhtml", "type": "text/html", "title": "Chapter 12"},
+    {"href": "text/colophon.xhtml", "type": "text/html", "title": "Colophon"},
+    {"href": "text/uncopyright.xhtml", "type": "text/html", "title": "Copyright"}
+  ],
+
+  "resources": [
+    {"href": "toc.xhtml", "rel": "contents", "type": "text/html", "title": "Table of Contents"}, 
+    {"href": "css/core.css", "type": "text/css"},
+    {"href": "css/local.css", "type": "text/css"},
+    {"href": "images/cover.jpg", "type": "image/jpeg"},
+    {"href": "images/logo.png", "type": "image/png"},
+    {"href": "images/titlepage.png", "type": "image/png"}
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "nypl-simplified-webpub-viewer",
+  "version": "0.0.0",
+  "author": "NYPL",
+  "description": "A viewer application for web publications.",
+  "repository": "https://github.com/NYPL-Simplified/webpub-viewer.git",
+  "license": "Apache-2.0",
+  "main": "dist/src/index.js",
+  "typings": "dist/src/index.ts",
+  "scripts": {
+    "prepublish": "typings install && tsc --p .",
+    "test": "rm -rf dist && tsc && mocha --require jsdom-global/register --recursive dist/test",
+    "clean": "rm -rf typings node_modules dist"
+  },
+  "dependencies": {
+    "isomorphic-fetch": "^2.2.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "jsdom": "^9.8.3",
+    "jsdom-global": "^2.1.0",
+    "mocha": "^3.1.2",
+    "requirejs": "^2.3.2",
+    "sinon": "^1.17.6",
+    "typescript": "^2.1.1",
+    "typings": "^2.0.0"
+  }
+}
