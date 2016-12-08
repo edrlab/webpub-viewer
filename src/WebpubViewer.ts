@@ -1,17 +1,21 @@
 import Cacher from "./Cacher";
 import Navigator from "./Navigator";
+import Annotator from "./Annotator";
 
 /** Viewer application for web publications. */
 export default class WebpubViewer {
     private cacher: Cacher;
     private navigator: Navigator;
+    private annotator: Annotator | null;
 
     /** Create a WebpubViewer. */
     /** @param cacher A Cacher to handle storing webpub and app resources for offline use. */
     /** @param navigator A Navigator to handle moving between spine items and resources of the publication. */
-    public constructor(cacher: Cacher, navigator: Navigator) {
+    /** @param annotator Optional Annotator that handles bookmarking, last reading position, highlights. */
+    public constructor(cacher: Cacher, navigator: Navigator, annotator: Annotator | null = null) {
         this.cacher = cacher;
         this.navigator = navigator;
+        this.annotator = annotator;
     }
 
     /** Start the app. */
@@ -22,6 +26,9 @@ export default class WebpubViewer {
 
         // Not sure if these could run concurrently.
         await this.cacher.start(manifestUrl);
+        if (this.annotator) {
+            await this.annotator.start(manifestUrl);
+        }
         await this.navigator.start(element, manifestUrl);
     }
 }

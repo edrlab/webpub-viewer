@@ -1,5 +1,6 @@
 import Navigator from "./Navigator";
 import Cacher from "./Cacher";
+import Annotator from "./Annotator";
 import Manifest from "./Manifest";
 
 const TEMPLATE = `
@@ -21,6 +22,7 @@ const TEMPLATE = `
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
 export default class IFrameNavigator implements Navigator {
     private cacher: Cacher;
+    private annotator: Annotator | null;
     private iframe: HTMLIFrameElement;
     private links: Element;
     private nextLink: HTMLAnchorElement;
@@ -28,8 +30,9 @@ export default class IFrameNavigator implements Navigator {
     private startLink: HTMLAnchorElement;
     private navigation: Element;
 
-    public constructor(cacher: Cacher) {
+    public constructor(cacher: Cacher, annotator: Annotator | null = null) {
         this.cacher = cacher;
+        this.annotator = annotator;
     }
 
     public async start(element: HTMLElement, manifestUrl: string): Promise<void> {
@@ -80,6 +83,10 @@ export default class IFrameNavigator implements Navigator {
             } else {
                 this.nextLink.removeAttribute("href");
             }
+
+            if (this.annotator) {
+                await this.annotator.saveLastReadingPosition(currentLocation);
+            }
         });
 
         this.previousLink.addEventListener("click", (event: Event) => {
@@ -119,10 +126,21 @@ export default class IFrameNavigator implements Navigator {
             });
         }
 
+        let startUrl: string | null = null;
         let startLink = manifest.getStartLink();
         if (startLink && startLink.href) {
-            let startUrl = new URL(startLink.href, manifestUrl).href;
+            startUrl = new URL(startLink.href, manifestUrl).href;
             this.startLink.href = startUrl;
+        }
+
+        let lastReadingPosition: string | null = null;
+        if (this.annotator) {
+            lastReadingPosition = await this.annotator.getLastReadingPosition() as string | null;
+        }
+
+        if (lastReadingPosition) {
+            this.navigate(lastReadingPosition);
+        } else if (startUrl) {
             this.navigate(startUrl);
         }
 
