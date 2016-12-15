@@ -8,9 +8,9 @@
   "main": "dist/src/index.js",
   "typings": "dist/src/index.ts",
   "scripts": {
-    "prepublish": "typings install && tsc --p .",
-    "test": "rm -rf dist && tsc && mocha --require jsdom-global/register --recursive dist/test",
-    "clean": "rm -rf typings node_modules dist"
+    "prepublish": "typings install && tsc --p . && tsc --p tsconfig-sw.json",
+    "test": "rm -rf lib && tsc --p tsconfig-test.json && mocha --require jsdom-global/register --recursive lib/test",
+    "clean": "rm -rf typings node_modules lib dist"
   },
   "dependencies": {
     "isomorphic-fetch": "^2.2.1"
