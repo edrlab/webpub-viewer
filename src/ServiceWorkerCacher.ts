@@ -3,16 +3,21 @@ import Manifest from "./Manifest";
 
 /** Class that caches URLs using ServiceWorker's Cache API. */
 export default class ServiceWorkerCacher implements Cacher {
+    private serviceWorkerPath: string;
     private supported: boolean;
 
-    public constructor() {}
+    /** Create a ServiceWorkerCacher. */
+    /** @param serviceWorkerPath Location of the service worker js file. */
+    public constructor(serviceWorkerPath: string = "sw.js") {
+        this.serviceWorkerPath = serviceWorkerPath;
+    }
 
     public async start(manifestUrl: string): Promise<void> {
         let protocol = window.location.protocol;
         this.supported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
 
         if (this.supported) {
-            navigator.serviceWorker.register("sw.js");
+            navigator.serviceWorker.register(this.serviceWorkerPath);
 
             return await this.verifyAndCacheManifest(manifestUrl);
         }
