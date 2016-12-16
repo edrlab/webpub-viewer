@@ -74,6 +74,11 @@ describe('ServiceWorkerCacher', () => {
             await cacher.start("https://example.com/manifest.json");
             expect(register.callCount).to.equal(1);
             expect(register.args[0][0]).to.equal("sw.js");
+
+            cacher = new ServiceWorkerCacher("../../../sw.js")
+            await cacher.start("https://example.com/manifest.json");
+            expect(register.callCount).to.equal(2);
+            expect(register.args[1][0]).to.equal("../../../sw.js");
         });
 
         it("should find a manifest that's already in the cache", async () => {
