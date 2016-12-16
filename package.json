@@ -13,7 +13,7 @@
     "clean": "rm -rf typings node_modules lib dist"
   },
   "dependencies": {
-    "isomorphic-fetch": "^2.2.1"
+    "whatwg-fetch": "^2.0.1"
   },
   "devDependencies": {
     "chai": "^3.5.0",
