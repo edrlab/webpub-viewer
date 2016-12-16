@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { stub } from "sinon";
+import * as jsdom from "jsdom";
 
 import ServiceWorkerCacher from "../src/ServiceWorkerCacher";
 import Manifest from "../src/Manifest";
@@ -54,6 +55,7 @@ describe('ServiceWorkerCacher', () => {
     };
 
     beforeEach(() => {
+        jsdom.changeURL(window, "https://example.com");
         mockNavigatorAPI();
     });
 
@@ -62,14 +64,14 @@ describe('ServiceWorkerCacher', () => {
             // window.caches is not defined here.
 
             let cacher = new ServiceWorkerCacher();
-            await cacher.start("http://example.com/manifest.json");
+            await cacher.start("https://example.com/manifest.json");
             expect(register.callCount).to.equal(0);
         });
 
         it("should register the service worker", async () => {
             mockCacheAPI("i'm in the cache");
             let cacher = new ServiceWorkerCacher();
-            await cacher.start("http://example.com/manifest.json");
+            await cacher.start("https://example.com/manifest.json");
             expect(register.callCount).to.equal(1);
             expect(register.args[0][0]).to.equal("sw.js");
         });
@@ -78,14 +80,14 @@ describe('ServiceWorkerCacher', () => {
             mockCacheAPI("i'm in the cache");
 
             let cacher = new ServiceWorkerCacher();
-            await cacher.start("http://example.com/manifest.json");
+            await cacher.start("https://example.com/manifest.json");
             // The manifest cache was opened.
             expect(open.callCount).to.equal(1);
-            expect(open.args[0][0]).to.equal("http://example.com/manifest.json");
+            expect(open.args[0][0]).to.equal("https://example.com/manifest.json");
 
             // The cache was checked for a match.
             expect(match.callCount).to.equal(1);
-            expect(match.args[0][0]).to.equal("http://example.com/manifest.json");
+            expect(match.args[0][0]).to.equal("https://example.com/manifest.json");
 
             // Nothing was added to the cache since the manifest was already there.
             expect(addAll.callCount).to.equal(0);
@@ -103,7 +105,7 @@ describe('ServiceWorkerCacher', () => {
                   { href: "resource-1.html" },
                   { href: "resource-2.html" }
               ]
-            }, "http://example.com/manifest.json");
+            }, "https://example.com/manifest.json");
 
             // A Cacher with a mock implementation of getManifest, which
             // is tested separately.
@@ -113,7 +115,7 @@ describe('ServiceWorkerCacher', () => {
                 }
             }
             let cacher = new MockCacher();
-            await cacher.start("http://example.com/manifest.json");
+            await cacher.start("https://example.com/manifest.json");
             let urlsThatWereCached: Array<string> = [];
             // Go through each call to addAll and aggregate the cached URLs.
             addAll.args.forEach((argsFromOneCallToAddAll: Array<Array<string>>) => {
@@ -121,12 +123,12 @@ describe('ServiceWorkerCacher', () => {
                 let urls = argsFromOneCallToAddAll[0];
                 urlsThatWereCached = urlsThatWereCached.concat(urls);
             });
-            expect(urlsThatWereCached).to.contain("http://example.com/manifest.json");
-            expect(urlsThatWereCached).to.contain("http://example.com/index.html");
-            expect(urlsThatWereCached).to.contain("http://example.com/spine-item-1.html");
-            expect(urlsThatWereCached).to.contain("http://example.com/spine-item-2.html");
-            expect(urlsThatWereCached).to.contain("http://example.com/resource-1.html");
-            expect(urlsThatWereCached).to.contain("http://example.com/resource-2.html");
+            expect(urlsThatWereCached).to.contain("https://example.com/manifest.json");
+            expect(urlsThatWereCached).to.contain("https://example.com/index.html");
+            expect(urlsThatWereCached).to.contain("https://example.com/spine-item-1.html");
+            expect(urlsThatWereCached).to.contain("https://example.com/spine-item-2.html");
+            expect(urlsThatWereCached).to.contain("https://example.com/resource-1.html");
+            expect(urlsThatWereCached).to.contain("https://example.com/resource-2.html");
         });
     });
 
@@ -136,7 +138,7 @@ describe('ServiceWorkerCacher', () => {
                 title: "Alice's Adventures in Wonderland"
             }
         };
-        let manifest = new Manifest(manifestJSON, "http://example.com/manifest.json");
+        let manifest = new Manifest(manifestJSON, "https://example.com/manifest.json");
 
         describe("if fetching the manifest fails", () => {
             let fetchFailure = new Promise((_, reject) => reject());
@@ -149,7 +151,7 @@ describe('ServiceWorkerCacher', () => {
                 mockLocalStorageAPI(JSON.stringify(manifestJSON));
 
                 let cacher = new ServiceWorkerCacher();
-                let response: Manifest = await cacher.getManifest("http://example.com/manifest.json");
+                let response: Manifest = await cacher.getManifest("https://example.com/manifest.json");
                 expect(response).to.deep.equal(manifest);
                 expect(getItem.callCount).to.equal(1);
             });
@@ -163,7 +165,7 @@ describe('ServiceWorkerCacher', () => {
                 mockCacheAPI(manifestResponse);
                 
                 let cacher = new ServiceWorkerCacher();
-                let response: Manifest = await cacher.getManifest("http://example.com/manifest.json");
+                let response: Manifest = await cacher.getManifest("https://example.com/manifest.json");
                 expect(response).to.deep.equal(manifest);
             });
         });
@@ -180,10 +182,10 @@ describe('ServiceWorkerCacher', () => {
             mockLocalStorageAPI();
 
             let cacher = new ServiceWorkerCacher();
-            let response: Manifest = await cacher.getManifest("http://example.com/manifest.json");
+            let response: Manifest = await cacher.getManifest("https://example.com/manifest.json");
             expect(response).to.deep.equal(manifest);
             expect(setItem.callCount).to.equal(1);
-            expect(setItem.args[0][0]).to.equal("http://example.com/manifest.json-manifest");
+            expect(setItem.args[0][0]).to.equal("https://example.com/manifest.json-manifest");
             expect(setItem.args[0][1]).to.equal(JSON.stringify(manifestJSON));
         });
     });

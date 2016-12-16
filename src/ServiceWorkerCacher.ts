@@ -8,7 +8,8 @@ export default class ServiceWorkerCacher implements Cacher {
     public constructor() {}
 
     public async start(manifestUrl: string): Promise<void> {
-        this.supported = !!navigator.serviceWorker && !!window.caches;
+        let protocol = window.location.protocol;
+        this.supported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
 
         if (this.supported) {
             navigator.serviceWorker.register("sw.js");
