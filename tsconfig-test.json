@@ -3,7 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "amd",
+    "module": "umd",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
@@ -11,7 +11,7 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outFile": "dist/webpub-viewer.js",
+    "outDir": "lib",
     "preserveConstEnums": true,
     "sourceMap": true,
     "strictNullChecks": true,
@@ -21,9 +21,7 @@
     "typings/index.d.ts"
   ],
   "include": [
-    "src/**/*"
-  ],
-  "exclude": [
-    "src/sw.ts"
+    "src/**/*",
+    "test/**/*"
   ]
 }

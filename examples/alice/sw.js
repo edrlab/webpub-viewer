@@ -1,1 +1,1 @@
-../../dist/src/sw.js
+../../dist/sw.js

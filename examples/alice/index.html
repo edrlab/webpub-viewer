@@ -5,12 +5,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="../../node_modules/requirejs/require.js"></script>
+  <script src="../../dist/webpub-viewer.js"></script>
 </head>
 <body style="margin: 0;">
   <div id="viewer">
   </div>
   <script>
-    require(['app.js']);
+    require(["WebpubViewer", "ServiceWorkerCacher", "IFrameNavigator"], function (WebpubViewer, ServiceWorkerCacher, IFrameNavigator) {
+      var element = document.getElementById("viewer");
+      var cacher = new ServiceWorkerCacher.default();
+      var navigator = new IFrameNavigator.default(cacher);
+      var viewer = new WebpubViewer.default(cacher, navigator);
+      viewer.start(element);
+    });
   </script>
 </body>
 </html>

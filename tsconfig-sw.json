@@ -11,7 +11,7 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outFile": "dist/webpub-viewer.js",
+    "outFile": "dist/sw.js",
     "preserveConstEnums": true,
     "sourceMap": true,
     "strictNullChecks": true,
@@ -21,9 +21,6 @@
     "typings/index.d.ts"
   ],
   "include": [
-    "src/**/*"
-  ],
-  "exclude": [
     "src/sw.ts"
   ]
 }
