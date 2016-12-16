@@ -20,7 +20,7 @@ describe("Manifest", () => {
                 { href: "spine-item-3.html" }
             ],
             resources: [
-                { href: "contents.html", rel: "contents" },
+                { href: "contents.html", rel: ["contents"] },
                 { href: "cover.jpg" }
             ]
         }, "http://example.com/manifest.json");
@@ -79,7 +79,7 @@ describe("Manifest", () => {
         it("should return toc from spine", () => {
             manifest = new Manifest({
                 spine: [
-                    { href: "toc.html", rel: "contents" },
+                    { href: "toc.html", rel: ["contents"] },
                     { href: "other-spine-item.html" }
                 ]
             }, "http://example.com/manifest.json");

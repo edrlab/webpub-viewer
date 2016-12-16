@@ -28,7 +28,7 @@ describe("IFrameNavigator", () => {
             { href: "item-2.html" }
         ],
         resources: [
-            { rel: "contents", href: "toc.html" }
+            { rel: ["contents"], href: "toc.html" }
         ]
     }, "http://example.com/manifest.json");
 
