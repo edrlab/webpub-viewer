@@ -1,7 +1,8 @@
 const CACHE_NAME = "webpub-viewer";
 
 const urlsToCache: any = [
-    "../../dist/webpub-viewer.js",
+    "require.js",
+    "webpub-viewer.js"
 ];
 
 self.addEventListener('install', event => {

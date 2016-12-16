@@ -7,7 +7,7 @@ export interface Metadata {
 }
 
 export interface Link {
-    rel?: string;
+    rel?: Array<string>;
     href?: string;
     type?: string;
     title?: string;
@@ -38,8 +38,12 @@ export default class Manifest {
     public getTOCLink(): Link | null {
         let allResources = this.spine.concat(this.resources);
         for (let link of allResources) {
-            if (link.rel === "contents") {
-                return link;
+            if (link.rel) {
+                for (let rel of link.rel) {
+                    if (rel === "contents") {
+                        return link;
+                    }
+                }
             }
         }
         return null;
