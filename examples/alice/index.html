@@ -7,6 +7,26 @@
   <script src="../../node_modules/requirejs/require.js"></script>
   <script src="../../node_modules/whatwg-fetch/fetch.js"></script>
   <script src="../../dist/webpub-viewer.js"></script>
+  <style>
+    .controls {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 100%;
+      background-color: rgb(221, 221, 221);
+      height: 2em;
+    }
+    .controls ul {
+      list-style-type: none;
+      text-align: center;
+      margin: 0;
+      padding: 2px;
+    }
+    .controls ul li {
+      float: left;
+      margin: 10px;
+    }
+  </style>
 </head>
 <body style="margin: 0;">
   <div id="viewer">

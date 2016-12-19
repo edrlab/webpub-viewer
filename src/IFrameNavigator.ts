@@ -5,13 +5,13 @@ import Manifest from "./Manifest";
 
 const TEMPLATE = `
   <nav class="publication">
-    <div class="controls" style="display: flex; position: fixed; top: 0px; right: 0px; width: 100%; background-color: rgb(221, 221, 221); height: 2em;">
-      <p class="links" style="flex: 1 1 0%; text-align: center; margin: 0px; padding: 2px">
-        <a rel="start">Start</a>
-      </p>
-      <p style="flex: 1 1 0%; text-align: center; margin: 0px; padding: 2px">
-        <a rel="prev">&lt; Previous</a>&nbsp;&nbsp;<a rel="next">Next &gt;</a>
-      </p>
+    <div class="controls">
+      <ul class="links">
+        <li><a rel="start" class="disabled">Start</a></li>
+        <li><a rel="contents" class="disabled">Contents</a></li>
+        <li><a rel="prev" class="disabled">Previous Chapter</a></li>
+        <li><a rel="next" class="disabled">Next Chapter</a></li>
+      </ul>
     </div>
   </nav>
   <main>
@@ -24,10 +24,10 @@ export default class IFrameNavigator implements Navigator {
     private cacher: Cacher;
     private annotator: Annotator | null;
     private iframe: HTMLIFrameElement;
-    private links: Element;
     private nextLink: HTMLAnchorElement;
     private previousLink: HTMLAnchorElement;
     private startLink: HTMLAnchorElement;
+    private contentsLink: HTMLAnchorElement;
     private navigation: Element;
 
     public constructor(cacher: Cacher, annotator: Annotator | null = null) {
@@ -38,25 +38,26 @@ export default class IFrameNavigator implements Navigator {
     public async start(element: HTMLElement, manifestUrl: string): Promise<void> {
         element.innerHTML = TEMPLATE;
         let iframe = element.querySelector("iframe");
-        let links = element.querySelector("p[class=links]");
         let nextLink = element.querySelector("a[rel=next]");
         let previousLink = element.querySelector("a[rel=prev]");
         let startLink = element.querySelector("a[rel=start]");
+        let contentsLink = element.querySelector("a[rel=contents]");
         let navigation = element.querySelector("div[class=controls]");
 
-        if (!iframe || !links || !nextLink || !previousLink || !startLink || !navigation ||
+        if (!iframe || !nextLink || !previousLink || !startLink || !contentsLink || !navigation ||
             !(nextLink instanceof HTMLAnchorElement) ||
             !(previousLink instanceof HTMLAnchorElement) ||
-            !(startLink instanceof HTMLAnchorElement)) {
+            !(startLink instanceof HTMLAnchorElement) ||
+            !(contentsLink instanceof HTMLAnchorElement)) {
             // There's a mismatch between the template and the selectors above,
             // or we weren't able to insert the template in the element.
             return new Promise<void>((_, reject) => reject());
         } else {
             this.iframe = iframe;
-            this.links = links;
             this.nextLink = nextLink;
             this.previousLink = previousLink;
             this.startLink = startLink;
+            this.contentsLink = contentsLink;
             this.navigation = navigation;
             return await this.setupEventsAndLoad(manifestUrl);
         }
@@ -73,15 +74,19 @@ export default class IFrameNavigator implements Navigator {
             let previous = manifest.getPreviousSpineItem(currentLocation);
             if (previous && previous.href) {
                 this.previousLink.href = new URL(previous.href, manifestUrl).href;
+                this.previousLink.className = "";
             } else {
                 this.previousLink.removeAttribute("href");
+                this.previousLink.className = "disabled";
             }
 
             let next = manifest.getNextSpineItem(currentLocation);
             if (next && next.href) {
                 this.nextLink.href = new URL(next.href, manifestUrl).href;
+                this.nextLink.className = "";
             } else {
                 this.nextLink.removeAttribute("href");
+                this.nextLink.className = "disabled";
             }
 
             if (this.annotator) {
@@ -114,14 +119,11 @@ export default class IFrameNavigator implements Navigator {
 
         let tocLink = manifest.getTOCLink();
         if (tocLink && tocLink.href) {
-            let toc = document.createElement("a")
-            toc.href = new URL(tocLink.href, manifestUrl).href;
-            toc.rel = "contents";
-            toc.textContent = "Contents";
-            this.links.appendChild(document.createTextNode("\u00A0"));
-            this.links.appendChild(toc);
-            toc.addEventListener("click", (event: Event) => {
-                this.navigate(toc.href);
+            var href = new URL(tocLink.href, manifestUrl).href;
+            this.contentsLink.href = href;
+            this.contentsLink.className = "";
+            this.contentsLink.addEventListener("click", (event: Event) => {
+                this.navigate(this.contentsLink.href);
                 event.preventDefault();
             });
         }
@@ -131,6 +133,7 @@ export default class IFrameNavigator implements Navigator {
         if (startLink && startLink.href) {
             startUrl = new URL(startLink.href, manifestUrl).href;
             this.startLink.href = startUrl;
+            this.startLink.className = "";
         }
 
         let lastReadingPosition: string | null = null;
