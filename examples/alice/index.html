@@ -30,10 +30,11 @@
   <div id="viewer">
   </div>
   <script>
-    require(["WebpubViewer", "ServiceWorkerCacher", "IFrameNavigator"], function (WebpubViewer, ServiceWorkerCacher, IFrameNavigator) {
+    require(["WebpubViewer", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginator"], function (WebpubViewer, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginator) {
       var element = document.getElementById("viewer");
       var cacher = new ServiceWorkerCacher.default();
-      var navigator = new IFrameNavigator.default(cacher);
+      var paginator = new ColumnsPaginator.default();
+      var navigator = new IFrameNavigator.default(cacher, paginator);
       var viewer = new WebpubViewer.default(cacher, navigator);
       viewer.start(element);
     });

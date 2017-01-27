@@ -1,9 +1,10 @@
 import Navigator from "./Navigator";
 import Cacher from "./Cacher";
+import Paginator from "./Paginator";
 import Annotator from "./Annotator";
 import Manifest from "./Manifest";
 
-const TEMPLATE = `
+let template = (paginationControls: string) => `
   <nav class="publication">
     <div class="controls">
       <ul class="links" style="z-index: 2000;">
@@ -12,11 +13,7 @@ const TEMPLATE = `
         <li><a rel="prev" class="disabled">Previous Chapter</a></li>
         <li><a rel="next" class="disabled">Next Chapter</a></li>
       </ul>
-      <div class="page-controls" style="-webkit-tap-highlight-color: transparent;">
-        <div class="previous-page" style="position: fixed; top: 0; left: 0; width: 30%; height: 100%; z-index: 1000;"></div>
-        <div class="links-toggle" style="position: fixed; top: 0; left: 30%; width: 40%; height: 100%; z-index: 1000;"></div>
-        <div class="next-page" style="position: fixed; top: 0; left: 70%; width: 30%; height: 100%; z-index: 1000;"></div>
-      </div>
+      ${paginationControls}
     </div>
   </nav>
   <main style="overflow: hidden">
@@ -24,9 +21,22 @@ const TEMPLATE = `
   </main>
 `;
 
+const PAGINATION_CONTROLS = `
+    <div class="page-controls" style="-webkit-tap-highlight-color: transparent;">
+        <div class="previous-page" style="position: fixed; top: 0; left: 0; width: 30%; height: 100%; z-index: 1000;"></div>
+        <div class="links-toggle" style="position: fixed; top: 0; left: 30%; width: 40%; height: 100%; z-index: 1000;"></div>
+        <div class="next-page" style="position: fixed; top: 0; left: 70%; width: 30%; height: 100%; z-index: 1000;"></div>
+    </div>
+`;
+
+const HTML_WITH_PAGINATOR = template(PAGINATION_CONTROLS);
+const HTML_WITHOUT_PAGINATOR = template("");
+
+
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
 export default class IFrameNavigator implements Navigator {
     private cacher: Cacher;
+    private paginator: Paginator | null;
     private annotator: Annotator | null;
     private iframe: HTMLIFrameElement;
     private nextChapterLink: HTMLAnchorElement;
@@ -35,18 +45,25 @@ export default class IFrameNavigator implements Navigator {
     private contentsLink: HTMLAnchorElement;
     private navigation: Element;
     private links: Element;
-    private linksToggle: Element;
-    private previousPageLink: Element;
-    private nextPageLink: Element;
+    private linksToggle: Element | null;
+    private previousPageLink: Element | null;
+    private nextPageLink: Element | null;
     private goingToLastPage: boolean;
 
-    public constructor(cacher: Cacher, annotator: Annotator | null = null) {
+    public constructor(cacher: Cacher, paginator: Paginator | null = null, annotator: Annotator | null = null) {
         this.cacher = cacher;
+        this.paginator = paginator;
         this.annotator = annotator;
     }
 
     public async start(element: HTMLElement, manifestUrl: string): Promise<void> {
-        element.innerHTML = TEMPLATE;
+        let html;
+        if (this.paginator) {
+            html = HTML_WITH_PAGINATOR;
+        } else {
+            html = HTML_WITHOUT_PAGINATOR;
+        }
+        element.innerHTML = html;
         let iframe = element.querySelector("iframe");
         let nextChapterLink = element.querySelector("a[rel=next]");
         let previousChapterLink = element.querySelector("a[rel=prev]");
@@ -59,8 +76,10 @@ export default class IFrameNavigator implements Navigator {
         let nextPageLink = element.querySelector("div[class=next-page]");
 
         if (!iframe || !nextChapterLink || !previousChapterLink ||
-            !startLink || !contentsLink || !navigation ||
-            !links || !linksToggle || !previousPageLink || !nextPageLink ||
+            !startLink || !contentsLink || !navigation || !links ||
+            (this.paginator && !linksToggle) ||
+            (this.paginator && !previousPageLink) ||
+            (this.paginator && !nextPageLink) ||
             !(nextChapterLink instanceof HTMLAnchorElement) ||
             !(previousChapterLink instanceof HTMLAnchorElement) ||
             !(startLink instanceof HTMLAnchorElement) ||
@@ -86,37 +105,10 @@ export default class IFrameNavigator implements Navigator {
 
     private async setupEventsAndLoad(manifestUrl: string): Promise<void> {
         this.iframe.addEventListener("load", async () => {
-            this.iframe.contentDocument.body.style.columnCount = 1;
-            (this.iframe.contentDocument.body.style as any).WebkitColumnCount = 1;
-            (this.iframe.contentDocument.body.style as any).MozColumnCount = 1;
-            this.iframe.contentDocument.body.style.columnGap = 0;
-            (this.iframe.contentDocument.body.style as any).WebkitColumnGap = 0;
-            (this.iframe.contentDocument.body.style as any).MozColumnGap = 0;
-            this.iframe.contentDocument.body.style.columnWidth = this.iframe.style.width;
-            (this.iframe.contentDocument.body.style as any).WebkitColumnWidth = this.iframe.style.width;
-            (this.iframe.contentDocument.body.style as any).MozColumnWidth = this.iframe.style.width;
-            this.iframe.contentDocument.body.style.columnFill = "auto";
-            (this.iframe.contentDocument.body.style as any).WebkitColumnFill = "auto";
-            (this.iframe.contentDocument.body.style as any).MozColumnFill = "auto";
-            this.iframe.contentDocument.body.style.height = this.iframe.style.height;
-            this.iframe.contentDocument.body.style.width = this.iframe.style.width;
-            this.iframe.contentDocument.body.style.overflow = "hidden";
-            this.iframe.contentDocument.body.style.margin = "0";
-            this.iframe.contentDocument.body.style.position = "relative";
-            let viewportElement = document.createElement("meta");
-            viewportElement.name = "viewport";
-            viewportElement.content = "width=device-width, initial-scale=1, maximum-scale=1";
-            (this.iframe.contentDocument.querySelector("head") as any).appendChild(viewportElement);
-
-            if (this.goingToLastPage) {
-                let width = this.iframe.contentDocument.body.offsetWidth;
-                let scrollWidth = this.iframe.contentDocument.body.scrollWidth;
-                let newPosition = scrollWidth - width;
-                this.iframe.contentDocument.body.style.left = -newPosition + "px";
-            } else {
-                this.iframe.contentDocument.body.style.left = "0px";
+            if (this.paginator) {
+                await this.paginator.start(this.iframe, this.goingToLastPage);
+                this.goingToLastPage = false;
             }
-            this.goingToLastPage = false;
 
             let manifest = await this.cacher.getManifest(manifestUrl);
             let currentLocation = this.iframe.src;
@@ -147,65 +139,63 @@ export default class IFrameNavigator implements Navigator {
             }
         });
 
-        this.linksToggle.addEventListener("click", (event: any) => {
-            event.preventDefault();
-            let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY);
-            let tag = iframeElement.tagName;
-            if (tag === "a") {
-                let newEvent = new (event.constructor as any)(event.type, event);
-                iframeElement.dispatchEvent(newEvent)
-            } else {
-                let display: string = (this.links as any).style.display;
-                if (display === "none") {
-                    (this.links as any).style.display = "block";
-                } else {
-                    (this.links as any).style.display = "none";
-                }
-            }
-        });
+        if (this.paginator && this.linksToggle && this.previousPageLink && this.nextPageLink) {
+            let paginator: Paginator = this.paginator;
 
-        this.previousPageLink.addEventListener("click", (event: any) => {
-            event.preventDefault();
-            let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY);
-            let tag = iframeElement.tagName;
-            if (tag === "a") {
-                let newEvent = new (event.constructor as any)(event.type, event);
-                iframeElement.dispatchEvent(newEvent)
-            } else {
-                let position = -(this.iframe.contentDocument.body.style.left as any).slice(0, -2);
-                let width = this.iframe.contentDocument.body.offsetWidth;
-                let newPosition = position - width;
-                if (newPosition < 0) {
-                    if (this.previousChapterLink.hasAttribute("href")) {
-                        this.navigate(this.previousChapterLink.href, true);
-                    }
+            this.linksToggle.addEventListener("click", (event: any) => {
+                event.preventDefault();
+                let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY);
+                let tag = iframeElement.tagName;
+                if (tag.toLowerCase() === "a") {
+                    let newEvent = new (event.constructor as any)(event.type, event);
+                    iframeElement.dispatchEvent(newEvent)
                 } else {
-                    this.iframe.contentDocument.body.style.left = -newPosition + "px";
+                    let display: string = (this.links as any).style.display;
+                    if (display === "none") {
+                        (this.links as any).style.display = "block";
+                    } else {
+                        (this.links as any).style.display = "none";
+                    }
                 }
-            }
-        });
+            });
 
-        this.nextPageLink.addEventListener("click", (event: any) => {
-            event.preventDefault();
-            let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY);
-            let tag = iframeElement.tagName;
-            if (tag === "a") {
-                let newEvent = new (event.constructor as any)(event.type, event);
-                iframeElement.dispatchEvent(newEvent)
-            } else {
-                let position = -(this.iframe.contentDocument.body.style.left as any).slice(0, -2);
-                let width = this.iframe.contentDocument.body.offsetWidth;
-                let maxPosition = position + this.iframe.contentDocument.body.scrollWidth;
-                let newPosition = position + width;
-                if (newPosition >= maxPosition) {
-                    if (this.nextChapterLink.hasAttribute("href")) {
-                        this.navigate(this.nextChapterLink.href);
-                    }
+            this.previousPageLink.addEventListener("click", (event: any) => {
+                event.preventDefault();
+                let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY);
+                let tag = iframeElement.tagName;
+                if (tag.toLowerCase() === "a") {
+                    let newEvent = new (event.constructor as any)(event.type, event);
+                    iframeElement.dispatchEvent(newEvent)
                 } else {
-                    this.iframe.contentDocument.body.style.left = -newPosition + "px";
+                    if (paginator.onFirstPage()) {
+                        if (this.previousChapterLink.hasAttribute("href")) {
+                            this.navigate(this.previousChapterLink.href, true);
+                        }
+                    } else {
+                        paginator.goToPreviousPage();
+                    }
                 }
-            }
-        });
+            });
+
+            this.nextPageLink.addEventListener("click", (event: any) => {
+                event.preventDefault();
+                let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY);
+                let tag = iframeElement.tagName;
+                if (tag.toLowerCase() === "a") {
+                    let newEvent = new (event.constructor as any)(event.type, event);
+                    iframeElement.dispatchEvent(newEvent)
+                } else {
+                    if (paginator.onLastPage()) {
+                        if (this.nextChapterLink.hasAttribute("href")) {
+                            this.navigate(this.nextChapterLink.href);
+                        }
+                    } else {
+                        paginator.goToNextPage();
+                    }
+                }
+            });
+
+        }
 
         this.previousChapterLink.addEventListener("click", (event: Event) => {
             if (this.previousChapterLink.hasAttribute("href")) {
@@ -264,9 +254,9 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private navigate(url: string, toLastPage: boolean = false): void {
+        this.goingToLastPage = toLastPage;
         this.iframe.src = url;
         this.iframe.style.height = window.innerHeight + "px";
         this.iframe.style.width = document.body.offsetWidth + "px";
-        this.goingToLastPage = toLastPage;
     }
 }
