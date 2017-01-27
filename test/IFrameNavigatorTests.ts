@@ -357,5 +357,19 @@ describe("IFrameNavigator", () => {
             expect(paginatorStart.args[3][0]).to.equal(iframe);
             expect(paginatorStart.args[3][1]).to.equal(false);
         });
+
+        it("should show loading message while iframe is loading", async () => {
+            await navigator.start(element, "http://example.com/manifest.json");
+            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            let loading = element.querySelector("div[class=loading]") as any;
+            let next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+            click(next);
+            expect(loading.style.display).not.to.equal("none");
+            await pause();
+            expect(loading.style.display).to.equal("none");
+        });
     });
 });

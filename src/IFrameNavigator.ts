@@ -17,6 +17,7 @@ let template = (paginationControls: string) => `
     </div>
   </nav>
   <main style="overflow: hidden">
+    <div class="loading" style="display:none;">Loading</div>
     <iframe style="border:0; width:100%; overflow: hidden;"></iframe>
   </main>
 `;
@@ -48,6 +49,7 @@ export default class IFrameNavigator implements Navigator {
     private linksToggle: Element | null;
     private previousPageLink: Element | null;
     private nextPageLink: Element | null;
+    private loading: Element;
     private goingToLastPage: boolean;
 
     public constructor(cacher: Cacher, paginator: Paginator | null = null, annotator: Annotator | null = null) {
@@ -74,9 +76,11 @@ export default class IFrameNavigator implements Navigator {
         let linksToggle = element.querySelector("div[class=links-toggle]");
         let previousPageLink = element.querySelector("div[class=previous-page]");
         let nextPageLink = element.querySelector("div[class=next-page]");
+        let loading = element.querySelector("div[class=loading]");
 
         if (!iframe || !nextChapterLink || !previousChapterLink ||
             !startLink || !contentsLink || !navigation || !links ||
+            !loading ||
             (this.paginator && !linksToggle) ||
             (this.paginator && !previousPageLink) ||
             (this.paginator && !nextPageLink) ||
@@ -98,6 +102,7 @@ export default class IFrameNavigator implements Navigator {
             this.linksToggle = linksToggle;
             this.previousPageLink = previousPageLink;
             this.nextPageLink = nextPageLink;
+            this.loading = loading;
             this.goingToLastPage = false;
             return await this.setupEventsAndLoad(manifestUrl);
         }
@@ -105,6 +110,7 @@ export default class IFrameNavigator implements Navigator {
 
     private async setupEventsAndLoad(manifestUrl: string): Promise<void> {
         this.iframe.addEventListener("load", async () => {
+            (this.loading as any).style.display = "block";
             if (this.paginator) {
                 await this.paginator.start(this.iframe, this.goingToLastPage);
                 this.goingToLastPage = false;
@@ -137,6 +143,7 @@ export default class IFrameNavigator implements Navigator {
             if (this.annotator) {
                 await this.annotator.saveLastReadingPosition(currentLocation);
             }
+            (this.loading as any).style.display = "none";
         });
 
         if (this.paginator && this.linksToggle && this.previousPageLink && this.nextPageLink) {
@@ -259,6 +266,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private navigate(url: string, toLastPage: boolean = false): void {
+        (this.loading as any).style.display = "block";
         this.goingToLastPage = toLastPage;
         this.iframe.src = url;
         this.iframe.style.height = window.innerHeight + "px";
