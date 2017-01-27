@@ -142,14 +142,29 @@ export default class IFrameNavigator implements Navigator {
         if (this.paginator && this.linksToggle && this.previousPageLink && this.nextPageLink) {
             let paginator: Paginator = this.paginator;
 
-            this.linksToggle.addEventListener("click", (event: any) => {
-                event.preventDefault();
-                let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY);
+            let checkForLink = (event: any): boolean => {
+                let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY) as any;
                 let tag = iframeElement.tagName;
                 if (tag.toLowerCase() === "a") {
-                    let newEvent = new (event.constructor as any)(event.type, event);
-                    iframeElement.dispatchEvent(newEvent)
-                } else {
+                    let isSameOrigin = (
+                        window.location.protocol === iframeElement.protocol &&
+                        window.location.port === iframeElement.port &&
+                        window.location.hostname == iframeElement.hostname
+                    );
+                    if (isSameOrigin) { 
+                        let newEvent = new (event.constructor as any)(event.type, event);
+                        iframeElement.dispatchEvent(newEvent);
+                    } else {
+                        window.open(iframeElement.href, "_blank");
+                    }
+                    return true;
+                }
+                return false;
+            };
+
+            this.linksToggle.addEventListener("click", (event: any) => {
+                event.preventDefault();
+                if (!checkForLink(event)) {
                     let display: string = (this.links as any).style.display;
                     if (display === "none") {
                         (this.links as any).style.display = "block";
@@ -161,12 +176,7 @@ export default class IFrameNavigator implements Navigator {
 
             this.previousPageLink.addEventListener("click", (event: any) => {
                 event.preventDefault();
-                let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY);
-                let tag = iframeElement.tagName;
-                if (tag.toLowerCase() === "a") {
-                    let newEvent = new (event.constructor as any)(event.type, event);
-                    iframeElement.dispatchEvent(newEvent)
-                } else {
+                if (!checkForLink(event)) {
                     if (paginator.onFirstPage()) {
                         if (this.previousChapterLink.hasAttribute("href")) {
                             this.navigate(this.previousChapterLink.href, true);
@@ -179,12 +189,7 @@ export default class IFrameNavigator implements Navigator {
 
             this.nextPageLink.addEventListener("click", (event: any) => {
                 event.preventDefault();
-                let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY);
-                let tag = iframeElement.tagName;
-                if (tag.toLowerCase() === "a") {
-                    let newEvent = new (event.constructor as any)(event.type, event);
-                    iframeElement.dispatchEvent(newEvent)
-                } else {
+                if (!checkForLink(event)) {
                     if (paginator.onLastPage()) {
                         if (this.nextChapterLink.hasAttribute("href")) {
                             this.navigate(this.nextChapterLink.href);

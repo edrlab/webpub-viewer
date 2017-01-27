@@ -20,6 +20,9 @@ describe("IFrameNavigator", () => {
 
     let element: HTMLElement;
     let navigator: IFrameNavigator;
+    let span: HTMLElement;
+    let link: HTMLAnchorElement;
+    let linkClicked: Sinon.SinonStub;
 
     class MockCacher implements Cacher {
         public start() {
@@ -101,6 +104,15 @@ describe("IFrameNavigator", () => {
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
         navigator = new IFrameNavigator(cacher, paginator);
+
+        span = window.document.createElement("span");
+        link = window.document.createElement("a");
+        link.href = "http://example.com";
+        link.protocol = "http";
+        link.port = "";
+        link.hostname = "example.com";
+        linkClicked = stub();
+        link.addEventListener("click", linkClicked);
     });
 
     describe("#start", () => {
@@ -218,6 +230,7 @@ describe("IFrameNavigator", () => {
         });
 
         it("should toggle the navigation links", async () => {
+            jsdom.changeURL(window, "http://example.com");
             await navigator.start(element, "http://example.com/manifest.json");
             let links = element.querySelector("ul[class=links]");
             let toggleElement = element.querySelector("div[class=links-toggle]");
@@ -226,16 +239,20 @@ describe("IFrameNavigator", () => {
             expect((links as any).style.display).not.to.equal("none");
 
             let iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            let link = window.document.createElement("a");
-            let linkClicked = stub();
-            link.addEventListener("click", linkClicked);
-            let span = window.document.createElement("span");
 
             // If you click a link in the iframe, it doesn't toggle the links.
             iframe.contentDocument.elementFromPoint = stub().returns(link);
             click(toggleElement);
             expect(linkClicked.callCount).to.equal(1);
             expect((links as any).style.display).not.to.equal("none");
+
+            // If the link is on a different origin, it opens in a new window.
+            let openStub = stub(window, "open");
+            link.hostname = "anotherexample.com";
+            click(toggleElement);
+            expect(linkClicked.callCount).to.equal(1);
+            expect(openStub.callCount).to.equal(1);
+            openStub.restore();
 
             // But if you click somewhere else, it does.
             iframe.contentDocument.elementFromPoint = stub().returns(span);
@@ -246,14 +263,11 @@ describe("IFrameNavigator", () => {
         });
 
         it("should go to previous page", async () => {
+            jsdom.changeURL(window, "http://example.com");
             await navigator.start(element, "http://example.com/manifest.json");
             let previousPageElement = element.querySelector("div[class=previous-page]");
             
             let iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            let link = window.document.createElement("a");
-            let linkClicked = stub();
-            link.addEventListener("click", linkClicked);
-            let span = window.document.createElement("span");
 
             // If you click a link in the iframe, it doesn't change the page.
             iframe.contentDocument.elementFromPoint = stub().returns(link);
@@ -295,14 +309,11 @@ describe("IFrameNavigator", () => {
         });
 
         it("should go to next page", async () => {
+            jsdom.changeURL(window, "http://example.com");
             await navigator.start(element, "http://example.com/manifest.json");
             let nextPageElement = element.querySelector("div[class=next-page]");
             
             let iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            let link = window.document.createElement("a");
-            let linkClicked = stub();
-            link.addEventListener("click", linkClicked);
-            let span = window.document.createElement("span");
 
             // If you click a link in the iframe, it doesn't change the page.
             iframe.contentDocument.elementFromPoint = stub().returns(link);
