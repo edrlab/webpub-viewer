@@ -150,7 +150,9 @@ export default class IFrameNavigator implements Navigator {
             let paginator: Paginator = this.paginator;
 
             let checkForLink = (event: any): boolean => {
-                let iframeElement = this.iframe.contentDocument.elementFromPoint(event.clientX, event.clientY) as any;
+                let x = event.clientX;
+                let y = event.clientY - parseInt((this.iframe.style as any).marginTop.slice(0, -2), 10);
+                let iframeElement = this.iframe.contentDocument.elementFromPoint(x, y) as any;
                 let tag = iframeElement.tagName;
                 if (tag.toLowerCase() === "a") {
                     let isSameOrigin = (
@@ -269,7 +271,12 @@ export default class IFrameNavigator implements Navigator {
         (this.loading as any).style.display = "block";
         this.goingToLastPage = toLastPage;
         this.iframe.src = url;
-        this.iframe.style.height = window.innerHeight + "px";
+        let topMargin = 0;
+        if (!this.paginator) {
+            topMargin = (this.links as any).clientHeight;
+        }
+        this.iframe.style.height = (window.innerHeight - topMargin) + "px";
+        this.iframe.style.marginTop = topMargin + "px";
         this.iframe.style.width = document.body.offsetWidth + "px";
     }
 }

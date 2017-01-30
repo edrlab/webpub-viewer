@@ -371,5 +371,26 @@ describe("IFrameNavigator", () => {
             await pause();
             expect(loading.style.display).to.equal("none");
         });
+
+        it("should set iframe margin", async () => {
+            await navigator.start(element, "http://example.com/manifest.json");
+            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
+
+            // The margin is 0 if there's a paginator.
+            expect(iframe.style.marginTop).to.equal("0px");
+
+            // Without a paginator, the margin is determined by the height of the links.
+            navigator = new IFrameNavigator(cacher);
+            await navigator.start(element, "http://example.com/manifest.json");
+
+            let links = element.querySelector("ul[class=links]") as any;
+            links.clientHeight = 10;
+            iframe = element.querySelector("iframe") as HTMLIFrameElement;
+
+            let next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
+            click(next);
+            await pause();
+            expect(iframe.style.marginTop).to.equal("10px");
+        });
     });
 });
