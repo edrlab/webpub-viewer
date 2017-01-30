@@ -34,8 +34,8 @@ describe("IFrameNavigator", () => {
     }
 
     class MockPaginator implements Paginator {
-        public start(element: HTMLElement, goingToLastPage: boolean = false) {
-            return paginatorStart(element, goingToLastPage);
+        public start(element: HTMLElement, position: number) {
+            return paginatorStart(element, position);
         }
         public getCurrentPosition() {
             return 1;
@@ -147,7 +147,7 @@ describe("IFrameNavigator", () => {
             expect(paginatorStart.callCount).to.equal(1);
             let iframe = element.querySelector("iframe") as HTMLIFrameElement;
             expect(paginatorStart.args[0][0]).to.equal(iframe);
-            expect(paginatorStart.args[0][1]).to.equal(false);
+            expect(paginatorStart.args[0][1]).to.equal(0);
         });
 
         it("should load first spine item in the iframe", async () => {
@@ -305,7 +305,7 @@ describe("IFrameNavigator", () => {
             await pause();
             expect(paginatorStart.callCount).to.equal(3);
             expect(paginatorStart.args[2][0]).to.equal(iframe);
-            expect(paginatorStart.args[2][1]).to.equal(true);
+            expect(paginatorStart.args[2][1]).to.equal(1);
         });
 
         it("should go to next page", async () => {
@@ -355,7 +355,7 @@ describe("IFrameNavigator", () => {
             await pause();
             expect(paginatorStart.callCount).to.equal(4);
             expect(paginatorStart.args[3][0]).to.equal(iframe);
-            expect(paginatorStart.args[3][1]).to.equal(false);
+            expect(paginatorStart.args[3][1]).to.equal(0);
         });
 
         it("should show loading message while iframe is loading", async () => {

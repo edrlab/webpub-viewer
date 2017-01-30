@@ -1,5 +1,5 @@
 interface Paginator {
-    start(element: Element, goingToLastPage: boolean): Promise<void>;
+    start(element: Element, position: number): Promise<void>;
     getCurrentPosition(): number;
     onFirstPage(): boolean;
     onLastPage(): boolean;

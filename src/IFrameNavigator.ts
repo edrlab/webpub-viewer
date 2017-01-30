@@ -33,6 +33,10 @@ const PAGINATION_CONTROLS = `
 const HTML_WITH_PAGINATOR = template(PAGINATION_CONTROLS);
 const HTML_WITHOUT_PAGINATOR = template("");
 
+interface ReadingPosition {
+    resource: string;
+    position: number;
+}
 
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
 export default class IFrameNavigator implements Navigator {
@@ -50,7 +54,7 @@ export default class IFrameNavigator implements Navigator {
     private previousPageLink: Element | null;
     private nextPageLink: Element | null;
     private loading: Element;
-    private goingToLastPage: boolean;
+    private newPosition: ReadingPosition | null;
 
     public constructor(cacher: Cacher, paginator: Paginator | null = null, annotator: Annotator | null = null) {
         this.cacher = cacher;
@@ -103,7 +107,7 @@ export default class IFrameNavigator implements Navigator {
             this.previousPageLink = previousPageLink;
             this.nextPageLink = nextPageLink;
             this.loading = loading;
-            this.goingToLastPage = false;
+            this.newPosition = null;
             return await this.setupEventsAndLoad(manifestUrl);
         }
     }
@@ -112,8 +116,12 @@ export default class IFrameNavigator implements Navigator {
         this.iframe.addEventListener("load", async () => {
             (this.loading as any).style.display = "block";
             if (this.paginator) {
-                await this.paginator.start(this.iframe, this.goingToLastPage);
-                this.goingToLastPage = false;
+                let paginatorPosition = 0;
+                if (this.newPosition) {
+                    paginatorPosition = this.newPosition.position;
+                }
+                await this.paginator.start(this.iframe, paginatorPosition);
+                this.newPosition = null;
             }
 
             let manifest = await this.cacher.getManifest(manifestUrl);
@@ -141,7 +149,7 @@ export default class IFrameNavigator implements Navigator {
             }
 
             if (this.annotator) {
-                await this.annotator.saveLastReadingPosition(currentLocation);
+                await this.saveReadingPosition();
             }
             (this.loading as any).style.display = "none";
         });
@@ -188,10 +196,15 @@ export default class IFrameNavigator implements Navigator {
                 if (!checkForLink(event)) {
                     if (paginator.onFirstPage()) {
                         if (this.previousChapterLink.hasAttribute("href")) {
-                            this.navigate(this.previousChapterLink.href, true);
+                            let position = {
+                                resource: this.previousChapterLink.href,
+                                position: 1
+                            };
+                            this.navigate(position);
                         }
                     } else {
                         paginator.goToPreviousPage();
+                        this.saveReadingPosition();
                     }
                 }
             });
@@ -201,10 +214,15 @@ export default class IFrameNavigator implements Navigator {
                 if (!checkForLink(event)) {
                     if (paginator.onLastPage()) {
                         if (this.nextChapterLink.hasAttribute("href")) {
-                            this.navigate(this.nextChapterLink.href);
+                            let position = {
+                                resource: this.nextChapterLink.href,
+                                position: 0
+                            };
+                            this.navigate(position);
                         }
                     } else {
                         paginator.goToNextPage();
+                        this.saveReadingPosition();
                     }
                 }
             });
@@ -213,21 +231,33 @@ export default class IFrameNavigator implements Navigator {
 
         this.previousChapterLink.addEventListener("click", (event: Event) => {
             if (this.previousChapterLink.hasAttribute("href")) {
-                this.navigate(this.previousChapterLink.href);
+                let position = {
+                    resource: this.previousChapterLink.href,
+                    position: 0
+                }
+                this.navigate(position);
             }
             event.preventDefault();
         });
 
         this.nextChapterLink.addEventListener("click", (event: Event) => {
             if (this.nextChapterLink.hasAttribute("href")) {
-                this.navigate(this.nextChapterLink.href);
+                let position = {
+                    resource: this.nextChapterLink.href,
+                    position: 0
+                };
+                this.navigate(position);
             }
             event.preventDefault();
         });
 
         this.startLink.addEventListener("click", (event: Event) => {
             if (this.startLink.hasAttribute("href")) {
-                this.navigate(this.startLink.href);
+                let position = {
+                    resource: this.startLink.href,
+                    position: 0
+                };
+                this.navigate(position);
             }
             event.preventDefault();
         });
@@ -240,7 +270,11 @@ export default class IFrameNavigator implements Navigator {
             this.contentsLink.href = href;
             this.contentsLink.className = "";
             this.contentsLink.addEventListener("click", (event: Event) => {
-                this.navigate(this.contentsLink.href);
+                let position = {
+                    resource: this.contentsLink.href,
+                    position: 0
+                };
+                this.navigate(position);
                 event.preventDefault();
             });
         }
@@ -253,24 +287,28 @@ export default class IFrameNavigator implements Navigator {
             this.startLink.className = "";
         }
 
-        let lastReadingPosition: string | null = null;
+        let lastReadingPosition: ReadingPosition | null = null;
         if (this.annotator) {
-            lastReadingPosition = await this.annotator.getLastReadingPosition() as string | null;
+            lastReadingPosition = await this.annotator.getLastReadingPosition() as ReadingPosition | null;
         }
 
         if (lastReadingPosition) {
             this.navigate(lastReadingPosition);
         } else if (startUrl) {
-            this.navigate(startUrl);
+            let position = {
+                resource: startUrl,
+                position: 0
+            };
+            this.navigate(position);
         }
 
         return new Promise<void>(resolve => resolve());
     }
 
-    private navigate(url: string, toLastPage: boolean = false): void {
+    private navigate(readingPosition: ReadingPosition): void {
         (this.loading as any).style.display = "block";
-        this.goingToLastPage = toLastPage;
-        this.iframe.src = url;
+        this.newPosition = readingPosition;
+        this.iframe.src = readingPosition.resource;
         let topMargin = 0;
         if (!this.paginator) {
             topMargin = (this.links as any).clientHeight;
@@ -278,5 +316,21 @@ export default class IFrameNavigator implements Navigator {
         this.iframe.style.height = (window.innerHeight - topMargin) + "px";
         this.iframe.style.marginTop = topMargin + "px";
         this.iframe.style.width = document.body.offsetWidth + "px";
+    }
+
+    private async saveReadingPosition(): Promise<void> {
+        if (this.annotator) {
+            let resource = this.iframe.src;
+            let position = 0;
+            if (this.paginator) {
+                position = this.paginator.getCurrentPosition();
+            }
+            await this.annotator.saveLastReadingPosition({
+                resource: resource,
+                position: position
+            });
+        } else {
+            return new Promise<void>(resolve => resolve());
+        }
     }
 }

@@ -39,12 +39,13 @@
   <div id="viewer">
   </div>
   <script>
-    require(["WebpubViewer", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginator"], function (WebpubViewer, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginator) {
+    require(["WebpubViewer", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginator", "LocalStorageAnnotator"], function (WebpubViewer, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginator, LocalStorageAnnotator) {
       var element = document.getElementById("viewer");
       var cacher = new ServiceWorkerCacher.default();
       var paginator = new ColumnsPaginator.default();
-      var navigator = new IFrameNavigator.default(cacher, paginator);
-      var viewer = new WebpubViewer.default(cacher, navigator);
+      var annotator = new LocalStorageAnnotator.default();
+      var navigator = new IFrameNavigator.default(cacher, paginator, annotator);
+      var viewer = new WebpubViewer.default(cacher, navigator, annotator);
       viewer.start(element);
     });
   </script>
