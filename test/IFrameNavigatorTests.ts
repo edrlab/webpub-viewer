@@ -279,11 +279,11 @@ describe("IFrameNavigator", () => {
         it("should toggle the navigation links", async () => {
             jsdom.changeURL(window, "http://example.com");
             await navigator.start(element, "http://example.com/manifest.json");
-            let links = element.querySelector("ul[class=links]");
+            let links = element.querySelector("ul[class=links]") as HTMLUListElement;
             let toggleElement = element.querySelector("div[class=links-toggle]");
             
             // Initially, the navigation links are visible.
-            expect((links as any).style.display).not.to.equal("none");
+            expect(links.style.display).not.to.equal("none");
 
             let iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
@@ -291,7 +291,7 @@ describe("IFrameNavigator", () => {
             iframe.contentDocument.elementFromPoint = stub().returns(link);
             click(toggleElement);
             expect(linkClicked.callCount).to.equal(1);
-            expect((links as any).style.display).not.to.equal("none");
+            expect(links.style.display).not.to.equal("none");
 
             // If the link is on a different origin, it opens in a new window.
             let openStub = stub(window, "open");
@@ -304,9 +304,9 @@ describe("IFrameNavigator", () => {
             // But if you click somewhere else, it does.
             iframe.contentDocument.elementFromPoint = stub().returns(span);
             click(toggleElement);
-            expect((links as any).style.display).to.equal("none");
+            expect(links.style.display).to.equal("none");
             click(toggleElement);
-            expect((links as any).style.display).not.to.equal("none");
+            expect(links.style.display).not.to.equal("none");
         });
 
         it("should go to previous page", async () => {
@@ -463,8 +463,8 @@ describe("IFrameNavigator", () => {
             navigator = new IFrameNavigator(cacher);
             await navigator.start(element, "http://example.com/manifest.json");
 
-            let links = element.querySelector("ul[class=links]") as any;
-            links.clientHeight = 10;
+            let links = element.querySelector("ul[class=links]") as HTMLUListElement;
+            (links as any).clientHeight = 10;
             iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
             let next = element.querySelector("a[rel=next]") as HTMLAnchorElement;

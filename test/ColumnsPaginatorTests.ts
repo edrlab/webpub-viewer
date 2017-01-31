@@ -29,23 +29,24 @@ describe("ColumnsPaginator", () => {
             iframe.style.height = "200px";
             iframe.style.width = "100px";
             await paginator.start(iframe, 0);
-            let body = iframe.contentDocument.body as any;
+            let body = iframe.contentDocument.body;
             expect(body.style.height).to.equal("200px");
             expect(body.style.width).to.equal("100px");
             expect(body.style.columnWidth).to.equal("100px");
         });
 
         it("should set initial position to first or last page", async () => {
+            // Set read-only properties.
             (iframe.contentDocument.body as any).offsetWidth = 100;
             (iframe.contentDocument.body as any).scrollWidth = 200;
 
             // Set to first page.
             await paginator.start(iframe, 0);
-            expect((iframe.contentDocument.body as any).style.left).to.equal("0px");
+            expect(iframe.contentDocument.body.style.left).to.equal("0px");
 
             // Set to last page.
             await paginator.start(iframe, 1);
-            expect((iframe.contentDocument.body as any).style.left).to.equal("-100px");
+            expect(iframe.contentDocument.body.style.left).to.equal("-100px");
         });
     });
 
@@ -53,7 +54,7 @@ describe("ColumnsPaginator", () => {
         it("should get first page", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "0px";
+            iframe.contentDocument.body.style.left = "0px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             (iframe.contentDocument.body as any).scrollWidth = 200;
 
@@ -63,7 +64,7 @@ describe("ColumnsPaginator", () => {
         it("should get middle page", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "-100px";
+            iframe.contentDocument.body.style.left = "-100px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             (iframe.contentDocument.body as any).scrollWidth = 200;
 
@@ -73,7 +74,7 @@ describe("ColumnsPaginator", () => {
         it("should get last page", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "-200px";
+            iframe.contentDocument.body.style.left = "-200px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             (iframe.contentDocument.body as any).scrollWidth = 100;
 
@@ -85,15 +86,15 @@ describe("ColumnsPaginator", () => {
         it("should work", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "0px";
+            iframe.contentDocument.body.style.left = "0px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             expect(paginator.onFirstPage()).to.equal(true);
 
-            (iframe.contentDocument.body as any).style.left = "-100px";
+            iframe.contentDocument.body.style.left = "-100px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             expect(paginator.onFirstPage()).to.equal(false);
 
-            (iframe.contentDocument.body as any).style.left = "-200px";
+            iframe.contentDocument.body.style.left = "-200px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             expect(paginator.onFirstPage()).to.equal(false);
         });
@@ -121,12 +122,12 @@ describe("ColumnsPaginator", () => {
         it("should work", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "-100px";
+            iframe.contentDocument.body.style.left = "-100px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             expect(paginator.onFirstPage()).to.equal(false);
             paginator.goToPreviousPage();
             expect(paginator.onFirstPage()).to.equal(true);
-            expect((iframe.contentDocument.body as any).style.left).to.equal("0px");
+            expect(iframe.contentDocument.body.style.left).to.equal("0px");
         });
     });
 
@@ -134,12 +135,12 @@ describe("ColumnsPaginator", () => {
         it("should work", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "0px";
+            iframe.contentDocument.body.style.left = "0px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             expect(paginator.onFirstPage()).to.equal(true);
             paginator.goToNextPage();
             expect(paginator.onFirstPage()).to.equal(false);
-            expect((iframe.contentDocument.body as any).style.left).to.equal("-100px");
+            expect(iframe.contentDocument.body.style.left).to.equal("-100px");
         });
     });
 
@@ -147,48 +148,48 @@ describe("ColumnsPaginator", () => {
         it("should go to first page", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "-100px";
+            iframe.contentDocument.body.style.left = "-100px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             (iframe.contentDocument.body as any).scrollWidth = 200;
 
             paginator.goToPosition(0);
-            expect((iframe.contentDocument.body as any).style.left).to.equal("0px");
+            expect(iframe.contentDocument.body.style.left).to.equal("0px");
         });
 
         it("should go to middle page", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "0px";
+            iframe.contentDocument.body.style.left = "0px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             (iframe.contentDocument.body as any).scrollWidth = 300;
 
             paginator.goToPosition(0.5);
-            expect((iframe.contentDocument.body as any).style.left).to.equal("-100px");
+            expect(iframe.contentDocument.body.style.left).to.equal("-100px");
         });
 
         it("should go to last page", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "0px";
+            iframe.contentDocument.body.style.left = "0px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             (iframe.contentDocument.body as any).scrollWidth = 300;
 
             paginator.goToPosition(1);
-            expect((iframe.contentDocument.body as any).style.left).to.equal("-200px");
+            expect(iframe.contentDocument.body.style.left).to.equal("-200px");
         });
 
         it("should round down if going to a position between pages", async () => {
             await paginator.start(iframe, 0);
 
-            (iframe.contentDocument.body as any).style.left = "0px";
+            iframe.contentDocument.body.style.left = "0px";
             (iframe.contentDocument.body as any).offsetWidth = 100;
             (iframe.contentDocument.body as any).scrollWidth = 300;
 
             paginator.goToPosition(0.2);
-            expect((iframe.contentDocument.body as any).style.left).to.equal("0px");
+            expect(iframe.contentDocument.body.style.left).to.equal("0px");
 
             paginator.goToPosition(0.8);
-            expect((iframe.contentDocument.body as any).style.left).to.equal("-100px");
+            expect(iframe.contentDocument.body.style.left).to.equal("-100px");
         });
     });
 });

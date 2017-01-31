@@ -5,6 +5,8 @@ export default class ColumnsPaginator implements Paginator {
 
     public start(iframe: HTMLIFrameElement, position: number): Promise<void> {
         this.iframe = iframe;
+        // any is necessary because CSSStyleDeclaration type does not include
+        // all the vendor-prefixed attributes.
         let body = iframe.contentDocument.body as any;
         body.style.columnCount = 1;
         body.style.WebkitColumnCount = 1;
@@ -22,12 +24,17 @@ export default class ColumnsPaginator implements Paginator {
         let viewportElement = document.createElement("meta");
         viewportElement.name = "viewport";
         viewportElement.content = "width=device-width, initial-scale=1, maximum-scale=1";
-        (iframe.contentDocument.querySelector("head") as any).appendChild(viewportElement);
+        let head = iframe.contentDocument.querySelector("head");
+        if (head) {
+            head.appendChild(viewportElement);
+        }
         this.goToPosition(position);
         return new Promise<void>(resolve => resolve());
     }
 
     private setSize(): void {
+        // any is necessary because CSSStyleDeclaration type does not include
+        // all the vendor-prefixed attributes.
         let body = this.iframe.contentDocument.body as any;
         body.style.columnWidth = this.iframe.style.width;
         body.style.WebkitColumnWidth = this.iframe.style.width;
@@ -37,7 +44,7 @@ export default class ColumnsPaginator implements Paginator {
     }
 
     public getCurrentPosition(): number {
-        let position = -(this.iframe.contentDocument.body.style.left as any).slice(0, -2);
+        let position = -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
         let scrollWidth = this.iframe.contentDocument.body.scrollWidth;
         let width = this.iframe.contentDocument.body.offsetWidth;
         let maxPosition = position + scrollWidth - width;
@@ -45,7 +52,7 @@ export default class ColumnsPaginator implements Paginator {
     }
 
     public onFirstPage(): boolean {
-        let position = -(this.iframe.contentDocument.body.style.left as any).slice(0, -2);
+        let position = -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
         let width = this.iframe.contentDocument.body.offsetWidth;
         return (width > position);
     }
@@ -57,14 +64,14 @@ export default class ColumnsPaginator implements Paginator {
     }
 
     public goToPreviousPage(): void {
-        let position = -(this.iframe.contentDocument.body.style.left as any).slice(0, -2);
+        let position = -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
         let width = this.iframe.contentDocument.body.offsetWidth;
         let newPosition = position - width;
         this.iframe.contentDocument.body.style.left = -newPosition + "px";
     }
 
     public goToNextPage(): void {
-        let position = -(this.iframe.contentDocument.body.style.left as any).slice(0, -2);
+        let position = -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
         let width = this.iframe.contentDocument.body.offsetWidth;
         let newPosition = position + width;
         this.iframe.contentDocument.body.style.left = -newPosition + "px";
