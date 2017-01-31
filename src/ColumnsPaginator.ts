@@ -46,8 +46,7 @@ export default class ColumnsPaginator implements Paginator {
     public getCurrentPosition(): number {
         let position = -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
         let scrollWidth = this.iframe.contentDocument.body.scrollWidth;
-        let width = this.iframe.contentDocument.body.offsetWidth;
-        let maxPosition = position + scrollWidth - width;
+        let maxPosition = position + scrollWidth;
         return position / maxPosition;
     }
 
@@ -83,9 +82,12 @@ export default class ColumnsPaginator implements Paginator {
         this.iframe.contentDocument.body.style.left = "0px";
         let scrollWidth = this.iframe.contentDocument.body.scrollWidth;
         let width = this.iframe.contentDocument.body.offsetWidth;
-        let maxPosition = scrollWidth - width;
+        let maxPosition = scrollWidth;
         let newPosition = position * maxPosition;
         let roundedPosition = Math.floor(newPosition / width) * width;
+        if (roundedPosition === maxPosition) {
+            roundedPosition = roundedPosition - width;
+        }
         this.iframe.contentDocument.body.style.left = -roundedPosition + "px";
     }
 }
