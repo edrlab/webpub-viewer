@@ -5,6 +5,7 @@ import * as jsdom from "jsdom";
 import IFrameNavigator from "../src/IFrameNavigator";
 import Cacher from "../src/Cacher";
 import Paginator from "../src/Paginator";
+import Annotator from "../src/Annotator";
 import Manifest from "../src/Manifest";
 
 describe("IFrameNavigator", () => {
@@ -17,6 +18,10 @@ describe("IFrameNavigator", () => {
     let goToPreviousPage: Sinon.SinonStub;
     let goToNextPage: Sinon.SinonStub;
     let paginator: Paginator;
+
+    let getLastReadingPosition: Sinon.SinonStub;
+    let saveLastReadingPosition: Sinon.SinonStub;
+    let annotator: Annotator;
 
     let element: HTMLElement;
     let navigator: IFrameNavigator;
@@ -38,7 +43,7 @@ describe("IFrameNavigator", () => {
             return paginatorStart(element, position);
         }
         public getCurrentPosition() {
-            return 1;
+            return 0.25;
         }
         public onFirstPage() {
             return onFirstPage();
@@ -53,6 +58,19 @@ describe("IFrameNavigator", () => {
             goToNextPage();
         }
         public goToPosition() {}
+    }
+
+    class MockAnnotator implements Annotator {
+        public start() {
+            return new Promise<void>(resolve => resolve());
+        }
+        public getLastReadingPosition(): Promise<any> {
+            return new Promise<any>(resolve => resolve(getLastReadingPosition()));
+        }
+        public saveLastReadingPosition(position: any): Promise<void> {
+            saveLastReadingPosition(position);
+            return new Promise<any>(resolve => resolve());
+        }
     }
 
     let manifest = new Manifest({
@@ -87,6 +105,10 @@ describe("IFrameNavigator", () => {
         goToNextPage = stub();
         paginator = new MockPaginator();
 
+        getLastReadingPosition = stub();
+        saveLastReadingPosition = stub();
+        annotator = new MockAnnotator();
+
         let window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
             virtualConsole: jsdom.createVirtualConsole().sendTo(console),
@@ -103,7 +125,7 @@ describe("IFrameNavigator", () => {
 
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
-        navigator = new IFrameNavigator(cacher, paginator);
+        navigator = new IFrameNavigator(cacher, paginator, annotator);
 
         span = window.document.createElement("span");
         link = window.document.createElement("a");
@@ -155,6 +177,13 @@ describe("IFrameNavigator", () => {
             let iframe = element.querySelector("iframe") as HTMLIFrameElement;
             expect(iframe).not.to.be.null;
             expect(iframe.src).to.equal("http://example.com/start.html");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(1);
+            expect(saveLastReadingPosition.args[0][0]).to.deep.equal({
+                resource: "http://example.com/start.html",
+                position: 0.25
+            });
         });
 
         it("should navigate to the first spine item", async () => {
@@ -195,6 +224,13 @@ describe("IFrameNavigator", () => {
             click(previous);
             expect(iframe.src).to.equal("http://example.com/item-1.html");
 
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(3);
+            expect(saveLastReadingPosition.args[2][0]).to.deep.equal({
+                resource: "http://example.com/item-1.html",
+                position: 0.25
+            });
+
             // A page that's not in the spine won't.
             iframe.src = "http://example.com/toc.html";
             await pause();
@@ -221,6 +257,13 @@ describe("IFrameNavigator", () => {
             expect(next.href).to.equal("http://example.com/item-2.html");
             click(next);
             expect(iframe.src).to.equal("http://example.com/item-2.html");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(4);
+            expect(saveLastReadingPosition.args[3][0]).to.deep.equal({
+                resource: "http://example.com/item-2.html",
+                position: 0.25
+            });
 
             iframe.src = "http://example.com/toc.html";
             await pause();
@@ -283,6 +326,13 @@ describe("IFrameNavigator", () => {
             expect(onFirstPage.callCount).to.equal(1);
             expect(goToPreviousPage.callCount).to.equal(1);
 
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(2);
+            expect(saveLastReadingPosition.args[1][0]).to.deep.equal({
+                resource: "http://example.com/start.html",
+                position: 0.25
+            });
+
             // If you're on the first page of the first spine item, it does nothing.
             onFirstPage.returns(true);
             click(previousPageElement);
@@ -306,6 +356,12 @@ describe("IFrameNavigator", () => {
             expect(paginatorStart.callCount).to.equal(3);
             expect(paginatorStart.args[2][0]).to.equal(iframe);
             expect(paginatorStart.args[2][1]).to.equal(1);
+
+            expect(saveLastReadingPosition.callCount).to.equal(4);
+            expect(saveLastReadingPosition.args[3][0]).to.deep.equal({
+                resource: "http://example.com/item-1.html",
+                position: 0.25
+            });
         });
 
         it("should go to next page", async () => {
@@ -328,6 +384,13 @@ describe("IFrameNavigator", () => {
             click(nextPageElement);
             expect(onLastPage.callCount).to.equal(1);
             expect(goToNextPage.callCount).to.equal(1);
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(2);
+            expect(saveLastReadingPosition.args[1][0]).to.deep.equal({
+                resource: "http://example.com/start.html",
+                position: 0.25
+            });
 
             // If you're on the last page of the last spine item, it does nothing.
             iframe.src = "http://example.com/item-2.html";
@@ -356,6 +419,12 @@ describe("IFrameNavigator", () => {
             expect(paginatorStart.callCount).to.equal(4);
             expect(paginatorStart.args[3][0]).to.equal(iframe);
             expect(paginatorStart.args[3][1]).to.equal(0);
+
+            expect(saveLastReadingPosition.callCount).to.equal(5);
+            expect(saveLastReadingPosition.args[4][0]).to.deep.equal({
+                resource: "http://example.com/item-2.html",
+                position: 0.25
+            });
         });
 
         it("should show loading message while iframe is loading", async () => {
