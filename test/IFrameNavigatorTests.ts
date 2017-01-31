@@ -29,6 +29,8 @@ describe("IFrameNavigator", () => {
     let span: HTMLElement;
     let link: HTMLAnchorElement;
     let linkClicked: Sinon.SinonStub;
+    let parentLink: HTMLAnchorElement;
+    let parentLinkClicked: Sinon.SinonStub;
 
     class MockCacher implements Cacher {
         public start() {
@@ -139,6 +141,16 @@ describe("IFrameNavigator", () => {
         link.hostname = "example.com";
         linkClicked = stub();
         link.addEventListener("click", linkClicked);
+
+        parentLink = window.document.createElement("a");
+        parentLink.href = "http://example.com";
+        parentLink.protocol = "http";
+        parentLink.port = "";
+        parentLink.hostname = "example.com";
+        parentLinkClicked = stub();
+        parentLink.addEventListener("click", parentLinkClicked);
+        let child = window.document.createElement("span");
+        parentLink.appendChild(child);
     });
 
     describe("#start", () => {
@@ -301,7 +313,13 @@ describe("IFrameNavigator", () => {
             expect(openStub.callCount).to.equal(1);
             openStub.restore();
 
-            // But if you click somewhere else, it does.
+            // If you click an element inside a link, it still doesn't toggle.
+            iframe.contentDocument.elementFromPoint = stub().returns(parentLink);
+            click(toggleElement);
+            expect(parentLinkClicked.callCount).to.equal(1);
+            expect(links.style.display).not.to.equal("none");
+
+            // But if you click somewhere else, it toggles.
             iframe.contentDocument.elementFromPoint = stub().returns(span);
             click(toggleElement);
             expect(links.style.display).to.equal("none");

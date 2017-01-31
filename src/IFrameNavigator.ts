@@ -225,9 +225,18 @@ export default class IFrameNavigator implements Navigator {
         }
         let y = event.clientY - marginTop;
         let iframeElement = this.iframe.contentDocument.elementFromPoint(x, y);
-        let tag = iframeElement.tagName;
-        if (tag.toLowerCase() === "a") {
-            let link = (iframeElement as HTMLAnchorElement);
+        let foundLink: Element | null = null;
+        let nextElement: Element | null = iframeElement;
+        while (nextElement && nextElement.tagName.toLowerCase() !== "body") {
+            if (nextElement.tagName.toLowerCase() === "a") {
+                foundLink = nextElement;
+                break;
+            } else {
+                nextElement = nextElement.parentElement;
+            }
+        }
+        if (foundLink) {
+            let link = (foundLink as HTMLAnchorElement);
             let isSameOrigin = (
                 window.location.protocol === link.protocol &&
                 window.location.port === link.port &&
