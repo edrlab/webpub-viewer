@@ -40,6 +40,7 @@ interface ReadingPosition {
 
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
 export default class IFrameNavigator implements Navigator {
+    private manifestUrl: string;
     private cacher: Cacher;
     private paginator: Paginator | null;
     private annotator: Annotator | null;
@@ -98,6 +99,7 @@ export default class IFrameNavigator implements Navigator {
             // or we weren't able to insert the template in the element.
             return new Promise<void>((_, reject) => reject());
         } else {
+            this.manifestUrl = manifestUrl;
             this.iframe = iframe;
             this.nextChapterLink = nextChapterLink;
             this.previousChapterLink = previousChapterLink;
@@ -110,191 +112,47 @@ export default class IFrameNavigator implements Navigator {
             this.nextPageLink = nextPageLink;
             this.loading = loading;
             this.newPosition = null;
-            return await this.setupEventsAndLoad(manifestUrl);
+            this.setupEvents();
+            return await this.loadManifest();
         }
     }
 
-    private async setupEventsAndLoad(manifestUrl: string): Promise<void> {
-        this.iframe.addEventListener("load", async () => {
-            this.loading.style.display = "block";
-            if (this.paginator) {
-                let paginatorPosition = 0;
-                if (this.newPosition) {
-                    paginatorPosition = this.newPosition.position;
-                }
-                await this.paginator.start(this.iframe, paginatorPosition);
-                this.newPosition = null;
-            }
+    private setupEvents(): void {
+        this.iframe.addEventListener("load", this.handleIFrameLoad.bind(this));
 
-            let manifest = await this.cacher.getManifest(manifestUrl);
-            let currentLocation = this.iframe.src;
-            if (this.iframe.contentDocument && this.iframe.contentDocument.location && this.iframe.contentDocument.location.href) {
-                currentLocation = this.iframe.contentDocument.location.href;
-            }
-
-            let previous = manifest.getPreviousSpineItem(currentLocation);
-            if (previous && previous.href) {
-                this.previousChapterLink.href = new URL(previous.href, manifestUrl).href;
-                this.previousChapterLink.className = "";
-            } else {
-                this.previousChapterLink.removeAttribute("href");
-                this.previousChapterLink.className = "disabled";
-            }
-
-            let next = manifest.getNextSpineItem(currentLocation);
-            if (next && next.href) {
-                this.nextChapterLink.href = new URL(next.href, manifestUrl).href;
-                this.nextChapterLink.className = "";
-            } else {
-                this.nextChapterLink.removeAttribute("href");
-                this.nextChapterLink.className = "disabled";
-            }
-
-            if (this.annotator) {
-                await this.saveReadingPosition();
-            }
-            this.loading.style.display = "none";
-        });
+        window.onresize = this.handleResize.bind(this);
 
         if (this.paginator && this.linksToggle && this.previousPageLink && this.nextPageLink) {
-            let paginator: Paginator = this.paginator;
+            this.linksToggle.addEventListener("click", this.handleToggleLinksClick.bind(this));
 
-            let checkForLink = (event: MouseEvent): boolean => {
-                let x = event.clientX;
-                let marginTop = 0;
-                if (this.iframe.style.marginTop) {
-                    marginTop = parseInt(this.iframe.style.marginTop.slice(0, -2), 10);
-                }
-                let y = event.clientY - marginTop;
-                let iframeElement = this.iframe.contentDocument.elementFromPoint(x, y);
-                let tag = iframeElement.tagName;
-                if (tag.toLowerCase() === "a" && iframeElement instanceof HTMLAnchorElement) {
-                    let isSameOrigin = (
-                        window.location.protocol === iframeElement.protocol &&
-                        window.location.port === iframeElement.port &&
-                        window.location.hostname == iframeElement.hostname
-                    );
-                    if (isSameOrigin) { 
-                        let newEvent = new MouseEvent(event.type, event);
-                        iframeElement.dispatchEvent(newEvent);
-                    } else {
-                        window.open(iframeElement.href, "_blank");
-                    }
-                    return true;
-                }
-                return false;
-            };
+            this.previousPageLink.addEventListener("click", this.handlePreviousPageClick.bind(this));
 
-            this.linksToggle.addEventListener("click", (event: MouseEvent) => {
-                event.preventDefault();
-                if (!checkForLink(event)) {
-                    let display: string | null = this.links.style.display;
-                    if (display && display === "none") {
-                        this.links.style.display = "block";
-                    } else {
-                        this.links.style.display = "none";
-                    }
-                }
-            });
-
-            this.previousPageLink.addEventListener("click", (event: MouseEvent) => {
-                event.preventDefault();
-                if (!checkForLink(event)) {
-                    if (paginator.onFirstPage()) {
-                        if (this.previousChapterLink.hasAttribute("href")) {
-                            let position = {
-                                resource: this.previousChapterLink.href,
-                                position: 1
-                            };
-                            this.navigate(position);
-                        }
-                    } else {
-                        paginator.goToPreviousPage();
-                        this.saveReadingPosition();
-                    }
-                }
-            });
-
-            this.nextPageLink.addEventListener("click", (event: MouseEvent) => {
-                event.preventDefault();
-                if (!checkForLink(event)) {
-                    if (paginator.onLastPage()) {
-                        if (this.nextChapterLink.hasAttribute("href")) {
-                            let position = {
-                                resource: this.nextChapterLink.href,
-                                position: 0
-                            };
-                            this.navigate(position);
-                        }
-                    } else {
-                        paginator.goToNextPage();
-                        this.saveReadingPosition();
-                    }
-                }
-            });
-
-            window.onresize = () => {
-                let oldPosition = paginator.getCurrentPosition();
-                this.setIFrameSize();
-                paginator.goToPosition(oldPosition);                
-            };
-
+            this.nextPageLink.addEventListener("click", this.handleNextPageClick.bind(this));
         }
 
-        this.previousChapterLink.addEventListener("click", (event: MouseEvent) => {
-            if (this.previousChapterLink.hasAttribute("href")) {
-                let position = {
-                    resource: this.previousChapterLink.href,
-                    position: 0
-                }
-                this.navigate(position);
-            }
-            event.preventDefault();
-        });
+        this.previousChapterLink.addEventListener("click", this.handlePreviousChapterClick.bind(this));
 
-        this.nextChapterLink.addEventListener("click", (event: MouseEvent) => {
-            if (this.nextChapterLink.hasAttribute("href")) {
-                let position = {
-                    resource: this.nextChapterLink.href,
-                    position: 0
-                };
-                this.navigate(position);
-            }
-            event.preventDefault();
-        });
+        this.nextChapterLink.addEventListener("click", this.handleNextChapterClick.bind(this));
 
-        this.startLink.addEventListener("click", (event: MouseEvent) => {
-            if (this.startLink.hasAttribute("href")) {
-                let position = {
-                    resource: this.startLink.href,
-                    position: 0
-                };
-                this.navigate(position);
-            }
-            event.preventDefault();
-        });
+        this.startLink.addEventListener("click", this.handleStartClick.bind(this));
 
-        let manifest: Manifest = await this.cacher.getManifest(manifestUrl);
+        this.contentsLink.addEventListener("click", this.handleContentsClick.bind(this));
+    }
+
+    private async loadManifest(): Promise<void> {
+        let manifest: Manifest = await this.cacher.getManifest(this.manifestUrl);
 
         let tocLink = manifest.getTOCLink();
         if (tocLink && tocLink.href) {
-            var href = new URL(tocLink.href, manifestUrl).href;
+            var href = new URL(tocLink.href, this.manifestUrl).href;
             this.contentsLink.href = href;
             this.contentsLink.className = "";
-            this.contentsLink.addEventListener("click", (event: MouseEvent) => {
-                let position = {
-                    resource: this.contentsLink.href,
-                    position: 0
-                };
-                this.navigate(position);
-                event.preventDefault();
-            });
         }
 
         let startUrl: string | null = null;
         let startLink = manifest.getStartLink();
         if (startLink && startLink.href) {
-            startUrl = new URL(startLink.href, manifestUrl).href;
+            startUrl = new URL(startLink.href, this.manifestUrl).href;
             this.startLink.href = startUrl;
             this.startLink.className = "";
         }
@@ -317,6 +175,175 @@ export default class IFrameNavigator implements Navigator {
         return new Promise<void>(resolve => resolve());
     }
 
+    private async handleIFrameLoad(): Promise<void> {
+        this.loading.style.display = "block";
+        if (this.paginator) {
+            let paginatorPosition = 0;
+            if (this.newPosition) {
+                paginatorPosition = this.newPosition.position;
+            }
+            await this.paginator.start(this.iframe, paginatorPosition);
+            this.newPosition = null;
+        }
+
+        let manifest = await this.cacher.getManifest(this.manifestUrl);
+        let currentLocation = this.iframe.src;
+        if (this.iframe.contentDocument && this.iframe.contentDocument.location && this.iframe.contentDocument.location.href) {
+            currentLocation = this.iframe.contentDocument.location.href;
+        }
+
+        let previous = manifest.getPreviousSpineItem(currentLocation);
+        if (previous && previous.href) {
+            this.previousChapterLink.href = new URL(previous.href, this.manifestUrl).href;
+            this.previousChapterLink.className = "";
+        } else {
+            this.previousChapterLink.removeAttribute("href");
+            this.previousChapterLink.className = "disabled";
+        }
+
+        let next = manifest.getNextSpineItem(currentLocation);
+        if (next && next.href) {
+            this.nextChapterLink.href = new URL(next.href, this.manifestUrl).href;
+            this.nextChapterLink.className = "";
+        } else {
+            this.nextChapterLink.removeAttribute("href");
+            this.nextChapterLink.className = "disabled";
+        }
+
+        if (this.annotator) {
+            await this.saveCurrentReadingPosition();
+        }
+        this.loading.style.display = "none";
+        return new Promise<void>(resolve => resolve());
+    }
+
+    private checkForIFrameLink = (event: MouseEvent): boolean => {
+        let x = event.clientX;
+        let marginTop = 0;
+        if (this.iframe.style.marginTop) {
+            marginTop = parseInt(this.iframe.style.marginTop.slice(0, -2), 10);
+        }
+        let y = event.clientY - marginTop;
+        let iframeElement = this.iframe.contentDocument.elementFromPoint(x, y);
+        let tag = iframeElement.tagName;
+        if (tag.toLowerCase() === "a") {
+            let link = (iframeElement as HTMLAnchorElement);
+            let isSameOrigin = (
+                window.location.protocol === link.protocol &&
+                window.location.port === link.port &&
+                window.location.hostname == link.hostname
+            );
+            if (isSameOrigin) { 
+                let newEvent = new MouseEvent(event.type, event);
+                link.dispatchEvent(newEvent);
+            } else {
+                window.open(link.href, "_blank");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private handleToggleLinksClick(event: MouseEvent): void {
+        event.preventDefault();
+        if (!this.checkForIFrameLink(event)) {
+            let display: string | null = this.links.style.display;
+            if (display && display === "none") {
+                this.links.style.display = "block";
+            } else {
+                this.links.style.display = "none";
+            }
+        }
+    }
+
+    private handlePreviousPageClick(event: MouseEvent): void {
+        event.preventDefault();
+        if (this.paginator && !this.checkForIFrameLink(event)) {
+            if (this.paginator.onFirstPage()) {
+                if (this.previousChapterLink.hasAttribute("href")) {
+                    let position = {
+                        resource: this.previousChapterLink.href,
+                        position: 1
+                    };
+                    this.navigate(position);
+                }
+            } else {
+                this.paginator.goToPreviousPage();
+                this.saveCurrentReadingPosition();
+            }
+        }
+    }
+
+    private handleNextPageClick(event: MouseEvent) {
+        event.preventDefault();
+        if (this.paginator && !this.checkForIFrameLink(event)) {
+            if (this.paginator.onLastPage()) {
+                if (this.nextChapterLink.hasAttribute("href")) {
+                    let position = {
+                        resource: this.nextChapterLink.href,
+                        position: 0
+                    };
+                    this.navigate(position);
+                }
+            } else {
+                this.paginator.goToNextPage();
+                this.saveCurrentReadingPosition();
+            }
+        }
+    }
+
+    private handleResize(): void {
+        if (this.paginator) {
+            let oldPosition = this.paginator.getCurrentPosition();
+            this.setIFrameSize();
+            this.paginator.goToPosition(oldPosition);
+        } else {
+            this.setIFrameSize();
+        }
+    }
+
+    private handlePreviousChapterClick(event: MouseEvent): void {
+        if (this.previousChapterLink.hasAttribute("href")) {
+            let position = {
+                resource: this.previousChapterLink.href,
+                position: 0
+            }
+            this.navigate(position);
+        }
+        event.preventDefault();
+    }
+
+    private handleNextChapterClick(event: MouseEvent): void {
+        if (this.nextChapterLink.hasAttribute("href")) {
+            let position = {
+                resource: this.nextChapterLink.href,
+                position: 0
+            };
+            this.navigate(position);
+        }
+        event.preventDefault();
+    }
+
+    private handleStartClick(event: MouseEvent): void {
+        if (this.startLink.hasAttribute("href")) {
+            let position = {
+                resource: this.startLink.href,
+                position: 0
+            };
+            this.navigate(position);
+        }
+        event.preventDefault();
+    }
+
+    private handleContentsClick(event: MouseEvent): void {
+        let position = {
+            resource: this.contentsLink.href,
+            position: 0
+        };
+        this.navigate(position);
+        event.preventDefault();
+    }
+
     private navigate(readingPosition: ReadingPosition): void {
         this.loading.style.display = "block";
         this.newPosition = readingPosition;
@@ -334,7 +361,7 @@ export default class IFrameNavigator implements Navigator {
         this.iframe.style.width = document.body.offsetWidth + "px";
     }
 
-    private async saveReadingPosition(): Promise<void> {
+    private async saveCurrentReadingPosition(): Promise<void> {
         if (this.annotator) {
             let resource = this.iframe.src;
             let position = 0;
