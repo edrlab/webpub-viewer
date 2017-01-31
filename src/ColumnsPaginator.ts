@@ -12,23 +12,28 @@ export default class ColumnsPaginator implements Paginator {
         body.style.columnGap = 0;
         body.style.WebkitColumnGap = 0;
         body.style.MozColumnGap = 0;
-        body.style.columnWidth = iframe.style.width;
-        body.style.WebkitColumnWidth = iframe.style.width;
-        body.style.MozColumnWidth = iframe.style.width;
         body.style.columnFill = "auto";
         body.style.WebkitColumnFill = "auto";
         body.style.MozColumnFill = "auto";
-        body.style.height = iframe.style.height;
-        body.style.width = iframe.style.width;
         body.style.overflow = "hidden";
         body.style.margin = "0";
         body.style.position = "relative";
+        this.setSize();
         let viewportElement = document.createElement("meta");
         viewportElement.name = "viewport";
         viewportElement.content = "width=device-width, initial-scale=1, maximum-scale=1";
         (iframe.contentDocument.querySelector("head") as any).appendChild(viewportElement);
         this.goToPosition(position);
         return new Promise<void>(resolve => resolve());
+    }
+
+    private setSize(): void {
+        let body = this.iframe.contentDocument.body as any;
+        body.style.columnWidth = this.iframe.style.width;
+        body.style.WebkitColumnWidth = this.iframe.style.width;
+        body.style.MozColumnWidth = this.iframe.style.width;
+        body.style.height = this.iframe.style.height;
+        body.style.width = this.iframe.style.width;
     }
 
     public getCurrentPosition(): number {
@@ -66,10 +71,12 @@ export default class ColumnsPaginator implements Paginator {
     }
 
     public goToPosition(position: number) {
-        let oldPosition = -(this.iframe.contentDocument.body.style.left as any).slice(0, -2);
+        this.setSize();
+        // Reset position so we can determine the total width
+        this.iframe.contentDocument.body.style.left = "0px";
         let scrollWidth = this.iframe.contentDocument.body.scrollWidth;
         let width = this.iframe.contentDocument.body.offsetWidth;
-        let maxPosition = oldPosition + scrollWidth - width;
+        let maxPosition = scrollWidth - width;
         let newPosition = position * maxPosition;
         let roundedPosition = Math.floor(newPosition / width) * width;
         this.iframe.contentDocument.body.style.left = -roundedPosition + "px";

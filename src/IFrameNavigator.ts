@@ -227,6 +227,12 @@ export default class IFrameNavigator implements Navigator {
                 }
             });
 
+            window.onresize = () => {
+                let oldPosition = paginator.getCurrentPosition();
+                this.setIFrameSize();
+                paginator.goToPosition(oldPosition);                
+            };
+
         }
 
         this.previousChapterLink.addEventListener("click", (event: Event) => {
@@ -309,6 +315,10 @@ export default class IFrameNavigator implements Navigator {
         (this.loading as any).style.display = "block";
         this.newPosition = readingPosition;
         this.iframe.src = readingPosition.resource;
+        this.setIFrameSize();
+    }
+
+    private setIFrameSize(): void {
         let topMargin = 0;
         if (!this.paginator) {
             topMargin = (this.links as any).clientHeight;

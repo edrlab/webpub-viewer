@@ -17,6 +17,7 @@ describe("IFrameNavigator", () => {
     let onLastPage: Sinon.SinonStub;
     let goToPreviousPage: Sinon.SinonStub;
     let goToNextPage: Sinon.SinonStub;
+    let goToPosition: Sinon.SinonStub;
     let paginator: Paginator;
 
     let getLastReadingPosition: Sinon.SinonStub;
@@ -57,7 +58,9 @@ describe("IFrameNavigator", () => {
         public goToNextPage() {
             goToNextPage();
         }
-        public goToPosition() {}
+        public goToPosition(position: number) {
+            goToPosition(position);
+        }
     }
 
     class MockAnnotator implements Annotator {
@@ -103,6 +106,7 @@ describe("IFrameNavigator", () => {
         onLastPage = stub().returns(false);
         goToPreviousPage = stub();
         goToNextPage = stub();
+        goToPosition = stub();
         paginator = new MockPaginator();
 
         getLastReadingPosition = stub();
@@ -425,6 +429,13 @@ describe("IFrameNavigator", () => {
                 resource: "http://example.com/item-2.html",
                 position: 0.25
             });
+        });
+
+        it("should maintain paginator position when window is resized", async () => {
+            await navigator.start(element, "http://example.com/manifest.json");
+            window.dispatchEvent(new Event('resize'));
+            expect(goToPosition.callCount).to.equal(1);
+            expect(goToPosition.args[0][0]).to.equal(0.25);
         });
 
         it("should show loading message while iframe is loading", async () => {
