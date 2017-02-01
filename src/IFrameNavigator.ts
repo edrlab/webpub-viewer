@@ -54,8 +54,9 @@ export default class IFrameNavigator implements Navigator {
     private linksToggle: Element | null;
     private previousPageLink: Element | null;
     private nextPageLink: Element | null;
-    private loading: HTMLDivElement;
+    private loadingMessage: HTMLDivElement;
     private newPosition: ReadingPosition | null;
+    private isLoading: boolean;
 
     public constructor(cacher: Cacher, paginator: Paginator | null = null, annotator: Annotator | null = null) {
         this.cacher = cacher;
@@ -81,11 +82,11 @@ export default class IFrameNavigator implements Navigator {
         let linksToggle = element.querySelector("div[class=links-toggle]");
         let previousPageLink = element.querySelector("div[class=previous-page]");
         let nextPageLink = element.querySelector("div[class=next-page]");
-        let loading = element.querySelector("div[class=loading]");
+        let loadingMessage = element.querySelector("div[class=loading]");
 
         if (!iframe || !nextChapterLink || !previousChapterLink ||
             !startLink || !contentsLink || !navigation || !links ||
-            !loading ||
+            !loadingMessage ||
             (this.paginator && !linksToggle) ||
             (this.paginator && !previousPageLink) ||
             (this.paginator && !nextPageLink) ||
@@ -94,7 +95,7 @@ export default class IFrameNavigator implements Navigator {
             !(startLink instanceof HTMLAnchorElement) ||
             !(contentsLink instanceof HTMLAnchorElement) ||
             !(links instanceof HTMLUListElement) ||
-            !(loading instanceof HTMLDivElement)) {
+            !(loadingMessage instanceof HTMLDivElement)) {
             // There's a mismatch between the template and the selectors above,
             // or we weren't able to insert the template in the element.
             return new Promise<void>((_, reject) => reject());
@@ -110,8 +111,9 @@ export default class IFrameNavigator implements Navigator {
             this.linksToggle = linksToggle;
             this.previousPageLink = previousPageLink;
             this.nextPageLink = nextPageLink;
-            this.loading = loading;
+            this.loadingMessage = loadingMessage;
             this.newPosition = null;
+            this.isLoading = true;
             this.setupEvents();
             return await this.loadManifest();
         }
@@ -176,7 +178,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private async handleIFrameLoad(): Promise<void> {
-        this.loading.style.display = "block";
+        this.showLoadingMessageAfterDelay();
         if (this.paginator) {
             let paginatorPosition = 0;
             if (this.newPosition) {
@@ -213,7 +215,7 @@ export default class IFrameNavigator implements Navigator {
         if (this.annotator) {
             await this.saveCurrentReadingPosition();
         }
-        this.loading.style.display = "none";
+        this.hideLoadingMessage();
         return new Promise<void>(resolve => resolve());
     }
 
@@ -354,10 +356,24 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private navigate(readingPosition: ReadingPosition): void {
-        this.loading.style.display = "block";
+        this.showLoadingMessageAfterDelay();
         this.newPosition = readingPosition;
         this.iframe.src = readingPosition.resource;
         this.setIFrameSize();
+    }
+
+    private showLoadingMessageAfterDelay() {
+        this.isLoading = true;
+        setTimeout(() => {
+            if (this.isLoading) {
+                this.loadingMessage.style.display = "block";
+            }
+        }, 200);
+    }
+
+    private hideLoadingMessage() {
+        this.isLoading = false;
+        this.loadingMessage.style.display = "none";
     }
 
     private setIFrameSize(): void {

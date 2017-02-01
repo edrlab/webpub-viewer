@@ -462,11 +462,18 @@ describe("IFrameNavigator", () => {
             let loading = element.querySelector("div[class=loading]") as any;
             let next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
 
+            // Slow down the paginator so the loading message has time to appear.
+            paginatorStart.returns(new Promise<void>(async (resolve) => {
+                await pause(300);
+                resolve();
+            }));
+
             iframe.src = "http://example.com/item-1.html";
             await pause();
             click(next);
+            await pause(250);
             expect(loading.style.display).not.to.equal("none");
-            await pause();
+            await pause(100);
             expect(loading.style.display).to.equal("none");
         });
 
