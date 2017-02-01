@@ -43,51 +43,96 @@ export default class ColumnsPaginator implements Paginator {
         body.style.width = this.iframe.style.width;
     }
 
-    public getCurrentPosition(): number {
-        let position = -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
+    /** Returns the total width of the columns that are currently
+        positioned to the left of the iframe viewport. */
+    private getLeftColumnsWidth(): number {
+        return -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
+    }
+
+    /** Returns the total width of the columns that are currently
+        positioned to the right of the iframe viewport. */
+    private getRightColumnsWidth(): number {
+        // scrollWidth includes the column in the iframe viewport as well as
+        // columns to the right.
         let scrollWidth = this.iframe.contentDocument.body.scrollWidth;
-        let maxPosition = position + scrollWidth;
-        return position / maxPosition;
+        let width = this.getColumnWidth();
+        return scrollWidth - width;
+    }
+
+    /** Returns the width of one column. */
+    private getColumnWidth(): number {
+        return this.iframe.contentDocument.body.offsetWidth;
+    }
+
+    /** Shifts the columns so that the specified width is positioned
+        to the left of the iframe viewport. */
+    private setLeftColumnsWidth(width: number) {
+        this.iframe.contentDocument.body.style.left = -width + "px";
+    }
+
+    /** Returns number in range [0..1) representing the
+        proportion of columns that are currently positioned
+        to the left of the iframe viewport. */
+    public getCurrentPosition(): number {
+        let width = this.getColumnWidth();
+        let leftWidth = this.getLeftColumnsWidth();
+        let rightWidth = this.getRightColumnsWidth();
+        let totalWidth = leftWidth + width + rightWidth;
+
+        return leftWidth / totalWidth;
     }
 
     public onFirstPage(): boolean {
-        let position = -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
-        let width = this.iframe.contentDocument.body.offsetWidth;
-        return (width > position);
+        let leftWidth = this.getLeftColumnsWidth();
+
+        return (leftWidth <= 0);
     }
 
     public onLastPage(): boolean {
-        let width = this.iframe.contentDocument.body.offsetWidth;
-        let scrollWidth = this.iframe.contentDocument.body.scrollWidth;
-        return (width >= scrollWidth);
+        let rightWidth = this.getRightColumnsWidth();
+
+        return (rightWidth <= 0);
     }
 
     public goToPreviousPage(): void {
-        let position = -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
-        let width = this.iframe.contentDocument.body.offsetWidth;
-        let newPosition = position - width;
-        this.iframe.contentDocument.body.style.left = -newPosition + "px";
+        let leftWidth = this.getLeftColumnsWidth();
+        let width = this.getColumnWidth();
+
+        this.setLeftColumnsWidth(leftWidth - width);
     }
 
     public goToNextPage(): void {
-        let position = -(this.iframe.contentDocument.body.style.left || "0px").slice(0, -2);
-        let width = this.iframe.contentDocument.body.offsetWidth;
-        let newPosition = position + width;
-        this.iframe.contentDocument.body.style.left = -newPosition + "px";
+        let leftWidth = this.getLeftColumnsWidth();
+        let width = this.getColumnWidth();
+
+        this.setLeftColumnsWidth(leftWidth + width);
     }
 
+    /** Goes to a position specified by a number in the range [0..1].
+        The position should be a number as returned by getCurrentPosition,
+        or 1 to go to the last page. The position will be rounded down so
+        it matches the position of one of the columns. */
+    /** @param position Number in range [0..1] */
     public goToPosition(position: number) {
         this.setSize();
-        // Reset position so we can determine the total width
-        this.iframe.contentDocument.body.style.left = "0px";
-        let scrollWidth = this.iframe.contentDocument.body.scrollWidth;
-        let width = this.iframe.contentDocument.body.offsetWidth;
-        let maxPosition = scrollWidth;
-        let newPosition = position * maxPosition;
-        let roundedPosition = Math.floor(newPosition / width) * width;
-        if (roundedPosition === maxPosition) {
-            roundedPosition = roundedPosition - width;
+        // If the window has changed size since the columns were set up,
+        // we need to reset position so we can determine the new total width.
+        this.setLeftColumnsWidth(0);
+
+        let width = this.getColumnWidth();
+        let rightWidth = this.getRightColumnsWidth();
+        let totalWidth = width + rightWidth;
+
+        let newLeftWidth = position * totalWidth;
+
+        // Round the new left width so it's a multiple of the column width.
+
+        let roundedLeftWidth = Math.floor(newLeftWidth / width) * width;
+        if (roundedLeftWidth === totalWidth) {
+            // We've gone too far and all the columns are off to the left.
+            // Move one column back into the viewport.
+            roundedLeftWidth = roundedLeftWidth - width;
         }
-        this.iframe.contentDocument.body.style.left = -roundedPosition + "px";
+        this.setLeftColumnsWidth(roundedLeftWidth);
     }
 }
