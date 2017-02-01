@@ -3,20 +3,18 @@
 <head>
   <title>Webpub Viewer Example</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <script src="../../node_modules/requirejs/require.js"></script>
   <script src="../../node_modules/whatwg-fetch/fetch.js"></script>
   <script src="../../dist/webpub-viewer.js"></script>
   <style>
-    .controls {
+    .controls .links {
       position: fixed;
       top: 0;
       right: 0;
       width: 100%;
       background-color: rgb(221, 221, 221);
       height: 2em;
-    }
-    .controls ul {
       list-style-type: none;
       text-align: center;
       margin: 0;
@@ -26,17 +24,28 @@
       float: left;
       margin: 10px;
     }
+    .loading {
+      position: fixed;
+      width: 200px;
+      height: 200px;
+      text-align: center;
+      left: calc(50% - 100px);
+      top: calc(50% - 100px);
+      background-color: #aaa;
+    }
   </style>
 </head>
-<body style="margin: 0;">
+<body style="overflow: hidden; margin: 0;">
   <div id="viewer">
   </div>
   <script>
-    require(["WebpubViewer", "ServiceWorkerCacher", "IFrameNavigator"], function (WebpubViewer, ServiceWorkerCacher, IFrameNavigator) {
+    require(["WebpubViewer", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginator", "LocalStorageAnnotator"], function (WebpubViewer, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginator, LocalStorageAnnotator) {
       var element = document.getElementById("viewer");
       var cacher = new ServiceWorkerCacher.default();
-      var navigator = new IFrameNavigator.default(cacher);
-      var viewer = new WebpubViewer.default(cacher, navigator);
+      var paginator = new ColumnsPaginator.default();
+      var annotator = new LocalStorageAnnotator.default();
+      var navigator = new IFrameNavigator.default(cacher, paginator, annotator);
+      var viewer = new WebpubViewer.default(cacher, navigator, annotator);
       viewer.start(element);
     });
   </script>

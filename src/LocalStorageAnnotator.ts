@@ -12,9 +12,9 @@ export default class LocalStorageAnnotator implements Annotator {
 
     public async getLastReadingPosition(): Promise<any> {
         if (window.localStorage) {
-            let positionString = window.localStorage.getItem(this.manifestUrl + "-last-reading-position");
+            const positionString = window.localStorage.getItem(this.manifestUrl + "-last-reading-position");
             if (positionString) {
-                let position = JSON.parse(positionString);
+                const position = JSON.parse(positionString);
                 return new Promise(resolve => resolve(position));
             }
         }
@@ -22,7 +22,7 @@ export default class LocalStorageAnnotator implements Annotator {
     }
 
     public async saveLastReadingPosition(position: any): Promise<void> {
-        let positionString = JSON.stringify(position);
+        const positionString = JSON.stringify(position);
 
         if (window.localStorage) {
             window.localStorage.setItem(this.manifestUrl + "-last-reading-position", positionString);

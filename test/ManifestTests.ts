@@ -58,20 +58,20 @@ describe("Manifest", () => {
 
     describe("#getStartLink", () => {
         it("should return the first spine item", () =>  {
-            let start = manifest.getStartLink() as Link;
+            const start = manifest.getStartLink() as Link;
             expect(start).not.to.be.null;
             expect(start.href).to.equal("spine-item-1.html");
         });
 
         it("should return null if spine is empty", () => {
-            let start = emptyManifest.getStartLink();
+            const start = emptyManifest.getStartLink();
             expect(start).to.be.null;
         });
     });
 
     describe("#getTOCLink", () => {
         it("should return toc from resources", () => {
-            let toc = manifest.getTOCLink() as Link;
+            const toc = manifest.getTOCLink() as Link;
             expect(toc).not.to.be.null;
             expect(toc.href).to.equal("contents.html");
         });
@@ -83,13 +83,13 @@ describe("Manifest", () => {
                     { href: "other-spine-item.html" }
                 ]
             }, "http://example.com/manifest.json");
-            let toc = manifest.getTOCLink() as Link;
+            const toc = manifest.getTOCLink() as Link;
             expect(toc).not.to.be.null;
             expect(toc.href).to.equal("toc.html");
         });
 
         it("should return null if there's no toc", () => {
-            let toc = emptyManifest.getTOCLink();
+            const toc = emptyManifest.getTOCLink();
             expect(toc).to.be.null;
         });
     });
@@ -106,12 +106,12 @@ describe("Manifest", () => {
         });
 
         it("should return null for first spine item", () => {
-            let previous = manifest.getPreviousSpineItem("http://example.com/spine-item-1.html");
+            const previous = manifest.getPreviousSpineItem("http://example.com/spine-item-1.html");
             expect(previous).to.be.null;
         });
 
         it("should return null for item not in the spine", () => {
-            let previous = manifest.getPreviousSpineItem("http://example.com/toc.html");
+            const previous = manifest.getPreviousSpineItem("http://example.com/toc.html");
             expect(previous).to.be.null;
         });
     });
@@ -128,12 +128,12 @@ describe("Manifest", () => {
         });
 
         it("should return null for last spine item", () => {
-            let next = manifest.getNextSpineItem("http://example.com/spine-item-3.html");
+            const next = manifest.getNextSpineItem("http://example.com/spine-item-3.html");
             expect(next).to.be.null;
         });
 
         it("should return null for item not in the spine", () => {
-            let next = manifest.getNextSpineItem("http://example.com/toc.html");
+            const next = manifest.getNextSpineItem("http://example.com/toc.html");
             expect(next).to.be.null;
         });
     });
