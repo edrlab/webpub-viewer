@@ -22,7 +22,7 @@ export default class WebpubViewer {
     /** @param element An element on the page loading the application, that will contain the viewer. */
     public async start(element: HTMLElement): Promise<void> {
         // This assumes that the manifest is located next to the html file that loads the viewer.
-        let manifestUrl = new URL("manifest.json", window.location.href).href;
+        const manifestUrl = new URL("manifest.json", window.location.href).href;
 
         // Not sure if these could run concurrently.
         await this.cacher.start(manifestUrl);

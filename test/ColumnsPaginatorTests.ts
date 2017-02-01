@@ -17,7 +17,7 @@ describe("ColumnsPaginator", () => {
     describe("#start", () => {
         it("should set up columns on the iframe body", async () => {
             await paginator.start(iframe, 0);
-            let body = iframe.contentDocument.body as any;
+            const body = iframe.contentDocument.body as any;
             expect(body.style.columnCount).to.equal(1);
             expect(body.style.WebkitColumnCount).to.equal(1);
             expect(body.style.MozColumnCount).to.equal(1);
@@ -29,7 +29,7 @@ describe("ColumnsPaginator", () => {
             iframe.style.height = "200px";
             iframe.style.width = "100px";
             await paginator.start(iframe, 0);
-            let body = iframe.contentDocument.body;
+            const body = iframe.contentDocument.body;
             expect(body.style.height).to.equal("200px");
             expect(body.style.width).to.equal("100px");
             expect(body.style.columnWidth).to.equal("100px");

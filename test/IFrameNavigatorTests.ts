@@ -78,7 +78,7 @@ describe("IFrameNavigator", () => {
         }
     }
 
-    let manifest = new Manifest({
+    const manifest = new Manifest({
         spine: [
             { href: "start.html" },
             { href: "item-1.html" },
@@ -89,13 +89,13 @@ describe("IFrameNavigator", () => {
         ]
     }, "http://example.com/manifest.json");
 
-    let click = (element: any) => {
-        let event = document.createEvent("HTMLEvents");
+    const click = (element: any) => {
+        const event = document.createEvent("HTMLEvents");
         event.initEvent("click", false, true);
         element.dispatchEvent(event);
     };
 
-    let pause = (ms = 0): Promise<void> => {
+    const pause = (ms = 0): Promise<void> => {
         return new Promise<void>(resolve => setTimeout(resolve, ms));
     };
 
@@ -115,7 +115,7 @@ describe("IFrameNavigator", () => {
         saveLastReadingPosition = stub();
         annotator = new MockAnnotator();
 
-        let window = jsdom.jsdom("", ({
+        const window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
             virtualConsole: jsdom.createVirtualConsole().sendTo(console),
             resourceLoader: (resource: any, callback: any) => {
@@ -149,7 +149,7 @@ describe("IFrameNavigator", () => {
         parentLink.hostname = "example.com";
         parentLinkClicked = stub();
         parentLink.addEventListener("click", parentLinkClicked);
-        let child = window.document.createElement("span");
+        const child = window.document.createElement("span");
         parentLink.appendChild(child);
     });
 
@@ -183,14 +183,14 @@ describe("IFrameNavigator", () => {
         it("should start the paginator", async () => {
             await navigator.start(element, "http://example.com/manifest.json");
             expect(paginatorStart.callCount).to.equal(1);
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             expect(paginatorStart.args[0][0]).to.equal(iframe);
             expect(paginatorStart.args[0][1]).to.equal(0);
         });
 
         it("should load first spine item in the iframe", async () => {
             await navigator.start(element, "http://example.com/manifest.json");
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             expect(iframe).not.to.be.null;
             expect(iframe.src).to.equal("http://example.com/start.html");
 
@@ -204,10 +204,10 @@ describe("IFrameNavigator", () => {
 
         it("should navigate to the first spine item", async () => {
             await navigator.start(element, "http://example.com/manifest.json");
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             iframe.src = "http://example.com/some-other-page.html";
 
-            let startLink = element.querySelector("a[rel=start]") as HTMLAnchorElement;
+            const startLink = element.querySelector("a[rel=start]") as HTMLAnchorElement;
             expect(startLink.href).to.equal("http://example.com/start.html");
             click(startLink);
             expect(iframe.src).to.equal("http://example.com/start.html");
@@ -215,8 +215,8 @@ describe("IFrameNavigator", () => {
 
         it("should navigate to the table of contents", async () => {
             await navigator.start(element, "http://example.com/manifest.json");
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            let toc = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const toc = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
             expect(toc.href).to.equal("http://example.com/toc.html");
             click(toc);
             expect(iframe.src).to.equal("http://example.com/toc.html");
@@ -224,9 +224,9 @@ describe("IFrameNavigator", () => {
 
         it("should navigate to the previous spine item", async () => {
             await navigator.start(element, "http://example.com/manifest.json");
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            let originalSrc = iframe.src;
-            let previous = element.querySelector("a[rel=prev]") as HTMLAnchorElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const originalSrc = iframe.src;
+            const previous = element.querySelector("a[rel=prev]") as HTMLAnchorElement;
 
             // On the first page, the previous link won't be enabled.
             expect(previous.href).to.equal("");
@@ -257,8 +257,8 @@ describe("IFrameNavigator", () => {
 
         it("should navigate to the next spine item", async () => {
             await navigator.start(element, "http://example.com/manifest.json");
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            let next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
 
             // On the last page, the previous link won't be enabled.
             iframe.src = "http://example.com/item-2.html";
@@ -291,13 +291,13 @@ describe("IFrameNavigator", () => {
         it("should toggle the navigation links", async () => {
             jsdom.changeURL(window, "http://example.com");
             await navigator.start(element, "http://example.com/manifest.json");
-            let links = element.querySelector("ul[class=links]") as HTMLUListElement;
-            let toggleElement = element.querySelector("div[class=links-toggle]");
+            const links = element.querySelector("ul[class=links]") as HTMLUListElement;
+            const toggleElement = element.querySelector("div[class=links-toggle]");
             
             // Initially, the navigation links are visible.
             expect(links.style.display).not.to.equal("none");
 
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
             // If you click a link in the iframe, it doesn't toggle the links.
             iframe.contentDocument.elementFromPoint = stub().returns(link);
@@ -306,7 +306,7 @@ describe("IFrameNavigator", () => {
             expect(links.style.display).not.to.equal("none");
 
             // If the link is on a different origin, it opens in a new window.
-            let openStub = stub(window, "open");
+            const openStub = stub(window, "open");
             link.hostname = "anotherexample.com";
             click(toggleElement);
             expect(linkClicked.callCount).to.equal(1);
@@ -330,9 +330,9 @@ describe("IFrameNavigator", () => {
         it("should go to previous page", async () => {
             jsdom.changeURL(window, "http://example.com");
             await navigator.start(element, "http://example.com/manifest.json");
-            let previousPageElement = element.querySelector("div[class=previous-page]");
+            const previousPageElement = element.querySelector("div[class=previous-page]");
             
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
             // If you click a link in the iframe, it doesn't change the page.
             iframe.contentDocument.elementFromPoint = stub().returns(link);
@@ -389,9 +389,9 @@ describe("IFrameNavigator", () => {
         it("should go to next page", async () => {
             jsdom.changeURL(window, "http://example.com");
             await navigator.start(element, "http://example.com/manifest.json");
-            let nextPageElement = element.querySelector("div[class=next-page]");
+            const nextPageElement = element.querySelector("div[class=next-page]");
             
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
             // If you click a link in the iframe, it doesn't change the page.
             iframe.contentDocument.elementFromPoint = stub().returns(link);
@@ -458,9 +458,9 @@ describe("IFrameNavigator", () => {
 
         it("should show loading message while iframe is loading", async () => {
             await navigator.start(element, "http://example.com/manifest.json");
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            let loading = element.querySelector("div[class=loading]") as any;
-            let next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const loading = element.querySelector("div[class=loading]") as any;
+            const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
 
             // Slow down the paginator so the loading message has time to appear.
             paginatorStart.returns(new Promise<void>(async (resolve) => {
@@ -488,11 +488,11 @@ describe("IFrameNavigator", () => {
             navigator = new IFrameNavigator(cacher);
             await navigator.start(element, "http://example.com/manifest.json");
 
-            let links = element.querySelector("ul[class=links]") as HTMLUListElement;
+            const links = element.querySelector("ul[class=links]") as HTMLUListElement;
             (links as any).clientHeight = 10;
             iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
-            let next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
+            const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
             click(next);
             await pause();
             expect(iframe.style.marginTop).to.equal("10px");

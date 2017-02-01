@@ -4,7 +4,7 @@ import Paginator from "./Paginator";
 import Annotator from "./Annotator";
 import Manifest from "./Manifest";
 
-let template = (paginationControls: string) => `
+const template = (paginationControls: string) => `
   <nav class="publication">
     <div class="controls">
       <ul class="links" style="z-index: 2000;">
@@ -105,7 +105,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private findRequiredElement(parentElement: Element, selector: string): Element {
-        let element = this.findElement(parentElement, selector);
+        const element = this.findElement(parentElement, selector);
         if (!element) {
             throw "required element " + selector + " not found";
         } else {
@@ -136,17 +136,17 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private async loadManifest(): Promise<void> {
-        let manifest: Manifest = await this.cacher.getManifest(this.manifestUrl);
+        const manifest: Manifest = await this.cacher.getManifest(this.manifestUrl);
 
-        let tocLink = manifest.getTOCLink();
+        const tocLink = manifest.getTOCLink();
         if (tocLink && tocLink.href) {
-            var href = new URL(tocLink.href, this.manifestUrl).href;
+            const href = new URL(tocLink.href, this.manifestUrl).href;
             this.contentsLink.href = href;
             this.contentsLink.className = "";
         }
 
         let startUrl: string | null = null;
-        let startLink = manifest.getStartLink();
+        const startLink = manifest.getStartLink();
         if (startLink && startLink.href) {
             startUrl = new URL(startLink.href, this.manifestUrl).href;
             this.startLink.href = startUrl;
@@ -161,7 +161,7 @@ export default class IFrameNavigator implements Navigator {
         if (lastReadingPosition) {
             this.navigate(lastReadingPosition);
         } else if (startUrl) {
-            let position = {
+            const position = {
                 resource: startUrl,
                 position: 0
             };
@@ -182,13 +182,13 @@ export default class IFrameNavigator implements Navigator {
             this.newPosition = null;
         }
 
-        let manifest = await this.cacher.getManifest(this.manifestUrl);
+        const manifest = await this.cacher.getManifest(this.manifestUrl);
         let currentLocation = this.iframe.src;
         if (this.iframe.contentDocument && this.iframe.contentDocument.location && this.iframe.contentDocument.location.href) {
             currentLocation = this.iframe.contentDocument.location.href;
         }
 
-        let previous = manifest.getPreviousSpineItem(currentLocation);
+        const previous = manifest.getPreviousSpineItem(currentLocation);
         if (previous && previous.href) {
             this.previousChapterLink.href = new URL(previous.href, this.manifestUrl).href;
             this.previousChapterLink.className = "";
@@ -197,7 +197,7 @@ export default class IFrameNavigator implements Navigator {
             this.previousChapterLink.className = "disabled";
         }
 
-        let next = manifest.getNextSpineItem(currentLocation);
+        const next = manifest.getNextSpineItem(currentLocation);
         if (next && next.href) {
             this.nextChapterLink.href = new URL(next.href, this.manifestUrl).href;
             this.nextChapterLink.className = "";
@@ -214,13 +214,13 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private checkForIFrameLink = (event: MouseEvent): boolean => {
-        let x = event.clientX;
+        const x = event.clientX;
         let marginTop = 0;
         if (this.iframe.style.marginTop) {
             marginTop = parseInt(this.iframe.style.marginTop.slice(0, -2), 10);
         }
-        let y = event.clientY - marginTop;
-        let iframeElement = this.iframe.contentDocument.elementFromPoint(x, y);
+        const y = event.clientY - marginTop;
+        const iframeElement = this.iframe.contentDocument.elementFromPoint(x, y);
         let foundLink: Element | null = null;
         let nextElement: Element | null = iframeElement;
         while (nextElement && nextElement.tagName.toLowerCase() !== "body") {
@@ -232,14 +232,14 @@ export default class IFrameNavigator implements Navigator {
             }
         }
         if (foundLink) {
-            let link = (foundLink as HTMLAnchorElement);
-            let isSameOrigin = (
+            const link = (foundLink as HTMLAnchorElement);
+            const isSameOrigin = (
                 window.location.protocol === link.protocol &&
                 window.location.port === link.port &&
                 window.location.hostname === link.hostname
             );
             if (isSameOrigin) { 
-                let newEvent = new MouseEvent(event.type, event);
+                const newEvent = new MouseEvent(event.type, event);
                 link.dispatchEvent(newEvent);
             } else {
                 window.open(link.href, "_blank");
@@ -252,7 +252,7 @@ export default class IFrameNavigator implements Navigator {
     private handleToggleLinksClick(event: MouseEvent): void {
         event.preventDefault();
         if (!this.checkForIFrameLink(event)) {
-            let display: string | null = this.links.style.display;
+            const display: string | null = this.links.style.display;
             if (display && display === "none") {
                 this.links.style.display = "block";
             } else {
@@ -266,7 +266,7 @@ export default class IFrameNavigator implements Navigator {
         if (this.paginator && !this.checkForIFrameLink(event)) {
             if (this.paginator.onFirstPage()) {
                 if (this.previousChapterLink.hasAttribute("href")) {
-                    let position = {
+                    const position = {
                         resource: this.previousChapterLink.href,
                         position: 1
                     };
@@ -284,7 +284,7 @@ export default class IFrameNavigator implements Navigator {
         if (this.paginator && !this.checkForIFrameLink(event)) {
             if (this.paginator.onLastPage()) {
                 if (this.nextChapterLink.hasAttribute("href")) {
-                    let position = {
+                    const position = {
                         resource: this.nextChapterLink.href,
                         position: 0
                     };
@@ -299,7 +299,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleResize(): void {
         if (this.paginator) {
-            let oldPosition = this.paginator.getCurrentPosition();
+            const oldPosition = this.paginator.getCurrentPosition();
             this.setIFrameSize();
             this.paginator.goToPosition(oldPosition);
         } else {
@@ -309,7 +309,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handlePreviousChapterClick(event: MouseEvent): void {
         if (this.previousChapterLink.hasAttribute("href")) {
-            let position = {
+            const position = {
                 resource: this.previousChapterLink.href,
                 position: 0
             }
@@ -320,7 +320,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleNextChapterClick(event: MouseEvent): void {
         if (this.nextChapterLink.hasAttribute("href")) {
-            let position = {
+            const position = {
                 resource: this.nextChapterLink.href,
                 position: 0
             };
@@ -331,7 +331,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleStartClick(event: MouseEvent): void {
         if (this.startLink.hasAttribute("href")) {
-            let position = {
+            const position = {
                 resource: this.startLink.href,
                 position: 0
             };
@@ -341,7 +341,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleContentsClick(event: MouseEvent): void {
-        let position = {
+        const position = {
             resource: this.contentsLink.href,
             position: 0
         };
@@ -382,7 +382,7 @@ export default class IFrameNavigator implements Navigator {
 
     private async saveCurrentReadingPosition(): Promise<void> {
         if (this.annotator) {
-            let resource = this.iframe.src;
+            const resource = this.iframe.src;
             let position = 0;
             if (this.paginator) {
                 position = this.paginator.getCurrentPosition();

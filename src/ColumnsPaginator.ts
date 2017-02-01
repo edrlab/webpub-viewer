@@ -7,7 +7,7 @@ export default class ColumnsPaginator implements Paginator {
         this.iframe = iframe;
         // any is necessary because CSSStyleDeclaration type does not include
         // all the vendor-prefixed attributes.
-        let body = iframe.contentDocument.body as any;
+        const body = iframe.contentDocument.body as any;
         body.style.columnCount = 1;
         body.style.WebkitColumnCount = 1;
         body.style.MozColumnCount = 1;
@@ -21,10 +21,10 @@ export default class ColumnsPaginator implements Paginator {
         body.style.margin = "0";
         body.style.position = "relative";
         this.setSize();
-        let viewportElement = document.createElement("meta");
+        const viewportElement = document.createElement("meta");
         viewportElement.name = "viewport";
         viewportElement.content = "width=device-width, initial-scale=1, maximum-scale=1";
-        let head = iframe.contentDocument.querySelector("head");
+        const head = iframe.contentDocument.querySelector("head");
         if (head) {
             head.appendChild(viewportElement);
         }
@@ -35,7 +35,7 @@ export default class ColumnsPaginator implements Paginator {
     private setSize(): void {
         // any is necessary because CSSStyleDeclaration type does not include
         // all the vendor-prefixed attributes.
-        let body = this.iframe.contentDocument.body as any;
+        const body = this.iframe.contentDocument.body as any;
         body.style.columnWidth = this.iframe.style.width;
         body.style.WebkitColumnWidth = this.iframe.style.width;
         body.style.MozColumnWidth = this.iframe.style.width;
@@ -54,8 +54,8 @@ export default class ColumnsPaginator implements Paginator {
     private getRightColumnsWidth(): number {
         // scrollWidth includes the column in the iframe viewport as well as
         // columns to the right.
-        let scrollWidth = this.iframe.contentDocument.body.scrollWidth;
-        let width = this.getColumnWidth();
+        const scrollWidth = this.iframe.contentDocument.body.scrollWidth;
+        const width = this.getColumnWidth();
         return scrollWidth - width;
     }
 
@@ -74,36 +74,36 @@ export default class ColumnsPaginator implements Paginator {
         proportion of columns that are currently positioned
         to the left of the iframe viewport. */
     public getCurrentPosition(): number {
-        let width = this.getColumnWidth();
-        let leftWidth = this.getLeftColumnsWidth();
-        let rightWidth = this.getRightColumnsWidth();
-        let totalWidth = leftWidth + width + rightWidth;
+        const width = this.getColumnWidth();
+        const leftWidth = this.getLeftColumnsWidth();
+        const rightWidth = this.getRightColumnsWidth();
+        const totalWidth = leftWidth + width + rightWidth;
 
         return leftWidth / totalWidth;
     }
 
     public onFirstPage(): boolean {
-        let leftWidth = this.getLeftColumnsWidth();
+        const leftWidth = this.getLeftColumnsWidth();
 
         return (leftWidth <= 0);
     }
 
     public onLastPage(): boolean {
-        let rightWidth = this.getRightColumnsWidth();
+        const rightWidth = this.getRightColumnsWidth();
 
         return (rightWidth <= 0);
     }
 
     public goToPreviousPage(): void {
-        let leftWidth = this.getLeftColumnsWidth();
-        let width = this.getColumnWidth();
+        const leftWidth = this.getLeftColumnsWidth();
+        const width = this.getColumnWidth();
 
         this.setLeftColumnsWidth(leftWidth - width);
     }
 
     public goToNextPage(): void {
-        let leftWidth = this.getLeftColumnsWidth();
-        let width = this.getColumnWidth();
+        const leftWidth = this.getLeftColumnsWidth();
+        const width = this.getColumnWidth();
 
         this.setLeftColumnsWidth(leftWidth + width);
     }
@@ -119,11 +119,11 @@ export default class ColumnsPaginator implements Paginator {
         // we need to reset position so we can determine the new total width.
         this.setLeftColumnsWidth(0);
 
-        let width = this.getColumnWidth();
-        let rightWidth = this.getRightColumnsWidth();
-        let totalWidth = width + rightWidth;
+        const width = this.getColumnWidth();
+        const rightWidth = this.getRightColumnsWidth();
+        const totalWidth = width + rightWidth;
 
-        let newLeftWidth = position * totalWidth;
+        const newLeftWidth = position * totalWidth;
 
         // Round the new left width so it's a multiple of the column width.
 

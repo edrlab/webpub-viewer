@@ -13,7 +13,7 @@ export default class ServiceWorkerCacher implements Cacher {
     }
 
     public async start(manifestUrl: string): Promise<void> {
-        let protocol = window.location.protocol;
+        const protocol = window.location.protocol;
         this.supported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
 
         if (this.supported) {
@@ -27,8 +27,8 @@ export default class ServiceWorkerCacher implements Cacher {
 
     public async getManifest(manifestUrl: string): Promise<Manifest> {
         try {
-            let response = await window.fetch(manifestUrl)
-            let manifestJSON = await response.json();
+            const response = await window.fetch(manifestUrl)
+            const manifestJSON = await response.json();
             if (window.localStorage) {
                 window.localStorage.setItem(manifestUrl + "-manifest", JSON.stringify(manifestJSON));
             }
@@ -36,14 +36,14 @@ export default class ServiceWorkerCacher implements Cacher {
         } catch (err) {
             // We couldn't fetch the response, but there might be a cached version.
             if (window.localStorage) {
-                let manifestString = window.localStorage.getItem(manifestUrl + "-manifest");
+                const manifestString = window.localStorage.getItem(manifestUrl + "-manifest");
                 if (manifestString) {
-                    let manifestJSON = JSON.parse(manifestString);
+                    const manifestJSON = JSON.parse(manifestString);
                     return new Manifest(manifestJSON, manifestUrl);
                 }
             }
-            let response = await window.caches.match(manifestUrl);
-            let manifestJSON = await response.json();
+            const response = await window.caches.match(manifestUrl);
+            const manifestJSON = await response.json();
             return new Manifest(manifestJSON, manifestUrl);
         }
     }
@@ -51,14 +51,14 @@ export default class ServiceWorkerCacher implements Cacher {
     private async verifyAndCacheManifest(manifestUrl: string): Promise<void> {
         await navigator.serviceWorker.ready;
         try {
-            let cache = await window.caches.open(manifestUrl);
-            let response = await cache.match(manifestUrl);
+            const cache = await window.caches.open(manifestUrl);
+            const response = await cache.match(manifestUrl);
             // If the manifest wasn't already cached, we need to cache everything.
             if (!response) {
                 // Invoke promises concurrently...
-                let promises = [this.cacheManifest(manifestUrl), this.cacheUrls(["index.html", manifestUrl], manifestUrl)];
+                const promises = [this.cacheManifest(manifestUrl), this.cacheUrls(["index.html", manifestUrl], manifestUrl)];
                 // then wait for all of them to resolve.
-                for (let promise of promises) {
+                for (const promise of promises) {
                    await promise;
                 }
             }
@@ -68,14 +68,14 @@ export default class ServiceWorkerCacher implements Cacher {
     }
 
     private async cacheUrls(urls: string[], manifestUrl: string): Promise<void> {
-        let cache = await window.caches.open(manifestUrl);
+        const cache = await window.caches.open(manifestUrl);
         return cache.addAll((urls.map(url => new URL(url, manifestUrl).href) as any));
     }
 
     private async cacheManifest(manifestUrl: string): Promise<void> {
-        let manifest = await this.getManifest(manifestUrl);
-        let promises = [this.cacheSpine(manifest, manifestUrl), this.cacheResources(manifest, manifestUrl)];
-        for (let promise of promises) {
+        const manifest = await this.getManifest(manifestUrl);
+        const promises = [this.cacheSpine(manifest, manifestUrl), this.cacheResources(manifest, manifestUrl)];
+        for (const promise of promises) {
             await promise;
         }
         return new Promise<void>(resolve => resolve());
@@ -83,7 +83,7 @@ export default class ServiceWorkerCacher implements Cacher {
 
     private async cacheSpine(manifest: Manifest, manifestUrl: string): Promise<void> {
         let urls: Array<string> = [];
-        for (let resource of manifest.spine) {
+        for (const resource of manifest.spine) {
             if (resource.href) {
                 urls.push(resource.href);
             }
@@ -93,7 +93,7 @@ export default class ServiceWorkerCacher implements Cacher {
 
     private async cacheResources(manifest: Manifest, manifestUrl: string): Promise<void> {
         let urls: Array<string> = [];
-        for (let resource of manifest.resources) {
+        for (const resource of manifest.resources) {
             if (resource.href) {
                 urls.push(resource.href);
             }

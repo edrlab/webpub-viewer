@@ -36,10 +36,10 @@ export default class Manifest {
     }
 
     public getTOCLink(): Link | null {
-        let allResources = this.spine.concat(this.resources);
-        for (let link of allResources) {
+        const allResources = this.spine.concat(this.resources);
+        for (const link of allResources) {
             if (link.rel) {
-                for (let rel of link.rel) {
+                for (const rel of link.rel) {
                     if (rel === "contents") {
                         return link;
                     }
@@ -50,7 +50,7 @@ export default class Manifest {
     }
 
     public getPreviousSpineItem(href: string): Link | null {
-        let index = this.getSpineIndex(href);
+        const index = this.getSpineIndex(href);
         if (index !== null && index > 0) {
             return this.spine[index - 1];
         }
@@ -58,7 +58,7 @@ export default class Manifest {
     }
 
     public getNextSpineItem(href: string): Link | null {
-        let index = this.getSpineIndex(href);
+        const index = this.getSpineIndex(href);
         if (index !== null && index < (this.spine.length -1)) {
             return this.spine[index + 1];
         }
@@ -67,9 +67,9 @@ export default class Manifest {
 
     private getSpineIndex(href: string): number | null {
         for (let index = 0; index < this.spine.length; index++) {
-            let item = this.spine[index];
+            const item = this.spine[index];
             if (item.href) {
-                let itemUrl = new URL(item.href, this.manifestUrl).href;
+                const itemUrl = new URL(item.href, this.manifestUrl).href;
                 if (itemUrl === href) {
                     return index;
                 }

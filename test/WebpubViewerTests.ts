@@ -24,8 +24,8 @@ describe('WebpubViewer', () => {
         }
     }
 
-    let cacher = new MockCacher();
-    let navigator = new MockNavigator();
+    const cacher = new MockCacher();
+    const navigator = new MockNavigator();
     let viewer: WebpubViewer;
     let element: HTMLElement;
 

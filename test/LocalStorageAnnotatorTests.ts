@@ -23,16 +23,16 @@ describe("LocalStorageAnnotator", () => {
     });
 
     describe("#getLastReadingPosition", async () => {
-        let storedPosition = { locator: "could be anything" };
+        const storedPosition = { locator: "could be anything" };
         mockLocalStorageAPI(JSON.stringify(storedPosition));
 
-        let retrievedPosition = await annotator.getLastReadingPosition();
+        const retrievedPosition = await annotator.getLastReadingPosition();
         expect(retrievedPosition).to.deep.equal(storedPosition);
         expect(getItem.callCount).to.equal(1);
     });
 
     describe("#saveLastReadingPosition", async () => {
-        let position = { locator: "could be anything" };
+        const position = { locator: "could be anything" };
 
         await annotator.saveLastReadingPosition(position);
 

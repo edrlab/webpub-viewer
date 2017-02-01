@@ -6,7 +6,7 @@ const urlsToCache: any = [
 ];
 
 self.addEventListener('install', event => {
-    let urlsCached = self.caches.open(CACHE_NAME).then((cache: any) => {
+    const urlsCached = self.caches.open(CACHE_NAME).then((cache: any) => {
         return cache.addAll(urlsToCache);
     });
     (event as any).waitUntil(urlsCached);
@@ -18,7 +18,7 @@ self.addEventListener('activate', () => {
 });
 
 self.addEventListener('fetch', event => {
-    let cachedOrFetchedResponse = self.caches.match((event as any).request).then(response => {
+    const cachedOrFetchedResponse = self.caches.match((event as any).request).then(response => {
         return response || self.fetch((event as any).request);
     });
     (event as any).respondWith(cachedOrFetchedResponse);
