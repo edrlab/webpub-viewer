@@ -230,6 +230,8 @@ export default class IFrameNavigator implements Navigator {
             this.nextChapterLink.className = "disabled";
         }
 
+        this.setActiveTOCItem(currentLocation);
+
         if (this.annotator) {
             await this.saveCurrentReadingPosition();
         }
@@ -382,6 +384,17 @@ export default class IFrameNavigator implements Navigator {
 
     private hideTOC(): void {
         this.toc.style.display = "none";
+    }
+
+    private setActiveTOCItem(resource: string): void {
+       const allItems = Array.prototype.slice.call(this.toc.querySelectorAll("li > a"));
+       for (const item of allItems) {
+           item.className = "";
+       }
+       const activeItem = this.toc.querySelector('li > a[href="' + resource  + '"]');
+       if (activeItem) {
+           activeItem.className = "active";
+       }
     }
 
     private navigate(readingPosition: ReadingPosition): void {

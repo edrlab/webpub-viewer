@@ -571,5 +571,28 @@ describe("IFrameNavigator", () => {
             expect(toc.style.display).to.equal("none");
             expect(iframe.src).to.equal("http://example.com/item-2.html");
         });
+
+        it("should set class on the active toc item", async () => {
+            await navigator.start(element, "http://example.com/manifest.json");
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+
+            const links = toc.querySelectorAll("li > a");
+            const link1 = links[0] as HTMLAnchorElement;
+            const link2 = links[1] as HTMLAnchorElement;
+
+            expect(link1.className).to.equal("");
+            expect(link2.className).to.equal("");
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+            expect(link1.className).to.equal("active");
+            expect(link2.className).to.equal("");
+
+            iframe.src = "http://example.com/item-2.html";
+            await pause();
+            expect(link1.className).to.equal("");
+            expect(link2.className).to.equal("active");
+        });
     });
 });
