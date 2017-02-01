@@ -51,10 +51,10 @@ export default class IFrameNavigator implements Navigator {
     private contentsLink: HTMLAnchorElement;
     private navigation: Element;
     private links: HTMLUListElement;
+    private loadingMessage: HTMLDivElement;
     private linksToggle: Element | null;
     private previousPageLink: Element | null;
     private nextPageLink: Element | null;
-    private loadingMessage: HTMLDivElement;
     private newPosition: ReadingPosition | null;
     private isLoading: boolean;
 
@@ -72,50 +72,44 @@ export default class IFrameNavigator implements Navigator {
             html = HTML_WITHOUT_PAGINATOR;
         }
         element.innerHTML = html;
-        let iframe = element.querySelector("iframe");
-        let nextChapterLink = element.querySelector("a[rel=next]");
-        let previousChapterLink = element.querySelector("a[rel=prev]");
-        let startLink = element.querySelector("a[rel=start]");
-        let contentsLink = element.querySelector("a[rel=contents]");
-        let navigation = element.querySelector("div[class=controls]");
-        let links = element.querySelector("ul[class=links]");
-        let linksToggle = element.querySelector("div[class=links-toggle]");
-        let previousPageLink = element.querySelector("div[class=previous-page]");
-        let nextPageLink = element.querySelector("div[class=next-page]");
-        let loadingMessage = element.querySelector("div[class=loading]");
-
-        if (!iframe || !nextChapterLink || !previousChapterLink ||
-            !startLink || !contentsLink || !navigation || !links ||
-            !loadingMessage ||
-            (this.paginator && !linksToggle) ||
-            (this.paginator && !previousPageLink) ||
-            (this.paginator && !nextPageLink) ||
-            !(nextChapterLink instanceof HTMLAnchorElement) ||
-            !(previousChapterLink instanceof HTMLAnchorElement) ||
-            !(startLink instanceof HTMLAnchorElement) ||
-            !(contentsLink instanceof HTMLAnchorElement) ||
-            !(links instanceof HTMLUListElement) ||
-            !(loadingMessage instanceof HTMLDivElement)) {
-            // There's a mismatch between the template and the selectors above,
-            // or we weren't able to insert the template in the element.
-            return new Promise<void>((_, reject) => reject());
-        } else {
-            this.manifestUrl = manifestUrl;
-            this.iframe = iframe;
-            this.nextChapterLink = nextChapterLink;
-            this.previousChapterLink = previousChapterLink;
-            this.startLink = startLink;
-            this.contentsLink = contentsLink;
-            this.navigation = navigation;
-            this.links = links;
-            this.linksToggle = linksToggle;
-            this.previousPageLink = previousPageLink;
-            this.nextPageLink = nextPageLink;
-            this.loadingMessage = loadingMessage;
+        this.manifestUrl = manifestUrl;
+        try {
+            this.iframe = this.findRequiredElement(element, "iframe") as HTMLIFrameElement;
+            this.nextChapterLink = this.findRequiredElement(element, "a[rel=next]") as HTMLAnchorElement;
+            this.previousChapterLink = this.findRequiredElement(element, "a[rel=prev]") as HTMLAnchorElement;
+            this.startLink = this.findRequiredElement(element, "a[rel=start]") as HTMLAnchorElement;
+            this.contentsLink = this.findRequiredElement(element, "a[rel=contents]") as HTMLAnchorElement;
+            this.navigation = this.findRequiredElement(element, "div[class=controls]");
+            this.links = this.findRequiredElement(element, "ul[class=links]") as HTMLUListElement;
+            this.loadingMessage = this.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
+            let find = this.findElement.bind(this);
+            if (this.paginator) {
+                find = this.findRequiredElement.bind(this);
+            }
+            this.linksToggle = find(element, "div[class=links-toggle]");
+            this.previousPageLink = find(element, "div[class=previous-page]");
+            this.nextPageLink = find(element, "div[class=next-page]");
             this.newPosition = null;
             this.isLoading = true;
             this.setupEvents();
             return await this.loadManifest();
+        } catch (err) {
+            // There's a mismatch between the template and the selectors above,
+            // or we weren't able to insert the template in the element.
+            return new Promise<void>((_, reject) => reject(err));
+        }
+    }
+
+    private findElement(parentElement: Element, selector: string): Element | null {
+        return parentElement.querySelector(selector);
+    }
+
+    private findRequiredElement(parentElement: Element, selector: string): Element {
+        let element = this.findElement(parentElement, selector);
+        if (!element) {
+            throw "required element " + selector + " not found";
+        } else {
+            return element;
         }
     }
 
