@@ -15,6 +15,7 @@ const template = (paginationControls: string) => `
       </ul>
       ${paginationControls}
     </div>
+    <div class="toc" style="display: none; z-index: 3000;"></div>
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
@@ -51,6 +52,7 @@ export default class IFrameNavigator implements Navigator {
     private contentsLink: HTMLAnchorElement;
     private navigation: Element;
     private links: HTMLUListElement;
+    private toc: HTMLDivElement;
     private loadingMessage: HTMLDivElement;
     private linksToggle: Element | null;
     private previousPageLink: Element | null;
@@ -81,6 +83,7 @@ export default class IFrameNavigator implements Navigator {
             this.contentsLink = this.findRequiredElement(element, "a[rel=contents]") as HTMLAnchorElement;
             this.navigation = this.findRequiredElement(element, "div[class=controls]");
             this.links = this.findRequiredElement(element, "ul[class=links]") as HTMLUListElement;
+            this.toc = this.findRequiredElement(element, "div[class=toc]") as HTMLDivElement;
             this.loadingMessage = this.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
             let find = this.findElement.bind(this);
             if (this.paginator) {
@@ -138,11 +141,32 @@ export default class IFrameNavigator implements Navigator {
     private async loadManifest(): Promise<void> {
         const manifest: Manifest = await this.cacher.getManifest(this.manifestUrl);
 
-        const tocLink = manifest.getTOCLink();
-        if (tocLink && tocLink.href) {
-            const href = new URL(tocLink.href, this.manifestUrl).href;
-            this.contentsLink.href = href;
+        const toc = manifest.toc;
+        if (toc.length) {
+            this.contentsLink.href = "#";
             this.contentsLink.className = "";
+            const listElement: HTMLUListElement = document.createElement("ul");
+            for (const link of toc) {
+                const listItemElement : HTMLLIElement = document.createElement("li");
+                const linkElement: HTMLAnchorElement = document.createElement("a");
+                let href = "";
+                if (link.href) {
+                    href = new URL(link.href, this.manifestUrl).href;
+                }
+                linkElement.href = href;
+                linkElement.text = link.title || "";
+                linkElement.addEventListener("click", (event: Event) => {
+                    event.preventDefault();
+                    this.hideTOC();
+                    this.navigate({
+                        resource: linkElement.href,
+                        position: 0
+                    });
+                });
+                listItemElement.appendChild(linkElement);
+                listElement.appendChild(listItemElement);
+            }
+            this.toc.appendChild(listElement);
         }
 
         let startUrl: string | null = null;
@@ -251,6 +275,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleToggleLinksClick(event: MouseEvent): void {
         event.preventDefault();
+        this.hideTOC();
         if (!this.checkForIFrameLink(event)) {
             const display: string | null = this.links.style.display;
             if (display && display === "none") {
@@ -263,6 +288,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handlePreviousPageClick(event: MouseEvent): void {
         event.preventDefault();
+        this.hideTOC();
         if (this.paginator && !this.checkForIFrameLink(event)) {
             if (this.paginator.onFirstPage()) {
                 if (this.previousChapterLink.hasAttribute("href")) {
@@ -281,6 +307,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleNextPageClick(event: MouseEvent) {
         event.preventDefault();
+        this.hideTOC();
         if (this.paginator && !this.checkForIFrameLink(event)) {
             if (this.paginator.onLastPage()) {
                 if (this.nextChapterLink.hasAttribute("href")) {
@@ -308,6 +335,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handlePreviousChapterClick(event: MouseEvent): void {
+        this.hideTOC();
         if (this.previousChapterLink.hasAttribute("href")) {
             const position = {
                 resource: this.previousChapterLink.href,
@@ -319,6 +347,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleNextChapterClick(event: MouseEvent): void {
+        this.hideTOC();
         if (this.nextChapterLink.hasAttribute("href")) {
             const position = {
                 resource: this.nextChapterLink.href,
@@ -330,6 +359,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleStartClick(event: MouseEvent): void {
+        this.hideTOC();
         if (this.startLink.hasAttribute("href")) {
             const position = {
                 resource: this.startLink.href,
@@ -341,12 +371,17 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleContentsClick(event: MouseEvent): void {
-        const position = {
-            resource: this.contentsLink.href,
-            position: 0
-        };
-        this.navigate(position);
+        const display: string | null = this.toc.style.display;
+        if (display && display === "none") {
+            this.toc.style.display = "block";
+        } else {
+            this.toc.style.display = "none";
+        }
         event.preventDefault();
+    }
+
+    private hideTOC(): void {
+        this.toc.style.display = "none";
     }
 
     private navigate(readingPosition: ReadingPosition): void {

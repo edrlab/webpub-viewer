@@ -22,7 +22,11 @@ describe("Manifest", () => {
             resources: [
                 { href: "contents.html", rel: ["contents"] },
                 { href: "cover.jpg" }
-            ]
+            ],
+            toc: [
+                { href: "spine-item-1.html", title: "Chapter 1" },
+                { href: "spine-item-2.html", title: "Chapter 2" }
+            ],
         }, "http://example.com/manifest.json");
 
         emptyManifest = new Manifest({}, "http://example.com/manifest.json");
@@ -54,6 +58,11 @@ describe("Manifest", () => {
             expect(manifest.resources.length).to.equal(2);
             expect(manifest.resources[0].href).to.equal("contents.html");
         });
+
+        it("should store toc", () => {
+            expect(manifest.toc.length).to.equal(2);
+            expect(manifest.toc[0].title).to.equal("Chapter 1");
+        });
     });
 
     describe("#getStartLink", () => {
@@ -66,31 +75,6 @@ describe("Manifest", () => {
         it("should return null if spine is empty", () => {
             const start = emptyManifest.getStartLink();
             expect(start).to.be.null;
-        });
-    });
-
-    describe("#getTOCLink", () => {
-        it("should return toc from resources", () => {
-            const toc = manifest.getTOCLink() as Link;
-            expect(toc).not.to.be.null;
-            expect(toc.href).to.equal("contents.html");
-        });
-
-        it("should return toc from spine", () => {
-            manifest = new Manifest({
-                spine: [
-                    { href: "toc.html", rel: ["contents"] },
-                    { href: "other-spine-item.html" }
-                ]
-            }, "http://example.com/manifest.json");
-            const toc = manifest.getTOCLink() as Link;
-            expect(toc).not.to.be.null;
-            expect(toc.href).to.equal("toc.html");
-        });
-
-        it("should return null if there's no toc", () => {
-            const toc = emptyManifest.getTOCLink();
-            expect(toc).to.be.null;
         });
     });
 
