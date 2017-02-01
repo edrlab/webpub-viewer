@@ -242,7 +242,7 @@ export default class IFrameNavigator implements Navigator {
             let isSameOrigin = (
                 window.location.protocol === link.protocol &&
                 window.location.port === link.port &&
-                window.location.hostname == link.hostname
+                window.location.hostname === link.hostname
             );
             if (isSameOrigin) { 
                 let newEvent = new MouseEvent(event.type, event);
