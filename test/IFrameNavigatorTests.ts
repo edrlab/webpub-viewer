@@ -529,14 +529,20 @@ describe("IFrameNavigator", () => {
 
         it("should hide when other navigation links are clicked", async () => {
             await navigator.start(element, "http://example.com/manifest.json");
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            iframe.contentDocument.elementFromPoint = stub().returns(span);
             const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
 
             const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
             click(contentsLink);
             expect(toc.style.display).not.to.equal("none");
 
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+
             const nextChapterLink = element.querySelector("a[rel=next]") as HTMLAnchorElement;
             click(nextChapterLink);
+            await pause();
             expect(toc.style.display).to.equal("none");
 
             click(contentsLink);
@@ -544,6 +550,7 @@ describe("IFrameNavigator", () => {
 
             const previousChapterLink = element.querySelector("a[rel=prev]") as HTMLAnchorElement;
             click(previousChapterLink);
+            await pause();
             expect(toc.style.display).to.equal("none");
         });
 

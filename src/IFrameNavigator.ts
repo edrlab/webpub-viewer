@@ -157,7 +157,6 @@ export default class IFrameNavigator implements Navigator {
                 linkElement.text = link.title || "";
                 linkElement.addEventListener("click", (event: Event) => {
                     event.preventDefault();
-                    this.hideTOC();
                     this.navigate({
                         resource: linkElement.href,
                         position: 0
@@ -196,6 +195,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private async handleIFrameLoad(): Promise<void> {
+        this.hideTOC();
         this.showLoadingMessageAfterDelay();
         if (this.paginator) {
             let paginatorPosition = 0;
@@ -290,7 +290,6 @@ export default class IFrameNavigator implements Navigator {
 
     private handlePreviousPageClick(event: MouseEvent): void {
         event.preventDefault();
-        this.hideTOC();
         if (this.paginator && !this.checkForIFrameLink(event)) {
             if (this.paginator.onFirstPage()) {
                 if (this.previousChapterLink.hasAttribute("href")) {
@@ -309,7 +308,6 @@ export default class IFrameNavigator implements Navigator {
 
     private handleNextPageClick(event: MouseEvent) {
         event.preventDefault();
-        this.hideTOC();
         if (this.paginator && !this.checkForIFrameLink(event)) {
             if (this.paginator.onLastPage()) {
                 if (this.nextChapterLink.hasAttribute("href")) {
@@ -337,7 +335,6 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handlePreviousChapterClick(event: MouseEvent): void {
-        this.hideTOC();
         if (this.previousChapterLink.hasAttribute("href")) {
             const position = {
                 resource: this.previousChapterLink.href,
@@ -349,7 +346,6 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleNextChapterClick(event: MouseEvent): void {
-        this.hideTOC();
         if (this.nextChapterLink.hasAttribute("href")) {
             const position = {
                 resource: this.nextChapterLink.href,
@@ -361,7 +357,6 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleStartClick(event: MouseEvent): void {
-        this.hideTOC();
         if (this.startLink.hasAttribute("href")) {
             const position = {
                 resource: this.startLink.href,
