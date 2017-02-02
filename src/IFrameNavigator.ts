@@ -369,7 +369,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleContentsClick(event: MouseEvent): void {
         const display: string | null = this.toc.style.display;
-        if (display && display === "none") {
+        if (display === "none") {
             this.toc.style.display = "block";
         } else {
             this.toc.style.display = "none";
