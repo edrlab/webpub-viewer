@@ -28,12 +28,12 @@ export default class WebpubViewer {
         // This assumes that the manifest is located next to the html file that loads the viewer.
         const manifestUrl = new URL("manifest.json", window.location.href).href;
 
-        await this.store.start();
+        await this.store.start(manifestUrl);
 
         // Not sure if these could run concurrently.
         await this.cacher.start(manifestUrl);
         if (this.annotator) {
-            await this.annotator.start(manifestUrl);
+            await this.annotator.start();
         }
         await this.navigator.start(element, manifestUrl);
     }

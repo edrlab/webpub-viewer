@@ -6,10 +6,12 @@ import MemoryStore from "./MemoryStore";
 export default class LocalStorageStore implements Store {
     private enabled: boolean;
     private memoryStore: MemoryStore | null;
+    private manifestUrl: string;
     
     public constructor() {}
 
-    public async start(): Promise<void> {
+    public async start(manifestUrl: string): Promise<void> {
+        this.manifestUrl = manifestUrl;
         try {
             // In some browsers (eg iOS Safari in private mode), 
             // localStorage exists but throws an exception when
@@ -25,10 +27,14 @@ export default class LocalStorageStore implements Store {
         return new Promise<void>(resolve => resolve());
     }
 
+    private getLocalStorageKey(key: string): string {
+        return this.manifestUrl + "-" + key;
+    }
+
     public async get(key: string): Promise<string | null> {
         let value: string | null = null;
         if (this.enabled) {
-            value = window.localStorage.getItem(key);
+            value = window.localStorage.getItem(this.getLocalStorageKey(key));
         }
         if (this.memoryStore) {
             value = await this.memoryStore.get(key);
@@ -38,7 +44,7 @@ export default class LocalStorageStore implements Store {
 
     public async set(key: string, value: string): Promise<void> {
         if (this.enabled) {
-            window.localStorage.setItem(key, value);
+            window.localStorage.setItem(this.getLocalStorageKey(key), value);
         }
         if (this.memoryStore) {
             await this.memoryStore.set(key, value);

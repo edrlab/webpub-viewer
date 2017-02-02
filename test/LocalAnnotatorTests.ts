@@ -11,7 +11,7 @@ describe("LocalAnnotator", () => {
         store = new MemoryStore();
         store.start();
         annotator = new LocalAnnotator(store);
-        annotator.start("http://example.com/manifest.json");
+        annotator.start();
     });
 
     describe("#getLastReadingPosition", async () => {

@@ -23,7 +23,7 @@ describe("LocalStorageStore", () => {
     });
 
     it("falls back to memory store if localStorage is not available", async () => {
-        await store.start();
+        await store.start("http://example.com/manifest.json");
 
         // #get returns null for a value that has not been set.
         let value = await store.get("key");
@@ -34,10 +34,10 @@ describe("LocalStorageStore", () => {
         expect(value).to.equal("value");
     });
 
-    it("uses localStorage if available", async () => {
+    it("uses localStorage if available, and adds manifest url to keys", async () => {
         mockLocalStorageAPI();
 
-        await store.start();
+        await store.start("http://example.com/manifest.json");
         getItem.returns(null);
 
         expect(getItem.callCount).to.equal(0);
@@ -47,18 +47,18 @@ describe("LocalStorageStore", () => {
         // #get returns null for a value that has not been set.
         let value = await store.get("key");
         expect(getItem.callCount).to.equal(1);
-        expect(getItem.args[0][0]).to.equal("key");
+        expect(getItem.args[0][0]).to.equal("http://example.com/manifest.json-key");
         expect(value).to.equal(null);
 
         await store.set("key", "value");
         expect(setItem.callCount).to.equal(2);
-        expect(setItem.args[1][0]).to.equal("key");
+        expect(setItem.args[1][0]).to.equal("http://example.com/manifest.json-key");
         expect(setItem.args[1][1]).to.equal("value");
 
         getItem.returns("value");
         value = await store.get("key");
         expect(value).to.equal("value");
         expect(getItem.callCount).to.equal(2);
-        expect(getItem.args[1][0]).to.equal("key");
+        expect(getItem.args[1][0]).to.equal("http://example.com/manifest.json-key");
     });
 });
