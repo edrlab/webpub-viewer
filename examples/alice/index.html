@@ -53,13 +53,14 @@
   <div id="viewer">
   </div>
   <script>
-    require(["WebpubViewer", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginator", "LocalStorageAnnotator"], function (WebpubViewer, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginator, LocalStorageAnnotator) {
+    require(["WebpubViewer", "LocalStorageStore", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginator", "LocalAnnotator"], function (WebpubViewer, LocalStorageStore, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginator, LocalAnnotator) {
       var element = document.getElementById("viewer");
-      var cacher = new ServiceWorkerCacher.default();
+      var store = new LocalStorageStore.default();
+      var cacher = new ServiceWorkerCacher.default(store);
       var paginator = new ColumnsPaginator.default();
-      var annotator = new LocalStorageAnnotator.default();
+      var annotator = new LocalAnnotator.default(store);
       var navigator = new IFrameNavigator.default(cacher, paginator, annotator);
-      var viewer = new WebpubViewer.default(cacher, navigator, annotator);
+      var viewer = new WebpubViewer.default(store, cacher, navigator, annotator);
       viewer.start(element);
     });
   </script>

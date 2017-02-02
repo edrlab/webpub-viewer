@@ -3,10 +3,24 @@ import { stub } from "sinon";
 import * as jsdom from "jsdom";
 
 import WebpubViewer from "../src/WebpubViewer"
+import Store from "../src/Store";
 import Cacher from "../src/Cacher";
 import Navigator from "../src/Navigator";
 
 describe('WebpubViewer', () => {
+    let storeStart: Sinon.SinonStub;
+    class MockStore implements Store {
+        public start(): Promise<void> {
+            return storeStart();
+        }
+        public get(): Promise<null> {
+            return new Promise<null>(resolve => resolve(null));
+        }
+        public set(): Promise<void> {
+            return new Promise<void>(resolve => resolve());
+        }
+    }
+
     let cacherStart: Sinon.SinonStub;
     class MockCacher implements Cacher {
         public start(manifestUrl: string): Promise<void> {
@@ -24,15 +38,17 @@ describe('WebpubViewer', () => {
         }
     }
 
+    const store = new MockStore();
     const cacher = new MockCacher();
     const navigator = new MockNavigator();
     let viewer: WebpubViewer;
     let element: HTMLElement;
 
     beforeEach(function () {
+        storeStart = stub().returns(new Promise(resolve => resolve()));
         cacherStart = stub().returns(new Promise(resolve => resolve()));
         navigatorStart = stub().returns(new Promise(resolve => resolve()));
-        viewer = new WebpubViewer(cacher, navigator);
+        viewer = new WebpubViewer(store, cacher, navigator);
 
         // The viewer needs to be at a real URL (not about:blank)
         // to determine a URL for the manifest.
@@ -42,6 +58,12 @@ describe('WebpubViewer', () => {
     });
 
     describe('#start', () => {
+        it("should start the store", async () => {
+            expect(storeStart.callCount).to.equal(0);
+            await viewer.start(element);
+            expect(storeStart.callCount).to.equal(1);
+        });
+
         it('should start the cacher', async () => {
             expect(cacherStart.callCount).to.equal(0);
             await viewer.start(element);
