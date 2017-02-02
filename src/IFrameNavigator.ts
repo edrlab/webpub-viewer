@@ -280,7 +280,7 @@ export default class IFrameNavigator implements Navigator {
         this.hideTOC();
         if (!this.checkForIFrameLink(event)) {
             const display: string | null = this.links.style.display;
-            if (display && display === "none") {
+            if (display === "none") {
                 this.links.style.display = "block";
             } else {
                 this.links.style.display = "none";
