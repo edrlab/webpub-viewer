@@ -2,11 +2,11 @@ import Cacher from "./Cacher";
 import Store from "./Store";
 import Manifest from "./Manifest";
 
-/** Class that caches URLs using ServiceWorker's Cache API. */
+/** Class that caches responses using ServiceWorker's Cache API. */
 export default class ServiceWorkerCacher implements Cacher {
     private serviceWorkerPath: string;
     private store: Store;
-    private supported: boolean;
+    private areServiceWorkersSupported: boolean;
 
     /** Create a ServiceWorkerCacher. */
     /** @param serviceWorkerPath Location of the service worker js file. */
@@ -17,9 +17,9 @@ export default class ServiceWorkerCacher implements Cacher {
 
     public async start(manifestUrl: string): Promise<void> {
         const protocol = window.location.protocol;
-        this.supported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
+        this.areServiceWorkersSupported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
 
-        if (this.supported) {
+        if (this.areServiceWorkersSupported) {
             navigator.serviceWorker.register(this.serviceWorkerPath);
 
             return await this.verifyAndCacheManifest(manifestUrl);
