@@ -18,6 +18,7 @@ export default class Manifest {
     public links: Array<Link>;
     public spine: Array<Link>;
     public resources: Array<Link>;
+    public toc: Array<Link>;
     private manifestUrl: string;
 
     public constructor(manifestJSON: any, manifestUrl: string) {
@@ -25,26 +26,13 @@ export default class Manifest {
         this.links = manifestJSON.links || [];
         this.spine = manifestJSON.spine || [];
         this.resources = manifestJSON.resources || [];
+        this.toc = manifestJSON.toc || [];
         this.manifestUrl = manifestUrl;
     }
 
     public getStartLink(): Link | null {
         if (this.spine.length > 0) {
             return this.spine[0];
-        }
-        return null;
-    }
-
-    public getTOCLink(): Link | null {
-        const allResources = this.spine.concat(this.resources);
-        for (const link of allResources) {
-            if (link.rel) {
-                for (const rel of link.rel) {
-                    if (rel === "contents") {
-                        return link;
-                    }
-                }
-            }
         }
         return null;
     }

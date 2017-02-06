@@ -15,6 +15,7 @@ const template = (paginationControls: string) => `
       </ul>
       ${paginationControls}
     </div>
+    <div class="toc" style="display: none; z-index: 3000;"></div>
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
@@ -51,6 +52,7 @@ export default class IFrameNavigator implements Navigator {
     private contentsLink: HTMLAnchorElement;
     private navigation: Element;
     private links: HTMLUListElement;
+    private toc: HTMLDivElement;
     private loadingMessage: HTMLDivElement;
     private linksToggle: Element | null;
     private previousPageLink: Element | null;
@@ -81,6 +83,7 @@ export default class IFrameNavigator implements Navigator {
             this.contentsLink = this.findRequiredElement(element, "a[rel=contents]") as HTMLAnchorElement;
             this.navigation = this.findRequiredElement(element, "div[class=controls]");
             this.links = this.findRequiredElement(element, "ul[class=links]") as HTMLUListElement;
+            this.toc = this.findRequiredElement(element, "div[class=toc]") as HTMLDivElement;
             this.loadingMessage = this.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
             let find = this.findElement.bind(this);
             if (this.paginator) {
@@ -138,11 +141,31 @@ export default class IFrameNavigator implements Navigator {
     private async loadManifest(): Promise<void> {
         const manifest: Manifest = await this.cacher.getManifest(this.manifestUrl);
 
-        const tocLink = manifest.getTOCLink();
-        if (tocLink && tocLink.href) {
-            const href = new URL(tocLink.href, this.manifestUrl).href;
-            this.contentsLink.href = href;
+        const toc = manifest.toc;
+        if (toc.length) {
+            this.contentsLink.href = "#";
             this.contentsLink.className = "";
+            const listElement: HTMLUListElement = document.createElement("ul");
+            for (const link of toc) {
+                const listItemElement : HTMLLIElement = document.createElement("li");
+                const linkElement: HTMLAnchorElement = document.createElement("a");
+                let href = "";
+                if (link.href) {
+                    href = new URL(link.href, this.manifestUrl).href;
+                }
+                linkElement.href = href;
+                linkElement.text = link.title || "";
+                linkElement.addEventListener("click", (event: Event) => {
+                    event.preventDefault();
+                    this.navigate({
+                        resource: linkElement.href,
+                        position: 0
+                    });
+                });
+                listItemElement.appendChild(linkElement);
+                listElement.appendChild(listItemElement);
+            }
+            this.toc.appendChild(listElement);
         }
 
         let startUrl: string | null = null;
@@ -172,6 +195,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private async handleIFrameLoad(): Promise<void> {
+        this.hideTOC();
         this.showLoadingMessageAfterDelay();
         if (this.paginator) {
             let paginatorPosition = 0;
@@ -205,6 +229,8 @@ export default class IFrameNavigator implements Navigator {
             this.nextChapterLink.removeAttribute("href");
             this.nextChapterLink.className = "disabled";
         }
+
+        this.setActiveTOCItem(currentLocation);
 
         if (this.annotator) {
             await this.saveCurrentReadingPosition();
@@ -251,9 +277,10 @@ export default class IFrameNavigator implements Navigator {
 
     private handleToggleLinksClick(event: MouseEvent): void {
         event.preventDefault();
+        this.hideTOC();
         if (!this.checkForIFrameLink(event)) {
             const display: string | null = this.links.style.display;
-            if (display && display === "none") {
+            if (display === "none") {
                 this.links.style.display = "block";
             } else {
                 this.links.style.display = "none";
@@ -341,12 +368,28 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleContentsClick(event: MouseEvent): void {
-        const position = {
-            resource: this.contentsLink.href,
-            position: 0
-        };
-        this.navigate(position);
+        const display: string | null = this.toc.style.display;
+        if (display === "none") {
+            this.toc.style.display = "block";
+        } else {
+            this.toc.style.display = "none";
+        }
         event.preventDefault();
+    }
+
+    private hideTOC(): void {
+        this.toc.style.display = "none";
+    }
+
+    private setActiveTOCItem(resource: string): void {
+       const allItems = Array.prototype.slice.call(this.toc.querySelectorAll("li > a"));
+       for (const item of allItems) {
+           item.className = "";
+       }
+       const activeItem = this.toc.querySelector('li > a[href="' + resource  + '"]');
+       if (activeItem) {
+           activeItem.className = "active";
+       }
     }
 
     private navigate(readingPosition: ReadingPosition): void {

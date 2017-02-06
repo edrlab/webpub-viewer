@@ -84,8 +84,9 @@ describe("IFrameNavigator", () => {
             { href: "item-1.html" },
             { href: "item-2.html" }
         ],
-        resources: [
-            { rel: ["contents"], href: "toc.html" }
+        toc: [
+            { href: "item-1.html", "title": "Item 1" },
+            { href: "item-2.html", "title": "Item 2" }
         ]
     }, "http://example.com/manifest.json");
 
@@ -211,15 +212,6 @@ describe("IFrameNavigator", () => {
             expect(startLink.href).to.equal("http://example.com/start.html");
             click(startLink);
             expect(iframe.src).to.equal("http://example.com/start.html");
-        });
-
-        it("should navigate to the table of contents", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            const toc = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
-            expect(toc.href).to.equal("http://example.com/toc.html");
-            click(toc);
-            expect(iframe.src).to.equal("http://example.com/toc.html");
         });
 
         it("should navigate to the previous spine item", async () => {
@@ -496,6 +488,118 @@ describe("IFrameNavigator", () => {
             click(next);
             await pause();
             expect(iframe.style.marginTop).to.equal("10px");
+        });
+    });
+
+    describe("table of contents", () => {
+        it("should render each link in the manifest toc", async () => {
+            await navigator.start(element, "http://example.com/manifest.json");
+            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+
+            const list = toc.querySelector("ul") as HTMLUListElement;
+            expect(list.tagName.toLowerCase()).to.equal("ul");
+
+            const links = list.querySelectorAll("li > a");
+            expect(links.length).to.equal(2);
+
+            const link1 = links[0] as HTMLAnchorElement;
+            const link2 = links[1] as HTMLAnchorElement;
+            expect(link1.href).to.equal("http://example.com/item-1.html");
+            expect(link1.text).to.equal("Item 1");
+            expect(link2.href).to.equal("http://example.com/item-2.html");
+            expect(link2.text).to.equal("Item 2");
+        });
+
+        it("should show and hide when contents link is clicked", async () => {
+            await navigator.start(element, "http://example.com/manifest.json");
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+            expect(toc.style.display).to.equal("none");
+            expect(iframe.src).to.equal("http://example.com/start.html");
+
+            const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
+            click(contentsLink);
+            expect(toc.style.display).not.to.equal("none");
+            expect(iframe.src).to.equal("http://example.com/start.html");
+
+            click(contentsLink);
+            expect(toc.style.display).to.equal("none");
+            expect(iframe.src).to.equal("http://example.com/start.html");
+        });
+
+        it("should hide when other navigation links are clicked", async () => {
+            await navigator.start(element, "http://example.com/manifest.json");
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            iframe.contentDocument.elementFromPoint = stub().returns(span);
+            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+
+            const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
+            click(contentsLink);
+            expect(toc.style.display).not.to.equal("none");
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+
+            const nextChapterLink = element.querySelector("a[rel=next]") as HTMLAnchorElement;
+            click(nextChapterLink);
+            await pause();
+            expect(toc.style.display).to.equal("none");
+
+            click(contentsLink);
+            expect(toc.style.display).not.to.equal("none");
+
+            const previousChapterLink = element.querySelector("a[rel=prev]") as HTMLAnchorElement;
+            click(previousChapterLink);
+            await pause();
+            expect(toc.style.display).to.equal("none");
+        });
+
+        it("should navigate to a toc item", async () => {
+            await navigator.start(element, "http://example.com/manifest.json");
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+            expect(iframe.src).to.equal("http://example.com/start.html");
+
+            const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
+            click(contentsLink);
+
+            const links = toc.querySelectorAll("li > a");
+            const link1 = links[0] as HTMLAnchorElement;
+            const link2 = links[1] as HTMLAnchorElement;
+
+            click(link1);
+            expect(toc.style.display).to.equal("none");
+            expect(iframe.src).to.equal("http://example.com/item-1.html");
+
+            click(contentsLink);
+            expect(toc.style.display).not.to.equal("none");
+
+            click(link2);
+            expect(toc.style.display).to.equal("none");
+            expect(iframe.src).to.equal("http://example.com/item-2.html");
+        });
+
+        it("should set class on the active toc item", async () => {
+            await navigator.start(element, "http://example.com/manifest.json");
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+
+            const links = toc.querySelectorAll("li > a");
+            const link1 = links[0] as HTMLAnchorElement;
+            const link2 = links[1] as HTMLAnchorElement;
+
+            expect(link1.className).to.equal("");
+            expect(link2.className).to.equal("");
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+            expect(link1.className).to.equal("active");
+            expect(link2.className).to.equal("");
+
+            iframe.src = "http://example.com/item-2.html";
+            await pause();
+            expect(link1.className).to.equal("");
+            expect(link2.className).to.equal("active");
         });
     });
 });

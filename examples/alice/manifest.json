@@ -43,5 +43,25 @@
     {"href": "images/cover.jpg", "type": "image/jpeg"},
     {"href": "images/logo.png", "type": "image/png"},
     {"href": "images/titlepage.png", "type": "image/png"}
+  ],
+
+  "toc": [
+    {"href":"text/titlepage.xhtml","title":"Ti­tle Page"},
+    {"href":"text/imprint.xhtml","title":"Im­print"},
+    {"href":"text/epigraph.xhtml","title":"All in the Golden After­noon"},
+    {"href":"text/chapter-1.xhtml","title":"I: Down the Rab­bit-Hole"},
+    {"href":"text/chapter-2.xhtml","title":"II: The Pool of Tears"},
+    {"href":"text/chapter-3.xhtml","title":"III: A Cau­cus-Race and a Long Tale"},
+    {"href":"text/chapter-4.xhtml","title":"IV: The Rab­bit Sends in a Lit­tle Bill"},
+    {"href":"text/chapter-5.xhtml","title":"V: Ad­vice From a Cater­pil­lar"},
+    {"href":"text/chapter-6.xhtml","title":"VI: Pig and Pep­per"},
+    {"href":"text/chapter-7.xhtml","title":"VII: A Mad Tea-Party"},
+    {"href":"text/chapter-8.xhtml","title":"VIII: The Queen’s Cro­quet-Ground"},
+    {"href":"text/chapter-9.xhtml","title":"IX: The Mock Tur­tle’s Story"},
+    {"href":"text/chapter-10.xhtml","title":"X: The Lob­ster Quadrille"},
+    {"href":"text/chapter-11.xhtml","title":"XI: Who Stole the Tarts?"},
+    {"href":"text/chapter-12.xhtml","title":"XII: Alice’s Ev­i­dence"},
+    {"href":"text/colophon.xhtml","title":"Colophon"},
+    {"href":"text/uncopyright.xhtml","title":"Un­copy­right"}
   ]
 }
