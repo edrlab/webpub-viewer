@@ -15,8 +15,9 @@ export default class LocalStorageStore implements Store {
             // In some browsers (eg iOS Safari in private mode), 
             // localStorage exists but throws an exception when
             // you try to write to it.
-            window.localStorage.setItem("test", "test");
-            window.localStorage.removeItem("test");
+            const testKey = "test-" + String(Math.random());
+            window.localStorage.setItem(testKey, "test");
+            window.localStorage.removeItem(testKey);
             this.fallbackStore = null;
         } catch (e) {
             this.fallbackStore = new MemoryStore();
