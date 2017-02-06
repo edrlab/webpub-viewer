@@ -1,10 +1,14 @@
 import Navigator from "./Navigator";
 import Cacher from "./Cacher";
-import Paginator from "./Paginator";
+import BookView from "./BookView";
+import PaginatedBookView from "./PaginatedBookView";
+import ScrollingBookView from "./ScrollingBookView";
 import Annotator from "./Annotator";
 import Manifest from "./Manifest";
+import BookSettings from "./BookSettings";
+import HTMLView from "./HTMLView";
 
-const template = (paginationControls: string) => `
+const template = `
   <nav class="publication">
     <div class="controls">
       <ul class="links" style="z-index: 2000;">
@@ -12,10 +16,16 @@ const template = (paginationControls: string) => `
         <li><a rel="contents" class="disabled">Contents</a></li>
         <li><a rel="prev" class="disabled">Previous Chapter</a></li>
         <li><a rel="next" class="disabled">Next Chapter</a></li>
+        <li><a class="settings">Settings</a></li>
       </ul>
-      ${paginationControls}
+      <div class="pagination-controls" style="-webkit-tap-highlight-color: transparent; display: none;">
+        <div class="previous-page" style="position: fixed; top: 0; left: 0; width: 30%; height: 100%; z-index: 1000;"></div>
+        <div class="links-toggle" style="position: fixed; top: 0; left: 30%; width: 40%; height: 100%; z-index: 1000;"></div>
+        <div class="next-page" style="position: fixed; top: 0; left: 70%; width: 30%; height: 100%; z-index: 1000;"></div>
+      </div>
     </div>
-    <div class="toc" style="display: none; z-index: 3000;"></div>
+    <div class="contents-view controls-view" style="display: none; z-index: 3000;"></div>
+    <div class="settings-view controls-view" style="display: none; z-index: 3000;"></div>
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
@@ -23,57 +33,48 @@ const template = (paginationControls: string) => `
   </main>
 `;
 
-const PAGINATION_CONTROLS = `
-    <div class="page-controls" style="-webkit-tap-highlight-color: transparent;">
-        <div class="previous-page" style="position: fixed; top: 0; left: 0; width: 30%; height: 100%; z-index: 1000;"></div>
-        <div class="links-toggle" style="position: fixed; top: 0; left: 30%; width: 40%; height: 100%; z-index: 1000;"></div>
-        <div class="next-page" style="position: fixed; top: 0; left: 70%; width: 30%; height: 100%; z-index: 1000;"></div>
-    </div>
-`;
-
-const HTML_WITH_PAGINATOR = template(PAGINATION_CONTROLS);
-const HTML_WITHOUT_PAGINATOR = template("");
-
 interface ReadingPosition {
     resource: string;
     position: number;
 }
 
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
-export default class IFrameNavigator implements Navigator {
+export default class IFrameNavigator extends HTMLView implements Navigator {
     private manifestUrl: string;
     private cacher: Cacher;
-    private paginator: Paginator | null;
+    private paginator: PaginatedBookView | null;
+    private scroller: ScrollingBookView;
     private annotator: Annotator | null;
+    private settings: BookSettings;
     private iframe: HTMLIFrameElement;
     private nextChapterLink: HTMLAnchorElement;
     private previousChapterLink: HTMLAnchorElement;
     private startLink: HTMLAnchorElement;
     private contentsLink: HTMLAnchorElement;
-    private navigation: Element;
+    private settingsLink: HTMLAnchorElement;
+    public navigation: Element;
     private links: HTMLUListElement;
-    private toc: HTMLDivElement;
+    private tocView: HTMLDivElement;
+    private settingsView: HTMLDivElement;
     private loadingMessage: HTMLDivElement;
-    private linksToggle: Element | null;
-    private previousPageLink: Element | null;
-    private nextPageLink: Element | null;
+    private paginationControls: HTMLDivElement;
+    private linksToggle: Element;
+    private previousPageLink: Element;
+    private nextPageLink: Element;
     private newPosition: ReadingPosition | null;
     private isLoading: boolean;
 
-    public constructor(cacher: Cacher, paginator: Paginator | null = null, annotator: Annotator | null = null) {
+    public constructor(cacher: Cacher, paginator: PaginatedBookView | null = null, annotator: Annotator | null = null, settings : BookSettings | null = null) {
+        super();
         this.cacher = cacher;
         this.paginator = paginator;
+        this.scroller = new ScrollingBookView();
         this.annotator = annotator;
+        this.settings = settings || new BookSettings();
     }
 
     public async start(element: HTMLElement, manifestUrl: string): Promise<void> {
-        let html;
-        if (this.paginator) {
-            html = HTML_WITH_PAGINATOR;
-        } else {
-            html = HTML_WITHOUT_PAGINATOR;
-        }
-        element.innerHTML = html;
+        element.innerHTML = template;
         this.manifestUrl = manifestUrl;
         try {
             this.iframe = this.findRequiredElement(element, "iframe") as HTMLIFrameElement;
@@ -81,20 +82,26 @@ export default class IFrameNavigator implements Navigator {
             this.previousChapterLink = this.findRequiredElement(element, "a[rel=prev]") as HTMLAnchorElement;
             this.startLink = this.findRequiredElement(element, "a[rel=start]") as HTMLAnchorElement;
             this.contentsLink = this.findRequiredElement(element, "a[rel=contents]") as HTMLAnchorElement;
+            this.settingsLink = this.findRequiredElement(element, "a[class=settings]") as HTMLAnchorElement;
             this.navigation = this.findRequiredElement(element, "div[class=controls]");
             this.links = this.findRequiredElement(element, "ul[class=links]") as HTMLUListElement;
-            this.toc = this.findRequiredElement(element, "div[class=toc]") as HTMLDivElement;
+            this.tocView = this.findRequiredElement(element, "div[class='contents-view controls-view']") as HTMLDivElement;
+            this.settingsView = this.findRequiredElement(element, "div[class='settings-view controls-view']") as HTMLDivElement;
             this.loadingMessage = this.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
-            let find = this.findElement.bind(this);
-            if (this.paginator) {
-                find = this.findRequiredElement.bind(this);
-            }
-            this.linksToggle = find(element, "div[class=links-toggle]");
-            this.previousPageLink = find(element, "div[class=previous-page]");
-            this.nextPageLink = find(element, "div[class=next-page]");
+            this.paginationControls = this.findRequiredElement(element, "div[class=pagination-controls]") as HTMLDivElement;
+            this.linksToggle = this.findRequiredElement(element, "div[class=links-toggle]");
+            this.previousPageLink = this.findRequiredElement(element, "div[class=previous-page]");
+            this.nextPageLink = this.findRequiredElement(element, "div[class=next-page]");
             this.newPosition = null;
             this.isLoading = true;
             this.setupEvents();
+
+            let views: BookView[] = [this.scroller];
+            if (this.paginator) {
+                views.push(this.paginator);
+            }
+            this.settings.start(this.settingsView, this.iframe, views, this.paginator || this.scroller, this.updateBookView.bind(this));
+
             return await this.loadManifest();
         } catch (err) {
             // There's a mismatch between the template and the selectors above,
@@ -103,25 +110,12 @@ export default class IFrameNavigator implements Navigator {
         }
     }
 
-    private findElement(parentElement: Element, selector: string): Element | null {
-        return parentElement.querySelector(selector);
-    }
-
-    private findRequiredElement(parentElement: Element, selector: string): Element {
-        const element = this.findElement(parentElement, selector);
-        if (!element) {
-            throw "required element " + selector + " not found";
-        } else {
-            return element;
-        }
-    }
-
     private setupEvents(): void {
         this.iframe.addEventListener("load", this.handleIFrameLoad.bind(this));
 
         window.onresize = this.handleResize.bind(this);
 
-        if (this.paginator && this.linksToggle && this.previousPageLink && this.nextPageLink) {
+        if (this.paginator) {
             this.linksToggle.addEventListener("click", this.handleToggleLinksClick.bind(this));
 
             this.previousPageLink.addEventListener("click", this.handlePreviousPageClick.bind(this));
@@ -136,6 +130,18 @@ export default class IFrameNavigator implements Navigator {
         this.startLink.addEventListener("click", this.handleStartClick.bind(this));
 
         this.contentsLink.addEventListener("click", this.handleContentsClick.bind(this));
+
+        this.settingsLink.addEventListener("click", this.handleSettingsClick.bind(this));
+    }
+
+    private updateBookView(): void {
+        if (this.settings.getSelectedView() === this.paginator) {
+            this.paginationControls.style.display = "block";
+            this.iframe.contentDocument.body.onscroll = () => {};
+        } else if (this.settings.getSelectedView() === this.scroller) {
+            this.paginationControls.style.display = "none";
+            this.iframe.contentDocument.body.onscroll = this.handleScroll.bind(this);
+        }
     }
 
     private async loadManifest(): Promise<void> {
@@ -165,7 +171,7 @@ export default class IFrameNavigator implements Navigator {
                 listItemElement.appendChild(linkElement);
                 listElement.appendChild(listItemElement);
             }
-            this.toc.appendChild(listElement);
+            this.tocView.appendChild(listElement);
         }
 
         let startUrl: string | null = null;
@@ -197,14 +203,13 @@ export default class IFrameNavigator implements Navigator {
     private async handleIFrameLoad(): Promise<void> {
         this.hideTOC();
         this.showLoadingMessageAfterDelay();
-        if (this.paginator) {
-            let paginatorPosition = 0;
-            if (this.newPosition) {
-                paginatorPosition = this.newPosition.position;
-            }
-            await this.paginator.start(this.iframe, paginatorPosition);
-            this.newPosition = null;
+
+        let bookViewPosition = 0;
+        if (this.newPosition) {
+            bookViewPosition = this.newPosition.position;
         }
+        await this.settings.getSelectedView().start(this.iframe, bookViewPosition);
+        this.newPosition = null;
 
         const manifest = await this.cacher.getManifest(this.manifestUrl);
         let currentLocation = this.iframe.src;
@@ -275,16 +280,20 @@ export default class IFrameNavigator implements Navigator {
         return false;
     }
 
+    private toggleDisplay(element: HTMLDivElement | HTMLUListElement): void {
+        const display: string | null = element.style.display;
+        if (display === "none") {
+            element.style.display = "block";
+        } else {
+            element.style.display = "none";
+        }
+    }
+
     private handleToggleLinksClick(event: MouseEvent): void {
         event.preventDefault();
         this.hideTOC();
         if (!this.checkForIFrameLink(event)) {
-            const display: string | null = this.links.style.display;
-            if (display === "none") {
-                this.links.style.display = "block";
-            } else {
-                this.links.style.display = "none";
-            }
+            this.toggleDisplay(this.links);
         }
     }
 
@@ -325,13 +334,14 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleResize(): void {
-        if (this.paginator) {
-            const oldPosition = this.paginator.getCurrentPosition();
-            this.setIFrameSize();
-            this.paginator.goToPosition(oldPosition);
-        } else {
-            this.setIFrameSize();
-        }
+        const selectedView = this.settings.getSelectedView();
+        const oldPosition = selectedView.getCurrentPosition();
+        this.setIFrameSize();
+        selectedView.goToPosition(oldPosition);
+    }
+
+    private async handleScroll(): Promise<void> {
+        return this.saveCurrentReadingPosition();
     }
 
     private handlePreviousChapterClick(event: MouseEvent): void {
@@ -368,28 +378,34 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleContentsClick(event: MouseEvent): void {
-        const display: string | null = this.toc.style.display;
-        if (display === "none") {
-            this.toc.style.display = "block";
-        } else {
-            this.toc.style.display = "none";
-        }
+        this.hideSettings();
+        this.toggleDisplay(this.tocView);
         event.preventDefault();
     }
 
     private hideTOC(): void {
-        this.toc.style.display = "none";
+        this.tocView.style.display = "none";
     }
 
     private setActiveTOCItem(resource: string): void {
-       const allItems = Array.prototype.slice.call(this.toc.querySelectorAll("li > a"));
+       const allItems = Array.prototype.slice.call(this.tocView.querySelectorAll("li > a"));
        for (const item of allItems) {
            item.className = "";
        }
-       const activeItem = this.toc.querySelector('li > a[href="' + resource  + '"]');
+       const activeItem = this.tocView.querySelector('li > a[href="' + resource  + '"]');
        if (activeItem) {
            activeItem.className = "active";
        }
+    }
+
+    private handleSettingsClick(event: MouseEvent): void {
+        this.hideTOC();
+        this.toggleDisplay(this.settingsView);
+        event.preventDefault();
+    }
+
+    private hideSettings(): void {
+        this.settingsView.style.display = "none";
     }
 
     private navigate(readingPosition: ReadingPosition): void {
@@ -414,10 +430,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private setIFrameSize(): void {
-        let topMargin = 0;
-        if (!this.paginator) {
-            topMargin = this.links.clientHeight;
-        }
+        let topMargin = this.navigation.clientHeight + 5; 
         this.iframe.style.height = (window.innerHeight - topMargin) + "px";
         this.iframe.style.marginTop = topMargin + "px";
         this.iframe.style.width = document.body.offsetWidth + "px";
@@ -426,10 +439,7 @@ export default class IFrameNavigator implements Navigator {
     private async saveCurrentReadingPosition(): Promise<void> {
         if (this.annotator) {
             const resource = this.iframe.src;
-            let position = 0;
-            if (this.paginator) {
-                position = this.paginator.getCurrentPosition();
-            }
+            const position = this.settings.getSelectedView().getCurrentPosition();
             await this.annotator.saveLastReadingPosition({
                 resource: resource,
                 position: position

@@ -1,17 +1,17 @@
 import { expect } from "chai";
 
-import ColumnsPaginator from "../src/ColumnsPaginator";
+import ColumnsPaginatedBookView from "../src/ColumnsPaginatedBookView";
 
-describe("ColumnsPaginator", () => {
+describe("ColumnsPaginatedBookView", () => {
     let iframe: HTMLIFrameElement;
-    let paginator: ColumnsPaginator;
+    let paginator: ColumnsPaginatedBookView;
 
     beforeEach(() => {
         iframe = window.document.createElement("iframe");
         // The element must be in a document for the iframe to have a contentDocument.
         window.document.body.appendChild(iframe);
 
-        paginator = new ColumnsPaginator();
+        paginator = new ColumnsPaginatedBookView();
     });
 
     describe("#start", () => {
@@ -47,6 +47,18 @@ describe("ColumnsPaginator", () => {
             // Set to last page.
             await paginator.start(iframe, 1);
             expect(iframe.contentDocument.body.style.left).to.equal("-100px");
+        });
+    });
+
+    describe("#stop", () => {
+        it("should remove styling from iframe body", async () => {
+            await paginator.start(iframe, 0);
+
+            expect(iframe.contentDocument.body.style.length).to.be.above(0);
+
+            await paginator.stop();
+
+            expect(iframe.contentDocument.body.style.length).to.equal(0);
         });
     });
 

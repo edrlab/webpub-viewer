@@ -1,7 +1,10 @@
-import Paginator from "./Paginator";
+import PaginatedBookView from "./PaginatedBookView";
 
-export default class ColumnsPaginator implements Paginator {
+export default class ColumnsPaginatedBookView implements PaginatedBookView {
     private iframe: HTMLIFrameElement;
+
+    public name = "columns-paginated-view"
+    public label = "Paginated View"
 
     public start(iframe: HTMLIFrameElement, position: number): Promise<void> {
         this.iframe = iframe;
@@ -41,6 +44,12 @@ export default class ColumnsPaginator implements Paginator {
         body.style.MozColumnWidth = this.iframe.style.width;
         body.style.height = this.iframe.style.height;
         body.style.width = this.iframe.style.width;
+    }
+
+    public stop(): Promise<void> {
+        const body = this.iframe.contentDocument.body as any;
+        body.style.cssText = null;
+        return new Promise<void>(resolve => resolve());
     }
 
     /** Returns the total width of the columns that are currently
