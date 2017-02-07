@@ -1,22 +1,25 @@
 import Cacher from "./Cacher";
+import Store from "./Store";
 import Manifest from "./Manifest";
 
-/** Class that caches URLs using ServiceWorker's Cache API. */
+/** Class that caches responses using ServiceWorker's Cache API. */
 export default class ServiceWorkerCacher implements Cacher {
     private serviceWorkerPath: string;
-    private supported: boolean;
+    private store: Store;
+    private areServiceWorkersSupported: boolean;
 
     /** Create a ServiceWorkerCacher. */
     /** @param serviceWorkerPath Location of the service worker js file. */
-    public constructor(serviceWorkerPath: string = "sw.js") {
+    public constructor(store: Store, serviceWorkerPath: string = "sw.js") {
         this.serviceWorkerPath = serviceWorkerPath;
+        this.store = store;
     }
 
     public async start(manifestUrl: string): Promise<void> {
         const protocol = window.location.protocol;
-        this.supported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
+        this.areServiceWorkersSupported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
 
-        if (this.supported) {
+        if (this.areServiceWorkersSupported) {
             navigator.serviceWorker.register(this.serviceWorkerPath);
 
             return await this.verifyAndCacheManifest(manifestUrl);
@@ -29,18 +32,14 @@ export default class ServiceWorkerCacher implements Cacher {
         try {
             const response = await window.fetch(manifestUrl)
             const manifestJSON = await response.json();
-            if (window.localStorage) {
-                window.localStorage.setItem(manifestUrl + "-manifest", JSON.stringify(manifestJSON));
-            }
+            await this.store.set(manifestUrl + "-manifest", JSON.stringify(manifestJSON));
             return new Manifest(manifestJSON, manifestUrl);
         } catch (err) {
             // We couldn't fetch the response, but there might be a cached version.
-            if (window.localStorage) {
-                const manifestString = window.localStorage.getItem(manifestUrl + "-manifest");
-                if (manifestString) {
-                    const manifestJSON = JSON.parse(manifestString);
-                    return new Manifest(manifestJSON, manifestUrl);
-                }
+            const manifestString = await this.store.get(manifestUrl + "-manifest");
+            if (manifestString) {
+                const manifestJSON = JSON.parse(manifestString);
+                return new Manifest(manifestJSON, manifestUrl);
             }
             const response = await window.caches.match(manifestUrl);
             const manifestJSON = await response.json();
