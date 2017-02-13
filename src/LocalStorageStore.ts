@@ -7,9 +7,7 @@ export default class LocalStorageStore implements Store {
     private fallbackStore: MemoryStore | null;
     private manifestUrl: string;
     
-    public constructor() {}
-
-    public async start(manifestUrl: string): Promise<void> {
+    public constructor(manifestUrl: string) {
         this.manifestUrl = manifestUrl;
         try {
             // In some browsers (eg iOS Safari in private mode), 
@@ -21,9 +19,7 @@ export default class LocalStorageStore implements Store {
             this.fallbackStore = null;
         } catch (e) {
             this.fallbackStore = new MemoryStore();
-            await this.fallbackStore.start();
         }
-        return new Promise<void>(resolve => resolve());
     }
 
     private getLocalStorageKey(key: string): string {

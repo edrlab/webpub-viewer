@@ -10,10 +10,6 @@ export default class LocalAnnotator implements Annotator {
         this.store = store;
     }
 
-    public start(): Promise<void> {
-        return new Promise<void>(resolve => resolve());
-    }
-
     public async getLastReadingPosition(): Promise<any> {
         const positionString = await this.store.get(this.LAST_READING_POSITION);
         if (positionString) {

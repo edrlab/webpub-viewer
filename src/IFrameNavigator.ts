@@ -1,6 +1,5 @@
 import Navigator from "./Navigator";
 import Cacher from "./Cacher";
-import BookView from "./BookView";
 import PaginatedBookView from "./PaginatedBookView";
 import ScrollingBookView from "./ScrollingBookView";
 import Annotator from "./Annotator";
@@ -43,7 +42,7 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
     private manifestUrl: string;
     private cacher: Cacher;
     private paginator: PaginatedBookView | null;
-    private scroller: ScrollingBookView;
+    private scroller: ScrollingBookView | null;
     private annotator: Annotator | null;
     private settings: BookSettings;
     private iframe: HTMLIFrameElement;
@@ -64,16 +63,22 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
     private newPosition: ReadingPosition | null;
     private isLoading: boolean;
 
-    public constructor(cacher: Cacher, paginator: PaginatedBookView | null = null, annotator: Annotator | null = null, settings : BookSettings | null = null) {
+    public static async create(element: HTMLElement, manifestUrl: string, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
+        const navigator = new this(cacher, settings, annotator, paginator, scroller);
+        await navigator.start(element, manifestUrl);
+        return navigator;
+    }
+
+    protected constructor(cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
         super();
         this.cacher = cacher;
         this.paginator = paginator;
-        this.scroller = new ScrollingBookView();
+        this.scroller = scroller;
         this.annotator = annotator;
-        this.settings = settings || new BookSettings();
+        this.settings = settings;
     }
 
-    public async start(element: HTMLElement, manifestUrl: string): Promise<void> {
+    protected async start(element: HTMLElement, manifestUrl: string): Promise<void> {
         element.innerHTML = template;
         this.manifestUrl = manifestUrl;
         try {
@@ -96,11 +101,14 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
             this.isLoading = true;
             this.setupEvents();
 
-            let views: BookView[] = [this.scroller];
             if (this.paginator) {
-                views.push(this.paginator);
+                this.paginator.setBookElement(this.iframe);
             }
-            this.settings.start(this.settingsView, this.iframe, views, this.paginator || this.scroller, this.updateBookView.bind(this));
+            if (this.scroller) {
+                this.scroller.setBookElement(this.iframe);
+            }
+            this.settings.renderControls(this.settingsView);
+            this.settings.onViewChange(this.updateBookView.bind(this));
 
             return await this.loadManifest();
         } catch (err) {
@@ -208,7 +216,8 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
         if (this.newPosition) {
             bookViewPosition = this.newPosition.position;
         }
-        await this.settings.getSelectedView().start(this.iframe, bookViewPosition);
+        this.updateBookView();
+        this.settings.getSelectedView().start(bookViewPosition);
         this.newPosition = null;
 
         const manifest = await this.cacher.getManifest(this.manifestUrl);
@@ -440,7 +449,7 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
         if (this.annotator) {
             const resource = this.iframe.src;
             const position = this.settings.getSelectedView().getCurrentPosition();
-            await this.annotator.saveLastReadingPosition({
+            return this.annotator.saveLastReadingPosition({
                 resource: resource,
                 position: position
             });

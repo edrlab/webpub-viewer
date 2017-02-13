@@ -6,15 +6,15 @@ export default class ScrollingBookView implements BookView {
     public name = "scrolling-book-view";
     public label = "Scrolling View";
 
-    public start(iframe: HTMLIFrameElement, position: number): Promise<void> {
+    public setBookElement(iframe: HTMLIFrameElement): void {
         this.iframe = iframe;
-        this.goToPosition(position);
-        return new Promise<void>(resolve => resolve());
     }
 
-    public stop(): Promise<void> {
-        return new Promise<void>(resolve => resolve());
+    public start(position: number): void {
+        this.goToPosition(position);
     }
+
+    public stop(): void {}
 
     public getCurrentPosition(): number {
         const body = this.iframe.contentDocument.body;

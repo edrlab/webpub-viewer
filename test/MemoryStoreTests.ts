@@ -10,8 +10,6 @@ describe("MemoryStore", () => {
     });
 
     it("gets and sets", async () => {
-        await store.start();
-
         // #get returns null for a value that has not been set.
         let value = await store.get("key");
         expect(value).to.equal(null);

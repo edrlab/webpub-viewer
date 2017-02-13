@@ -1,8 +1,9 @@
 interface BookView {
     name: string;
     label: string;
-    start(element: Element, position: number): Promise<void>;
-    stop(): Promise<void>;
+    setBookElement(element: Element): void;
+    start(position: number): void;
+    stop(): void;
     getCurrentPosition(): number;
     goToPosition(position: number): void;
 }

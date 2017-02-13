@@ -19,12 +19,19 @@ const optionTemplate = (className: string, label: string) => `
 
 export default class BookSettings extends HTMLView {
     private bookViews: BookView[];
-    private bookElement: Element;
     private viewLinks: { [key: string]: HTMLAnchorElement };
     private selectedView: BookView;
-    private onViewChange: () => void;
+    private viewChangeCallback: () => void;
 
-    private render(): string {
+    public constructor(bookViews: BookView[]) {
+        super();
+        this.bookViews = bookViews;
+        if (this.bookViews.length >= 1) {
+            this.selectedView = bookViews[0];
+        }
+    }
+
+    public renderControls(element: HTMLElement): void {
         let sections = [];
 
         if (this.bookViews.length > 1) {
@@ -35,22 +42,18 @@ export default class BookSettings extends HTMLView {
             sections.push(sectionTemplate(options.join("")));
         }
 
-        return template(sections.join(""));
+        element.innerHTML = template(sections.join(""));
+        this.viewLinks = {};
+        if (this.bookViews.length > 1) {
+            for (const bookView of this.bookViews) {
+                this.viewLinks[bookView.name] = this.findRequiredElement(element, "a[class=" + bookView.name + "]") as HTMLAnchorElement;
+            }
+        }
+        this.setupEvents();
     }
 
-    public start(controlsElement: HTMLElement, bookElement: Element, bookViews: BookView[], selectedView: BookView, onViewChange: () => void): void {
-        this.bookElement = bookElement;
-        this.bookViews = bookViews;
-        controlsElement.innerHTML = this.render();
-        this.viewLinks = {};;
-        for (const bookView of this.bookViews) {
-            this.viewLinks[bookView.name] = this.findRequiredElement(controlsElement, "a[class=" + bookView.name + "]") as HTMLAnchorElement;
-        }
-
-        this.setupEvents();
-        this.selectedView = selectedView;
-        this.onViewChange = onViewChange;
-        this.onViewChange();
+    public onViewChange(callback: () => void) {
+        this.viewChangeCallback = callback;
     }
 
     private setupEvents(): void {
@@ -60,9 +63,11 @@ export default class BookSettings extends HTMLView {
                 link.addEventListener("click", (event: MouseEvent) => {
                     const position = this.selectedView.getCurrentPosition();
                     this.selectedView.stop();
-                    view.start(this.bookElement, position);
+                    view.start(position);
                     this.selectedView = view;
-                    this.onViewChange();
+                    if (this.viewChangeCallback()) {
+                        this.viewChangeCallback();
+                    }
                     event.preventDefault();
                 });
             }

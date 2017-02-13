@@ -9,16 +9,24 @@ export default class ServiceWorkerCacher implements Cacher {
     private areServiceWorkersSupported: boolean;
 
     /** Create a ServiceWorkerCacher. */
+    /** @param store Store to cache the manifest in. */
+    /** @param manifestUrl URL to the webpub's manifest. */
     /** @param serviceWorkerPath Location of the service worker js file. */
-    public constructor(store: Store, serviceWorkerPath: string = "sw.js") {
-        this.serviceWorkerPath = serviceWorkerPath;
-        this.store = store;
+    public static async create(store: Store, manifestUrl: string, serviceWorkerPath: string = "sw.js"): Promise<ServiceWorkerCacher> {
+        const cacher = new this(store, serviceWorkerPath);
+        await cacher.start(manifestUrl);
+        return cacher;
     }
 
-    public async start(manifestUrl: string): Promise<void> {
+    protected constructor(store: Store, serviceWorkerPath: string) {
+        this.serviceWorkerPath = serviceWorkerPath;
+        this.store = store;
+
         const protocol = window.location.protocol;
         this.areServiceWorkersSupported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
+    }
 
+    protected async start(manifestUrl: string): Promise<void> {
         if (this.areServiceWorkersSupported) {
             navigator.serviceWorker.register(this.serviceWorkerPath);
 

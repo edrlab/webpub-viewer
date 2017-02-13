@@ -4,11 +4,8 @@ import Store from "./Store";
 export default class MemoryStore implements Store {
     private store: {[key: string]: string};
 
-    public constructor() {}
-
-    public start(): Promise<void> {
+    public constructor() {
         this.store = {};
-        return new Promise<void>(resolve => resolve());
     }
 
     public get(key: string): Promise<string | null> {
