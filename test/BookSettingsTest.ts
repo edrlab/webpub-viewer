@@ -80,7 +80,7 @@ describe("BookSettings", () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
-            let view1Link = element.querySelector("a[class=view1]") as HTMLAnchorElement;
+            let view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
             expect(view1Link.text).to.equal("View 1");
             let view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
             expect(view2Link.text).to.equal("View 2");
@@ -89,14 +89,14 @@ describe("BookSettings", () => {
 
             settings = await BookSettings.create([view1], store);
             settings.renderControls(element);
-            view1Link = element.querySelector("a[class=view1]") as HTMLAnchorElement;
+            view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
             expect(view1Link).to.be.null;
             view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
             expect(view2Link).to.be.null;
 
             settings = await BookSettings.create([], store);
             settings.renderControls(element);
-            view1Link = element.querySelector("a[class=view1]") as HTMLAnchorElement;
+            view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
             expect(view1Link).to.be.null;
         });
 
@@ -104,7 +104,7 @@ describe("BookSettings", () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
-            const view1Link = element.querySelector("a[class=view1]") as HTMLAnchorElement;
+            const view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
             const view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
 
             click(view2Link);
@@ -123,6 +123,9 @@ describe("BookSettings", () => {
             let storedView = await store.get("settings-selected-view")
             expect(storedView).to.equal(view2.name);
 
+            expect(view1Link.className).not.to.contain("active");
+            expect(view2Link.className).to.contain("active");
+
             click(view1Link);
             await pause();
 
@@ -138,6 +141,9 @@ describe("BookSettings", () => {
             expect(settings.getSelectedView()).to.equal(view1);
             storedView = await store.get("settings-selected-view")
             expect(storedView).to.equal(view1.name);
+
+            expect(view1Link.className).to.contain("active");
+            expect(view2Link.className).not.to.contain("active");
         });
     });
 
@@ -149,7 +155,7 @@ describe("BookSettings", () => {
             const viewChanged = stub();
             settings.onViewChange(viewChanged);
 
-            const view1Link = element.querySelector("a[class=view1]") as HTMLAnchorElement;
+            const view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
             const view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
 
             click(view2Link);

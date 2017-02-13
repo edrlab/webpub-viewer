@@ -71,6 +71,7 @@ export default class BookSettings extends HTMLView {
             for (const bookView of this.bookViews) {
                 this.viewLinks[bookView.name] = this.findRequiredElement(element, "a[class=" + bookView.name + "]") as HTMLAnchorElement;
             }
+            this.updateViewLinks();
         }
         this.setupEvents();
     }
@@ -88,12 +89,23 @@ export default class BookSettings extends HTMLView {
                     this.selectedView.stop();
                     view.start(position);
                     this.selectedView = view;
+                    this.updateViewLinks();
                     this.storeSelectedView(view);
                     if (this.viewChangeCallback()) {
                         this.viewChangeCallback();
                     }
                     event.preventDefault();
                 });
+            }
+        }
+    }
+
+    private updateViewLinks(): void {
+        for (const view of this.bookViews) {
+            if (view === this.selectedView) {
+                this.viewLinks[view.name].className = view.name + " active";
+            } else {
+                this.viewLinks[view.name].className = view.name;
             }
         }
     }
