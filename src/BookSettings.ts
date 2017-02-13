@@ -1,5 +1,6 @@
 import BookView from "./BookView";
 import HTMLView from "./HTMLView";
+import Store from "./Store";
 
 const template = (sections: string) => `
     <ul>
@@ -18,16 +19,38 @@ const optionTemplate = (className: string, label: string) => `
 `;
 
 export default class BookSettings extends HTMLView {
+    private store: Store;
     private bookViews: BookView[];
     private viewLinks: { [key: string]: HTMLAnchorElement };
     private selectedView: BookView;
     private viewChangeCallback: () => void;
+    private SELECTED_VIEW_KEY = "settings-selected-view";
 
-    public constructor(bookViews: BookView[]) {
+    public static async create(bookViews: BookView[], store: Store) {
+        const settings = new this(bookViews, store);
+        await settings.initializeSelections();
+        return settings;
+    }
+
+    protected constructor(bookViews: BookView[], store: Store) {
         super();
         this.bookViews = bookViews;
+        this.store = store;
+    }
+
+    private async initializeSelections(): Promise<void> {
         if (this.bookViews.length >= 1) {
-            this.selectedView = bookViews[0];
+            let selectedView = this.bookViews[0];
+            const selectedViewName = await this.store.get(this.SELECTED_VIEW_KEY);
+            if (selectedViewName) {
+                for (const bookView of this.bookViews) {
+                    if (bookView.name === selectedViewName) {
+                        selectedView = bookView;
+                        break;
+                    }
+                }
+            }
+            this.selectedView = selectedView;
         }
     }
 
@@ -65,6 +88,7 @@ export default class BookSettings extends HTMLView {
                     this.selectedView.stop();
                     view.start(position);
                     this.selectedView = view;
+                    this.storeSelectedView(view);
                     if (this.viewChangeCallback()) {
                         this.viewChangeCallback();
                     }
@@ -76,5 +100,9 @@ export default class BookSettings extends HTMLView {
 
     public getSelectedView(): BookView {
         return this.selectedView;
+    }
+
+    private async storeSelectedView(view: BookView): Promise<void> {
+        return this.store.set(this.SELECTED_VIEW_KEY, view.name);
     }
 };

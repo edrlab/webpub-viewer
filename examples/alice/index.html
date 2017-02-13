@@ -66,8 +66,9 @@
         var paginator = new ColumnsPaginatedBookView.default();
         var scroller = new ScrollingBookView.default();
         var annotator = new LocalAnnotator.default(store);
-        var settings = new BookSettings.default([paginator, scroller]);
-        IFrameNavigator.default.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
+        BookSettings.default.create([paginator, scroller], store).then(function (settings) {
+          IFrameNavigator.default.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
+        });
       });
     });
   </script>

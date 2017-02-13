@@ -3,6 +3,7 @@ import { stub } from "sinon";
 
 import BookSettings from "../src/BookSettings";
 import BookView from "../src/BookView";
+import MemoryStore from "../src/MemoryStore";
 
 describe("BookSettings", () => {
     let start: Sinon.SinonStub;
@@ -36,6 +37,7 @@ describe("BookSettings", () => {
 
     let view1: MockBookView;
     let view2: MockBookView;
+    let store: MemoryStore;
     let settings: BookSettings;
 
     const click = (element: any) => {
@@ -48,7 +50,7 @@ describe("BookSettings", () => {
         return new Promise<void>(resolve => setTimeout(resolve, ms));
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         start = stub();
         stop = stub();
         getCurrentPosition = stub().returns(0);
@@ -57,17 +59,24 @@ describe("BookSettings", () => {
         view1 = new MockBookView(1, "view1", "View 1");
         view2 = new MockBookView(2, "view2", "View 2");
 
-        settings = new BookSettings([view1, view2]);
+        store = new MemoryStore();
+        settings = await BookSettings.create([view1, view2], store);
     });
 
-    describe("#constructor", () => {
-        it("sets the selected view to the first view", () => {
+    describe("#create", () => {
+        it("obtains the selected view from the store", async () => {
+            await store.set("settings-selected-view", view2.name);
+            settings = await BookSettings.create([view1, view2], store);
+            expect(settings.getSelectedView()).to.equal(view2);
+        });
+
+        it("sets the selected view to the first view if there's no selected view in the store", () => {
             expect(settings.getSelectedView()).to.equal(view1);
         });
     });
 
     describe("#renderControls", () => {
-        it("renders a link for each view", () => {
+        it("renders a link for each view", async () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
@@ -78,14 +87,14 @@ describe("BookSettings", () => {
 
             // If there's no views or only 1 view, views don't show up in the settings.
 
-            settings = new BookSettings([view1]);
+            settings = await BookSettings.create([view1], store);
             settings.renderControls(element);
             view1Link = element.querySelector("a[class=view1]") as HTMLAnchorElement;
             expect(view1Link).to.be.null;
             view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
             expect(view2Link).to.be.null;
 
-            settings = new BookSettings([]);
+            settings = await BookSettings.create([], store);
             settings.renderControls(element);
             view1Link = element.querySelector("a[class=view1]") as HTMLAnchorElement;
             expect(view1Link).to.be.null;
@@ -111,6 +120,8 @@ describe("BookSettings", () => {
             expect(start.args[0][0]).to.equal(2);
 
             expect(settings.getSelectedView()).to.equal(view2);
+            let storedView = await store.get("settings-selected-view")
+            expect(storedView).to.equal(view2.name);
 
             click(view1Link);
             await pause();
@@ -125,6 +136,8 @@ describe("BookSettings", () => {
             expect(start.args[1][0]).to.equal(1);
 
             expect(settings.getSelectedView()).to.equal(view1);
+            storedView = await store.get("settings-selected-view")
+            expect(storedView).to.equal(view1.name);
         });
     });
 

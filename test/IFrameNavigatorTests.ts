@@ -9,6 +9,7 @@ import ScrollingBookView from "../src/ScrollingBookView";
 import Annotator from "../src/Annotator";
 import Manifest from "../src/Manifest";
 import BookSettings from "../src/BookSettings";
+import MemoryStore from "../src/MemoryStore";
 
 describe("IFrameNavigator", () => {
     let getManifest: Sinon.SinonStub;
@@ -165,7 +166,7 @@ describe("IFrameNavigator", () => {
         renderControls = stub();
         onViewChange = stub();
         getSelectedView = stub().returns(paginator);
-        settings = new MockSettings([paginator, scroller]);
+        settings = await MockSettings.create([paginator, scroller], new MemoryStore());
 
         const window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
