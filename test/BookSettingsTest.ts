@@ -21,6 +21,7 @@ describe("BookSettings", () => {
             this.label = label;
         }
         public setBookElement() {}
+        public setTopMargin() {}
         public start(position: number) {
             start(this.id, position);
         }

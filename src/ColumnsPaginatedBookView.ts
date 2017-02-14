@@ -2,12 +2,17 @@ import PaginatedBookView from "./PaginatedBookView";
 
 export default class ColumnsPaginatedBookView implements PaginatedBookView {
     private iframe: HTMLIFrameElement;
+    private topMargin: number = 0;
 
     public name = "columns-paginated-view"
     public label = "Paginated View"
 
     public setBookElement(iframe: HTMLIFrameElement): void {
         this.iframe = iframe;
+    }
+
+    public setTopMargin(topMargin: number): void {
+        this.topMargin = topMargin;
     }
 
     public start(position: number): void {
@@ -44,13 +49,21 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         body.style.columnWidth = this.iframe.style.width;
         body.style.WebkitColumnWidth = this.iframe.style.width;
         body.style.MozColumnWidth = this.iframe.style.width;
-        body.style.height = this.iframe.style.height;
-        body.style.width = this.iframe.style.width;
+        const height = (window.innerHeight - this.topMargin) + "px";
+        const width = document.body.offsetWidth + "px"
+        body.style.height = height;
+        body.style.width = width;
+        this.iframe.style.height = height;
+        this.iframe.style.width = width;
+        this.iframe.style.marginTop = this.topMargin + "px";
     }
 
     public stop(): void {
         const body = this.iframe.contentDocument.body as any;
         body.style.cssText = null;
+        this.iframe.style.height = "";
+        this.iframe.style.width = "";
+        this.iframe.style.marginTop = "0px";
     }
 
     /** Returns the total width of the columns that are currently

@@ -16,6 +16,7 @@ describe("IFrameNavigator", () => {
     let cacher: Cacher;
 
     let paginatorSetBookElement: Sinon.SinonStub;
+    let paginatorSetTopMargin: Sinon.SinonStub;
     let paginatorStart: Sinon.SinonStub;
     let onFirstPage: Sinon.SinonStub;
     let onLastPage: Sinon.SinonStub;
@@ -60,6 +61,9 @@ describe("IFrameNavigator", () => {
         public setBookElement(element: Element) {
             paginatorSetBookElement(element);
         }
+        public setTopMargin(topMargin: number) {
+            paginatorSetTopMargin(topMargin);
+        }
         public start(position: number) {
             paginatorStart(position);
         }
@@ -88,6 +92,7 @@ describe("IFrameNavigator", () => {
         public setBookElement(element: Element) {
             scrollerSetBookElement(element);
         }
+        public setTopMargin() {}
         public start(position: number) {
             scrollerStart(position);
         }
@@ -147,6 +152,7 @@ describe("IFrameNavigator", () => {
         cacher = new MockCacher();
 
         paginatorSetBookElement = stub();
+        paginatorSetTopMargin = stub();
         paginatorStart = stub();
         onFirstPage = stub().returns(false);
         onLastPage = stub().returns(false);
@@ -184,7 +190,7 @@ describe("IFrameNavigator", () => {
 
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
-        navigator = await  IFrameNavigator.create(element, "http://example.com/manifest.json", cacher, settings, annotator, paginator, scroller);
+        navigator = await IFrameNavigator.create(element, "http://example.com/manifest.json", cacher, settings, annotator, paginator, scroller);
 
         span = window.document.createElement("span");
         link = window.document.createElement("a");
@@ -224,7 +230,6 @@ describe("IFrameNavigator", () => {
         it("should give the settings a function to update the book view when a new view is selected", async () => {
             expect(onViewChange.callCount).to.equal(1);
             let paginationControls = element.querySelector("div[class=pagination-controls]") as HTMLDivElement;
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
             await pause();
             expect(saveLastReadingPosition.callCount).to.equal(1);
@@ -232,18 +237,20 @@ describe("IFrameNavigator", () => {
             const updateBookView = onViewChange.args[0][0];
             updateBookView();
             expect(paginationControls.style.display).not.to.equal("none");
+            expect(document.body.style.overflow).to.equal("hidden");
 
             // A scroll event does nothing when the paginator is selected.
-            iframe.contentDocument.body.onscroll(new UIEvent("scroll"));
+            document.body.onscroll(new UIEvent("scroll"));
             expect(saveLastReadingPosition.callCount).to.equal(1);
 
             getSelectedView.returns(scroller);
 
             updateBookView();
             expect(paginationControls.style.display).to.equal("none");
+            expect(document.body.style.overflow).to.equal("auto");
 
             // Now a scroll event saves the new reading position.
-            await iframe.contentDocument.body.onscroll(new UIEvent("scroll"));
+            await document.body.onscroll(new UIEvent("scroll"));
             expect(saveLastReadingPosition.callCount).to.equal(2);
         });
 
@@ -505,6 +512,20 @@ describe("IFrameNavigator", () => {
             expect(paginatorGoToPosition.args[0][0]).to.equal(0.25);
         });
 
+        it("should set top margin on view when loading iframe", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const navigation = element.querySelector("div[class=controls]") as HTMLUListElement;
+            (navigation as any).clientHeight = 10;
+
+            expect(paginatorSetTopMargin.callCount).to.equal(1);
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+
+            expect(paginatorSetTopMargin.callCount).to.equal(2);
+            expect(paginatorSetTopMargin.args[1][0]).to.equal(15);
+        });
+
         it("should show loading message while iframe is loading", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const loading = element.querySelector("div[class=loading]") as any;
@@ -523,18 +544,6 @@ describe("IFrameNavigator", () => {
             expect(loading.style.display).not.to.equal("none");
             await pause(100);
             expect(loading.style.display).to.equal("none");
-        });
-
-        it("should set iframe margin", async () => {
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            const navigation = element.querySelector("div[class=controls]") as HTMLUListElement;
-            (navigation as any).clientHeight = 10;
-            await pause();
-
-            const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
-            click(next);
-            await pause();
-            expect(iframe.style.marginTop).to.equal("15px");
         });
     });
 

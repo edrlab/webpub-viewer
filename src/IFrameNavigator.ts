@@ -28,7 +28,7 @@ const template = `
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
-    <iframe style="border:0; width:100%; overflow: hidden;"></iframe>
+    <iframe style="border:0;"></iframe>
   </main>
 `;
 
@@ -145,10 +145,12 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
     private updateBookView(): void {
         if (this.settings.getSelectedView() === this.paginator) {
             this.paginationControls.style.display = "block";
-            this.iframe.contentDocument.body.onscroll = () => {};
+            document.body.onscroll = () => {};
+            document.body.style.overflow = "hidden";
         } else if (this.settings.getSelectedView() === this.scroller) {
             this.paginationControls.style.display = "none";
-            this.iframe.contentDocument.body.onscroll = this.handleScroll.bind(this);
+            document.body.onscroll = this.handleScroll.bind(this);
+            document.body.style.overflow = "auto";
         }
     }
 
@@ -217,6 +219,7 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
             bookViewPosition = this.newPosition.position;
         }
         this.updateBookView();
+        this.settings.getSelectedView().setTopMargin(this.navigation.clientHeight + 5);
         this.settings.getSelectedView().start(bookViewPosition);
         this.newPosition = null;
 
@@ -345,7 +348,6 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
     private handleResize(): void {
         const selectedView = this.settings.getSelectedView();
         const oldPosition = selectedView.getCurrentPosition();
-        this.setIFrameSize();
         selectedView.goToPosition(oldPosition);
     }
 
@@ -421,7 +423,6 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
         this.showLoadingMessageAfterDelay();
         this.newPosition = readingPosition;
         this.iframe.src = readingPosition.resource;
-        this.setIFrameSize();
     }
 
     private showLoadingMessageAfterDelay() {
@@ -436,13 +437,6 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
     private hideLoadingMessage() {
         this.isLoading = false;
         this.loadingMessage.style.display = "none";
-    }
-
-    private setIFrameSize(): void {
-        let topMargin = this.navigation.clientHeight + 5; 
-        this.iframe.style.height = (window.innerHeight - topMargin) + "px";
-        this.iframe.style.marginTop = topMargin + "px";
-        this.iframe.style.width = document.body.offsetWidth + "px";
     }
 
     private async saveCurrentReadingPosition(): Promise<void> {

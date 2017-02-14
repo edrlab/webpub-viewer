@@ -4,6 +4,7 @@ import ColumnsPaginatedBookView from "../src/ColumnsPaginatedBookView";
 
 describe("ColumnsPaginatedBookView", () => {
     let iframe: HTMLIFrameElement;
+    let topMargin: number = 10;
     let paginator: ColumnsPaginatedBookView;
 
     beforeEach(() => {
@@ -13,6 +14,7 @@ describe("ColumnsPaginatedBookView", () => {
 
         paginator = new ColumnsPaginatedBookView();
         paginator.setBookElement(iframe);
+        paginator.setTopMargin(topMargin);
     });
 
     describe("#start", () => {
@@ -26,11 +28,14 @@ describe("ColumnsPaginatedBookView", () => {
             expect(body.style.position).to.equal("relative");
         });
 
-        it("should set iframe body width and height and column width based on iframe size", () => {
-            iframe.style.height = "200px";
-            iframe.style.width = "100px";
+        it("should set iframe and iframe body width and height and column width based on window size", () => {
+            (window as any).innerHeight = 210;
+            (document.body as any).offsetWidth = 100;
             paginator.start(0);
             const body = iframe.contentDocument.body;
+            expect(iframe.style.height).to.equal("200px");
+            expect(iframe.style.width).to.equal("100px");
+            expect(iframe.style.marginTop).to.equal("10px");
             expect(body.style.height).to.equal("200px");
             expect(body.style.width).to.equal("100px");
             expect(body.style.columnWidth).to.equal("100px");
@@ -52,13 +57,17 @@ describe("ColumnsPaginatedBookView", () => {
     });
 
     describe("#stop", () => {
-        it("should remove styling from iframe body", () => {
+        it("should remove styling from iframe and iframe body", () => {
             paginator.start(0);
 
+            expect(iframe.style.height).not.to.equal("");
+            expect(iframe.style.marginTop).not.to.equal("0px");
             expect(iframe.contentDocument.body.style.length).to.be.above(0);
 
             paginator.stop();
 
+            expect(iframe.style.height).to.equal("");
+            expect(iframe.style.marginTop).to.equal("0px");
             expect(iframe.contentDocument.body.style.length).to.equal(0);
         });
     });
