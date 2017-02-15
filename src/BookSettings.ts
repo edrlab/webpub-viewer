@@ -58,10 +58,9 @@ export default class BookSettings extends HTMLView {
         const sections = [];
 
         if (this.bookViews.length > 1) {
-            const options = [];
-            for (const bookView of this.bookViews) {
-                options.push(optionTemplate(bookView.name, bookView.label));
-            }
+            const options = this.bookViews.map(bookView =>
+                optionTemplate(bookView.name, bookView.label)
+            );
             sections.push(sectionTemplate(options.join("")));
         }
 
