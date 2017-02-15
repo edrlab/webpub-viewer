@@ -5,7 +5,7 @@ import ScrollingBookView from "./ScrollingBookView";
 import Annotator from "./Annotator";
 import Manifest from "./Manifest";
 import BookSettings from "./BookSettings";
-import HTMLView from "./HTMLView";
+import * as HTMLUtilities from "./HTMLUtilities";
 
 const template = `
   <nav class="publication">
@@ -38,7 +38,7 @@ interface ReadingPosition {
 }
 
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
-export default class IFrameNavigator extends HTMLView implements Navigator {
+export default class IFrameNavigator implements Navigator {
     private manifestUrl: URL;
     private cacher: Cacher;
     private paginator: PaginatedBookView | null;
@@ -70,7 +70,6 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
     }
 
     protected constructor(cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
-        super();
         this.cacher = cacher;
         this.paginator = paginator;
         this.scroller = scroller;
@@ -82,21 +81,21 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
         element.innerHTML = template;
         this.manifestUrl = manifestUrl;
         try {
-            this.iframe = this.findRequiredElement(element, "iframe") as HTMLIFrameElement;
-            this.nextChapterLink = this.findRequiredElement(element, "a[rel=next]") as HTMLAnchorElement;
-            this.previousChapterLink = this.findRequiredElement(element, "a[rel=prev]") as HTMLAnchorElement;
-            this.startLink = this.findRequiredElement(element, "a[rel=start]") as HTMLAnchorElement;
-            this.contentsLink = this.findRequiredElement(element, "a[rel=contents]") as HTMLAnchorElement;
-            this.settingsLink = this.findRequiredElement(element, "a[class=settings]") as HTMLAnchorElement;
-            this.navigation = this.findRequiredElement(element, "div[class=controls]");
-            this.links = this.findRequiredElement(element, "ul[class=links]") as HTMLUListElement;
-            this.tocView = this.findRequiredElement(element, "div[class='contents-view controls-view']") as HTMLDivElement;
-            this.settingsView = this.findRequiredElement(element, "div[class='settings-view controls-view']") as HTMLDivElement;
-            this.loadingMessage = this.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
-            this.paginationControls = this.findRequiredElement(element, "div[class=pagination-controls]") as HTMLDivElement;
-            this.linksToggle = this.findRequiredElement(element, "div[class=links-toggle]");
-            this.previousPageLink = this.findRequiredElement(element, "div[class=previous-page]");
-            this.nextPageLink = this.findRequiredElement(element, "div[class=next-page]");
+            this.iframe = HTMLUtilities.findRequiredElement(element, "iframe") as HTMLIFrameElement;
+            this.nextChapterLink = HTMLUtilities.findRequiredElement(element, "a[rel=next]") as HTMLAnchorElement;
+            this.previousChapterLink = HTMLUtilities.findRequiredElement(element, "a[rel=prev]") as HTMLAnchorElement;
+            this.startLink = HTMLUtilities.findRequiredElement(element, "a[rel=start]") as HTMLAnchorElement;
+            this.contentsLink = HTMLUtilities.findRequiredElement(element, "a[rel=contents]") as HTMLAnchorElement;
+            this.settingsLink = HTMLUtilities.findRequiredElement(element, "a[class=settings]") as HTMLAnchorElement;
+            this.navigation = HTMLUtilities.findRequiredElement(element, "div[class=controls]");
+            this.links = HTMLUtilities.findRequiredElement(element, "ul[class=links]") as HTMLUListElement;
+            this.tocView = HTMLUtilities.findRequiredElement(element, "div[class='contents-view controls-view']") as HTMLDivElement;
+            this.settingsView = HTMLUtilities.findRequiredElement(element, "div[class='settings-view controls-view']") as HTMLDivElement;
+            this.loadingMessage = HTMLUtilities.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
+            this.paginationControls = HTMLUtilities.findRequiredElement(element, "div[class=pagination-controls]") as HTMLDivElement;
+            this.linksToggle = HTMLUtilities.findRequiredElement(element, "div[class=links-toggle]");
+            this.previousPageLink = HTMLUtilities.findRequiredElement(element, "div[class=previous-page]");
+            this.nextPageLink = HTMLUtilities.findRequiredElement(element, "div[class=next-page]");
             this.newPosition = null;
             this.isLoading = true;
             this.setupEvents();

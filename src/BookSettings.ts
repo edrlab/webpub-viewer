@@ -1,5 +1,5 @@
 import BookView from "./BookView";
-import HTMLView from "./HTMLView";
+import * as HTMLUtilities from "./HTMLUtilities";
 import Store from "./Store";
 
 const template = (sections: string) => `
@@ -18,7 +18,7 @@ const optionTemplate = (className: string, label: string) => `
     <li><a href='#' class='${className}'>${label}</a></li>
 `;
 
-export default class BookSettings extends HTMLView {
+export default class BookSettings {
     private readonly store: Store;
     private readonly bookViews: BookView[];
     private viewLinks: { [key: string]: HTMLAnchorElement };
@@ -33,7 +33,6 @@ export default class BookSettings extends HTMLView {
     }
 
     protected constructor(bookViews: BookView[], store: Store) {
-        super();
         this.bookViews = bookViews;
         this.store = store;
     }
@@ -68,7 +67,7 @@ export default class BookSettings extends HTMLView {
         this.viewLinks = {};
         if (this.bookViews.length > 1) {
             for (const bookView of this.bookViews) {
-                this.viewLinks[bookView.name] = this.findRequiredElement(element, "a[class=" + bookView.name + "]") as HTMLAnchorElement;
+                this.viewLinks[bookView.name] = HTMLUtilities.findRequiredElement(element, "a[class=" + bookView.name + "]") as HTMLAnchorElement;
             }
             this.updateViewLinks();
         }
