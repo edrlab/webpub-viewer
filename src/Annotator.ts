@@ -1,5 +1,4 @@
 interface Annotator {
-    start(): Promise<void>;
     getLastReadingPosition(): Promise<any>;
     saveLastReadingPosition(position: any): Promise<void>;
 }

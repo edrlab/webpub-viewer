@@ -1,13 +1,24 @@
-import Paginator from "./Paginator";
+import PaginatedBookView from "./PaginatedBookView";
 
-export default class ColumnsPaginator implements Paginator {
+export default class ColumnsPaginatedBookView implements PaginatedBookView {
     private iframe: HTMLIFrameElement;
+    private topMargin: number = 0;
 
-    public start(iframe: HTMLIFrameElement, position: number): Promise<void> {
+    public readonly name = "columns-paginated-view"
+    public readonly label = "Paginated View"
+
+    public setBookElement(iframe: HTMLIFrameElement): void {
         this.iframe = iframe;
+    }
+
+    public setTopMargin(topMargin: number): void {
+        this.topMargin = topMargin;
+    }
+
+    public start(position: number): void {
         // any is necessary because CSSStyleDeclaration type does not include
         // all the vendor-prefixed attributes.
-        const body = iframe.contentDocument.body as any;
+        const body = this.iframe.contentDocument.body as any;
         body.style.columnCount = 1;
         body.style.WebkitColumnCount = 1;
         body.style.MozColumnCount = 1;
@@ -24,12 +35,11 @@ export default class ColumnsPaginator implements Paginator {
         const viewportElement = document.createElement("meta");
         viewportElement.name = "viewport";
         viewportElement.content = "width=device-width, initial-scale=1, maximum-scale=1";
-        const head = iframe.contentDocument.querySelector("head");
+        const head = this.iframe.contentDocument.querySelector("head");
         if (head) {
             head.appendChild(viewportElement);
         }
         this.goToPosition(position);
-        return new Promise<void>(resolve => resolve());
     }
 
     private setSize(): void {
@@ -39,8 +49,21 @@ export default class ColumnsPaginator implements Paginator {
         body.style.columnWidth = this.iframe.style.width;
         body.style.WebkitColumnWidth = this.iframe.style.width;
         body.style.MozColumnWidth = this.iframe.style.width;
-        body.style.height = this.iframe.style.height;
-        body.style.width = this.iframe.style.width;
+        const height = (window.innerHeight - this.topMargin) + "px";
+        const width = document.body.offsetWidth + "px"
+        body.style.height = height;
+        body.style.width = width;
+        this.iframe.style.height = height;
+        this.iframe.style.width = width;
+        this.iframe.style.marginTop = this.topMargin + "px";
+    }
+
+    public stop(): void {
+        const body = this.iframe.contentDocument.body as any;
+        body.style.cssText = null;
+        this.iframe.style.height = "";
+        this.iframe.style.width = "";
+        this.iframe.style.marginTop = "0px";
     }
 
     /** Returns the total width of the columns that are currently

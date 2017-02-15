@@ -8,13 +8,17 @@
   <script src="../../node_modules/whatwg-fetch/fetch.js"></script>
   <script src="../../dist/webpub-viewer.js"></script>
   <style>
-    .controls .links {
+    .controls {
       position: fixed;
       top: 0;
       right: 0;
       width: 100%;
-      background-color: rgb(221, 221, 221);
       height: 2em;
+    }
+    .controls .links {
+      position: relative;
+      height: inherit;
+      background-color: rgb(221, 221, 221);
       list-style-type: none;
       text-align: center;
       margin: 0;
@@ -33,7 +37,7 @@
       top: calc(50% - 100px);
       background-color: #aaa;
     }
-    .toc {
+    .controls-view {
       position: fixed;
       top: 2em;
       left: 0;
@@ -44,7 +48,7 @@
       background-color: white;
       border: 2px solid #aaa;
     }
-    .toc .active {
+    .controls-view .active {
       background-color: #aaa;
     }
   </style>
@@ -53,15 +57,19 @@
   <div id="viewer">
   </div>
   <script>
-    require(["WebpubViewer", "LocalStorageStore", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginator", "LocalAnnotator"], function (WebpubViewer, LocalStorageStore, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginator, LocalAnnotator) {
+    require(["LocalStorageStore", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginatedBookView", "ScrollingBookView", "LocalAnnotator", "BookSettings"], function (LocalStorageStore, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginatedBookView, ScrollingBookView, LocalAnnotator, BookSettings) {
       var element = document.getElementById("viewer");
-      var store = new LocalStorageStore.default();
-      var cacher = new ServiceWorkerCacher.default(store);
-      var paginator = new ColumnsPaginator.default();
-      var annotator = new LocalAnnotator.default(store);
-      var navigator = new IFrameNavigator.default(cacher, paginator, annotator);
-      var viewer = new WebpubViewer.default(store, cacher, navigator, annotator);
-      viewer.start(element);
+      var manifestUrl = new URL("manifest.json", window.location.href);
+
+      var store = new LocalStorageStore.default(manifestUrl);
+      ServiceWorkerCacher.default.create(store, manifestUrl).then(function (cacher) {
+        var paginator = new ColumnsPaginatedBookView.default();
+        var scroller = new ScrollingBookView.default();
+        var annotator = new LocalAnnotator.default(store);
+        BookSettings.default.create([paginator, scroller], store).then(function (settings) {
+          IFrameNavigator.default.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
+        });
+      });
     });
   </script>
 </body>

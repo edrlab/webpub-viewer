@@ -9,9 +9,7 @@ describe("LocalAnnotator", () => {
 
     beforeEach(() => {
         store = new MemoryStore();
-        store.start();
         annotator = new LocalAnnotator(store);
-        annotator.start();
     });
 
     describe("#getLastReadingPosition", async () => {

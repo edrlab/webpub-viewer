@@ -1,0 +1,1 @@
+../../dist/webpub-viewer.js

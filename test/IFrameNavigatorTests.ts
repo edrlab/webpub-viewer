@@ -4,25 +4,39 @@ import * as jsdom from "jsdom";
 
 import IFrameNavigator from "../src/IFrameNavigator";
 import Cacher from "../src/Cacher";
-import Paginator from "../src/Paginator";
+import PaginatedBookView from "../src/PaginatedBookView";
+import ScrollingBookView from "../src/ScrollingBookView";
 import Annotator from "../src/Annotator";
 import Manifest from "../src/Manifest";
+import BookSettings from "../src/BookSettings";
+import MemoryStore from "../src/MemoryStore";
 
 describe("IFrameNavigator", () => {
     let getManifest: Sinon.SinonStub;
     let cacher: Cacher;
 
+    let paginatorSetBookElement: Sinon.SinonStub;
+    let paginatorSetTopMargin: Sinon.SinonStub;
     let paginatorStart: Sinon.SinonStub;
     let onFirstPage: Sinon.SinonStub;
     let onLastPage: Sinon.SinonStub;
     let goToPreviousPage: Sinon.SinonStub;
     let goToNextPage: Sinon.SinonStub;
-    let goToPosition: Sinon.SinonStub;
-    let paginator: Paginator;
+    let paginatorGoToPosition: Sinon.SinonStub;
+    let paginator: PaginatedBookView;
+
+    let scrollerSetBookElement: Sinon.SinonStub;
+    let scrollerStart: Sinon.SinonStub;
+    let scroller: ScrollingBookView;
 
     let getLastReadingPosition: Sinon.SinonStub;
     let saveLastReadingPosition: Sinon.SinonStub;
     let annotator: Annotator;
+
+    let renderControls: Sinon.SinonStub;
+    let onViewChange: Sinon.SinonStub;
+    let getSelectedView: Sinon.SinonStub;    
+    let settings: BookSettings;
 
     let element: HTMLElement;
     let navigator: IFrameNavigator;
@@ -36,15 +50,24 @@ describe("IFrameNavigator", () => {
         public start() {
             return new Promise<void>(resolve => resolve());
         }
-        public getManifest(manifestUrl: string) {
+        public getManifest(manifestUrl: URL) {
             return getManifest(manifestUrl);
         }
     }
 
-    class MockPaginator implements Paginator {
-        public start(element: HTMLElement, position: number) {
-            return paginatorStart(element, position);
+    class MockPaginator implements PaginatedBookView {
+        public name = "mock"
+        public label = "mock"
+        public setBookElement(element: Element) {
+            paginatorSetBookElement(element);
         }
+        public setTopMargin(topMargin: number) {
+            paginatorSetTopMargin(topMargin);
+        }
+        public start(position: number) {
+            paginatorStart(position);
+        }
+        public stop() {}
         public getCurrentPosition() {
             return 0.25;
         }
@@ -61,7 +84,20 @@ describe("IFrameNavigator", () => {
             goToNextPage();
         }
         public goToPosition(position: number) {
-            goToPosition(position);
+            paginatorGoToPosition(position);
+        }
+    }
+
+    class MockScroller extends ScrollingBookView {
+        public setBookElement(element: Element) {
+            scrollerSetBookElement(element);
+        }
+        public setTopMargin() {}
+        public start(position: number) {
+            scrollerStart(position);
+        }
+        public getCurrentPosition() {
+            return 0.25;
         }
     }
 
@@ -73,8 +109,19 @@ describe("IFrameNavigator", () => {
             return new Promise<any>(resolve => resolve(getLastReadingPosition()));
         }
         public saveLastReadingPosition(position: any): Promise<void> {
-            saveLastReadingPosition(position);
-            return new Promise<any>(resolve => resolve());
+            return saveLastReadingPosition(position);
+        }
+    }
+
+    class MockSettings extends BookSettings {
+        public renderControls(element: HTMLElement) {
+            renderControls(element);
+        }
+        public onViewChange(callback: () => void) {
+            onViewChange(callback);
+        }
+        public getSelectedView() {
+            return getSelectedView();
         }
     }
 
@@ -88,7 +135,7 @@ describe("IFrameNavigator", () => {
             { href: "item-1.html", "title": "Item 1" },
             { href: "item-2.html", "title": "Item 2" }
         ]
-    }, "http://example.com/manifest.json");
+    }, new URL("http://example.com/manifest.json"));
 
     const click = (element: any) => {
         const event = document.createEvent("HTMLEvents");
@@ -100,21 +147,32 @@ describe("IFrameNavigator", () => {
         return new Promise<void>(resolve => setTimeout(resolve, ms));
     };
 
-    beforeEach(() => {
+    beforeEach(async () => {
         getManifest = stub().returns(new Promise(resolve => resolve(manifest)));
         cacher = new MockCacher();
 
-        paginatorStart = stub().returns(new Promise(resolve => resolve()));
+        paginatorSetBookElement = stub();
+        paginatorSetTopMargin = stub();
+        paginatorStart = stub();
         onFirstPage = stub().returns(false);
         onLastPage = stub().returns(false);
         goToPreviousPage = stub();
         goToNextPage = stub();
-        goToPosition = stub();
+        paginatorGoToPosition = stub();
         paginator = new MockPaginator();
 
+        scrollerSetBookElement = stub();
+        scrollerStart = stub();
+        scroller = new MockScroller();
+
         getLastReadingPosition = stub();
-        saveLastReadingPosition = stub();
+        saveLastReadingPosition = stub().returns(new Promise(resolve => resolve()));
         annotator = new MockAnnotator();
+
+        renderControls = stub();
+        onViewChange = stub();
+        getSelectedView = stub().returns(paginator);
+        settings = await MockSettings.create([paginator, scroller], new MemoryStore());
 
         const window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
@@ -132,7 +190,7 @@ describe("IFrameNavigator", () => {
 
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
-        navigator = new IFrameNavigator(cacher, paginator, annotator);
+        navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), cacher, settings, annotator, paginator, scroller);
 
         span = window.document.createElement("span");
         link = window.document.createElement("a");
@@ -155,25 +213,7 @@ describe("IFrameNavigator", () => {
     });
 
     describe("#start", () => {
-        it("should set element's HTML without pagination controls", async () => {
-            navigator = new IFrameNavigator(cacher);
-            expect(element.innerHTML).not.to.contain("iframe");
-            expect(element.innerHTML).not.to.contain("controls");
-            await navigator.start(element, "http://example.com/manifest.json");
-            expect(element.innerHTML).to.contain("iframe");
-            expect(element.innerHTML).to.contain("controls");
-            expect(element.innerHTML).not.to.contain("previous-page");
-            expect(element.innerHTML).not.to.contain("next-page");
-            expect(element.innerHTML).not.to.contain("links-toggle");
-        });
-
-        it("should set element's HTML with pagination controls", async () => {
-            expect(element.innerHTML).not.to.contain("iframe");
-            expect(element.innerHTML).not.to.contain("controls");
-            expect(element.innerHTML).not.to.contain("previous-page");
-            expect(element.innerHTML).not.to.contain("next-page");
-            expect(element.innerHTML).not.to.contain("links-toggle");
-            await navigator.start(element, "http://example.com/manifest.json");
+        it("should set element's HTML", async () => {
             expect(element.innerHTML).to.contain("iframe");
             expect(element.innerHTML).to.contain("controls");
             expect(element.innerHTML).to.contain("previous-page");
@@ -181,16 +221,49 @@ describe("IFrameNavigator", () => {
             expect(element.innerHTML).to.contain("links-toggle");
         });
 
-        it("should start the paginator", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
+        it("should render the settings controls", async () => {
+            expect(renderControls.callCount).to.equal(1);
+            const settingsView = element.querySelector("div[class='settings-view controls-view']") as HTMLDivElement;
+            expect(renderControls.args[0][0]).to.equal(settingsView);
+        });
+
+        it("should give the settings a function to update the book view when a new view is selected", async () => {
+            expect(onViewChange.callCount).to.equal(1);
+            let paginationControls = element.querySelector("div[class=pagination-controls]") as HTMLDivElement;
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(1);
+
+            const updateBookView = onViewChange.args[0][0];
+            updateBookView();
+            expect(paginationControls.style.display).not.to.equal("none");
+            expect(document.body.style.overflow).to.equal("hidden");
+
+            // A scroll event does nothing when the paginator is selected.
+            document.body.onscroll(new UIEvent("scroll"));
+            expect(saveLastReadingPosition.callCount).to.equal(1);
+
+            getSelectedView.returns(scroller);
+
+            updateBookView();
+            expect(paginationControls.style.display).to.equal("none");
+            expect(document.body.style.overflow).to.equal("auto");
+
+            // Now a scroll event saves the new reading position.
+            await document.body.onscroll(new UIEvent("scroll"));
+            expect(saveLastReadingPosition.callCount).to.equal(2);
+        });
+
+        it("should start the selected book view", async () => {
+            await pause();
             expect(paginatorStart.callCount).to.equal(1);
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            expect(paginatorStart.args[0][0]).to.equal(iframe);
-            expect(paginatorStart.args[0][1]).to.equal(0);
+            expect(paginatorStart.args[0][0]).to.equal(0);
+
+            const paginationControls = element.querySelector("div[class=pagination-controls]") as HTMLDivElement;
+            expect(paginationControls.style.display).not.to.equal("none");
         });
 
         it("should load first spine item in the iframe", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             expect(iframe).not.to.be.null;
             expect(iframe.src).to.equal("http://example.com/start.html");
@@ -204,7 +277,6 @@ describe("IFrameNavigator", () => {
         });
 
         it("should navigate to the first spine item", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             iframe.src = "http://example.com/some-other-page.html";
 
@@ -215,7 +287,6 @@ describe("IFrameNavigator", () => {
         });
 
         it("should navigate to the previous spine item", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const originalSrc = iframe.src;
             const previous = element.querySelector("a[rel=prev]") as HTMLAnchorElement;
@@ -248,7 +319,6 @@ describe("IFrameNavigator", () => {
         });
 
         it("should navigate to the next spine item", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
 
@@ -282,7 +352,6 @@ describe("IFrameNavigator", () => {
 
         it("should toggle the navigation links", async () => {
             jsdom.changeURL(window, "http://example.com");
-            await navigator.start(element, "http://example.com/manifest.json");
             const links = element.querySelector("ul[class=links]") as HTMLUListElement;
             const toggleElement = element.querySelector("div[class=links-toggle]");
             
@@ -321,7 +390,6 @@ describe("IFrameNavigator", () => {
 
         it("should go to previous page", async () => {
             jsdom.changeURL(window, "http://example.com");
-            await navigator.start(element, "http://example.com/manifest.json");
             const previousPageElement = element.querySelector("div[class=previous-page]");
             
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
@@ -368,8 +436,7 @@ describe("IFrameNavigator", () => {
 
             await pause();
             expect(paginatorStart.callCount).to.equal(3);
-            expect(paginatorStart.args[2][0]).to.equal(iframe);
-            expect(paginatorStart.args[2][1]).to.equal(1);
+            expect(paginatorStart.args[2][0]).to.equal(1);
 
             expect(saveLastReadingPosition.callCount).to.equal(4);
             expect(saveLastReadingPosition.args[3][0]).to.deep.equal({
@@ -380,7 +447,6 @@ describe("IFrameNavigator", () => {
 
         it("should go to next page", async () => {
             jsdom.changeURL(window, "http://example.com");
-            await navigator.start(element, "http://example.com/manifest.json");
             const nextPageElement = element.querySelector("div[class=next-page]");
             
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
@@ -431,8 +497,7 @@ describe("IFrameNavigator", () => {
 
             await pause();
             expect(paginatorStart.callCount).to.equal(4);
-            expect(paginatorStart.args[3][0]).to.equal(iframe);
-            expect(paginatorStart.args[3][1]).to.equal(0);
+            expect(paginatorStart.args[3][0]).to.equal(0);
 
             expect(saveLastReadingPosition.callCount).to.equal(5);
             expect(saveLastReadingPosition.args[4][0]).to.deep.equal({
@@ -442,20 +507,32 @@ describe("IFrameNavigator", () => {
         });
 
         it("should maintain paginator position when window is resized", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             window.dispatchEvent(new Event('resize'));
-            expect(goToPosition.callCount).to.equal(1);
-            expect(goToPosition.args[0][0]).to.equal(0.25);
+            expect(paginatorGoToPosition.callCount).to.equal(1);
+            expect(paginatorGoToPosition.args[0][0]).to.equal(0.25);
+        });
+
+        it("should set top margin on view when loading iframe", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const navigation = element.querySelector("div[class=controls]") as HTMLUListElement;
+            (navigation as any).clientHeight = 10;
+
+            expect(paginatorSetTopMargin.callCount).to.equal(1);
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+
+            expect(paginatorSetTopMargin.callCount).to.equal(2);
+            expect(paginatorSetTopMargin.args[1][0]).to.equal(15);
         });
 
         it("should show loading message while iframe is loading", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const loading = element.querySelector("div[class=loading]") as any;
             const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
 
-            // Slow down the paginator so the loading message has time to appear.
-            paginatorStart.returns(new Promise<void>(async (resolve) => {
+            // Slow down annotator so the loading message has time to appear.
+            saveLastReadingPosition.returns(new Promise<void>(async (resolve) => {
                 await pause(300);
                 resolve();
             }));
@@ -468,33 +545,11 @@ describe("IFrameNavigator", () => {
             await pause(100);
             expect(loading.style.display).to.equal("none");
         });
-
-        it("should set iframe margin", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
-            let iframe = element.querySelector("iframe") as HTMLIFrameElement;
-
-            // The margin is 0 if there's a paginator.
-            expect(iframe.style.marginTop).to.equal("0px");
-
-            // Without a paginator, the margin is determined by the height of the links.
-            navigator = new IFrameNavigator(cacher);
-            await navigator.start(element, "http://example.com/manifest.json");
-
-            const links = element.querySelector("ul[class=links]") as HTMLUListElement;
-            (links as any).clientHeight = 10;
-            iframe = element.querySelector("iframe") as HTMLIFrameElement;
-
-            const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
-            click(next);
-            await pause();
-            expect(iframe.style.marginTop).to.equal("10px");
-        });
     });
 
     describe("table of contents", () => {
         it("should render each link in the manifest toc", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
-            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+            const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
 
             const list = toc.querySelector("ul") as HTMLUListElement;
             expect(list.tagName.toLowerCase()).to.equal("ul");
@@ -511,9 +566,8 @@ describe("IFrameNavigator", () => {
         });
 
         it("should show and hide when contents link is clicked", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+            const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
             expect(toc.style.display).to.equal("none");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
@@ -528,10 +582,9 @@ describe("IFrameNavigator", () => {
         });
 
         it("should hide when other navigation links are clicked", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             iframe.contentDocument.elementFromPoint = stub().returns(span);
-            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+            const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
 
             const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
             click(contentsLink);
@@ -555,9 +608,8 @@ describe("IFrameNavigator", () => {
         });
 
         it("should navigate to a toc item", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+            const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
             expect(iframe.src).to.equal("http://example.com/start.html");
 
             const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
@@ -580,9 +632,8 @@ describe("IFrameNavigator", () => {
         });
 
         it("should set class on the active toc item", async () => {
-            await navigator.start(element, "http://example.com/manifest.json");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            const toc = element.querySelector("div[class=toc]") as HTMLDivElement;
+            const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
 
             const links = toc.querySelectorAll("li > a");
             const link1 = links[0] as HTMLAnchorElement;
@@ -600,6 +651,24 @@ describe("IFrameNavigator", () => {
             await pause();
             expect(link1.className).to.equal("");
             expect(link2.className).to.equal("active");
+        });
+    });
+
+    describe("settings", () => {
+        it("should show and hide when settings link is clicked", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const settings = element.querySelector("div[class='settings-view controls-view']") as HTMLDivElement;
+            expect(settings.style.display).to.equal("none");
+            expect(iframe.src).to.equal("http://example.com/start.html");
+
+            const settingsLink = element.querySelector("a[class=settings]") as HTMLAnchorElement;
+            click(settingsLink);
+            expect(settings.style.display).not.to.equal("none");
+            expect(iframe.src).to.equal("http://example.com/start.html");
+
+            click(settingsLink);
+            expect(settings.style.display).to.equal("none");
+            expect(iframe.src).to.equal("http://example.com/start.html");
         });
     });
 });

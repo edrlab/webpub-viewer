@@ -27,9 +27,9 @@ describe("Manifest", () => {
                 { href: "spine-item-1.html", title: "Chapter 1" },
                 { href: "spine-item-2.html", title: "Chapter 2" }
             ],
-        }, "http://example.com/manifest.json");
+        }, new URL("http://example.com/manifest.json"));
 
-        emptyManifest = new Manifest({}, "http://example.com/manifest.json");
+        emptyManifest = new Manifest({}, new URL("http://example.com/manifest.json"));
     });
 
     describe("#constructor", () => {

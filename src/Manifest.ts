@@ -14,14 +14,14 @@ export interface Link {
 }
 
 export default class Manifest {
-    public metadata: Metadata;
-    public links: Array<Link>;
-    public spine: Array<Link>;
-    public resources: Array<Link>;
-    public toc: Array<Link>;
-    private manifestUrl: string;
+    public readonly metadata: Metadata;
+    public readonly links: Array<Link>;
+    public readonly spine: Array<Link>;
+    public readonly resources: Array<Link>;
+    public readonly toc: Array<Link>;
+    private readonly manifestUrl: URL;
 
-    public constructor(manifestJSON: any, manifestUrl: string) {
+    public constructor(manifestJSON: any, manifestUrl: URL) {
         this.metadata = manifestJSON.metadata || {};
         this.links = manifestJSON.links || [];
         this.spine = manifestJSON.spine || [];
@@ -57,7 +57,7 @@ export default class Manifest {
         for (let index = 0; index < this.spine.length; index++) {
             const item = this.spine[index];
             if (item.href) {
-                const itemUrl = new URL(item.href, this.manifestUrl).href;
+                const itemUrl = new URL(item.href, this.manifestUrl.href).href;
                 if (itemUrl === href) {
                     return index;
                 }
