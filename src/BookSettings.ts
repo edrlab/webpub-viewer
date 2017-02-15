@@ -90,7 +90,7 @@ export default class BookSettings extends HTMLView {
                     this.selectedView = view;
                     this.updateViewLinks();
                     this.storeSelectedView(view);
-                    if (this.viewChangeCallback()) {
+                    if (this.viewChangeCallback) {
                         this.viewChangeCallback();
                     }
                     event.preventDefault();
