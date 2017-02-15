@@ -2,7 +2,7 @@ import Store from "./Store";
 
 /** Class that stores key/value pairs in memory. */
 export default class MemoryStore implements Store {
-    private store: {[key: string]: string};
+    private readonly store: {[key: string]: string};
 
     public constructor() {
         this.store = {};

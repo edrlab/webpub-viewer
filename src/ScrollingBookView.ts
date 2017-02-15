@@ -4,8 +4,8 @@ export default class ScrollingBookView implements BookView {
     private iframe: HTMLIFrameElement;
     private topMargin: number = 0;
 
-    public name = "scrolling-book-view";
-    public label = "Scrolling View";
+    public readonly name = "scrolling-book-view";
+    public readonly label = "Scrolling View";
 
     public setBookElement(iframe: HTMLIFrameElement): void {
         this.iframe = iframe;

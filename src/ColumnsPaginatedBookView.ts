@@ -4,8 +4,8 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
     private iframe: HTMLIFrameElement;
     private topMargin: number = 0;
 
-    public name = "columns-paginated-view"
-    public label = "Paginated View"
+    public readonly name = "columns-paginated-view"
+    public readonly label = "Paginated View"
 
     public setBookElement(iframe: HTMLIFrameElement): void {
         this.iframe = iframe;

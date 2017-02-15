@@ -14,12 +14,12 @@ export interface Link {
 }
 
 export default class Manifest {
-    public metadata: Metadata;
-    public links: Array<Link>;
-    public spine: Array<Link>;
-    public resources: Array<Link>;
-    public toc: Array<Link>;
-    private manifestUrl: URL;
+    public readonly metadata: Metadata;
+    public readonly links: Array<Link>;
+    public readonly spine: Array<Link>;
+    public readonly resources: Array<Link>;
+    public readonly toc: Array<Link>;
+    private readonly manifestUrl: URL;
 
     public constructor(manifestJSON: any, manifestUrl: URL) {
         this.metadata = manifestJSON.metadata || {};

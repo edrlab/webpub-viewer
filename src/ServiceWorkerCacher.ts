@@ -4,9 +4,9 @@ import Manifest from "./Manifest";
 
 /** Class that caches responses using ServiceWorker's Cache API. */
 export default class ServiceWorkerCacher implements Cacher {
-    private serviceWorkerPath: string;
-    private store: Store;
-    private areServiceWorkersSupported: boolean;
+    private readonly serviceWorkerPath: string;
+    private readonly store: Store;
+    private readonly areServiceWorkersSupported: boolean;
 
     /** Create a ServiceWorkerCacher. */
     /** @param store Store to cache the manifest in. */

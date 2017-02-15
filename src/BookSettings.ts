@@ -19,12 +19,12 @@ const optionTemplate = (className: string, label: string) => `
 `;
 
 export default class BookSettings extends HTMLView {
-    private store: Store;
-    private bookViews: BookView[];
+    private readonly store: Store;
+    private readonly bookViews: BookView[];
     private viewLinks: { [key: string]: HTMLAnchorElement };
     private selectedView: BookView;
     private viewChangeCallback: () => void;
-    private SELECTED_VIEW_KEY = "settings-selected-view";
+    private static readonly SELECTED_VIEW_KEY = "settings-selected-view";
 
     public static async create(bookViews: BookView[], store: Store) {
         const settings = new this(bookViews, store);
@@ -41,7 +41,7 @@ export default class BookSettings extends HTMLView {
     private async initializeSelections(): Promise<void> {
         if (this.bookViews.length >= 1) {
             let selectedView = this.bookViews[0];
-            const selectedViewName = await this.store.get(this.SELECTED_VIEW_KEY);
+            const selectedViewName = await this.store.get(BookSettings.SELECTED_VIEW_KEY);
             if (selectedViewName) {
                 for (const bookView of this.bookViews) {
                     if (bookView.name === selectedViewName) {
@@ -115,6 +115,6 @@ export default class BookSettings extends HTMLView {
     }
 
     private async storeSelectedView(view: BookView): Promise<void> {
-        return this.store.set(this.SELECTED_VIEW_KEY, view.name);
+        return this.store.set(BookSettings.SELECTED_VIEW_KEY, view.name);
     }
 };
