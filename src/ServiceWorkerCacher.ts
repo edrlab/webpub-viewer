@@ -89,7 +89,7 @@ export default class ServiceWorkerCacher implements Cacher {
     }
 
     private async cacheSpine(manifest: Manifest, manifestUrl: URL): Promise<void> {
-        let urls: Array<string> = [];
+        const urls: Array<string> = [];
         for (const resource of manifest.spine) {
             if (resource.href) {
                 urls.push(resource.href);
@@ -99,7 +99,7 @@ export default class ServiceWorkerCacher implements Cacher {
     }
 
     private async cacheResources(manifest: Manifest, manifestUrl: URL): Promise<void> {
-        let urls: Array<string> = [];
+        const urls: Array<string> = [];
         for (const resource of manifest.resources) {
             if (resource.href) {
                 urls.push(resource.href);

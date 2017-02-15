@@ -55,10 +55,10 @@ export default class BookSettings extends HTMLView {
     }
 
     public renderControls(element: HTMLElement): void {
-        let sections = [];
+        const sections = [];
 
         if (this.bookViews.length > 1) {
-            let options = [];
+            const options = [];
             for (const bookView of this.bookViews) {
                 options.push(optionTemplate(bookView.name, bookView.label));
             }
