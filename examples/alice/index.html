@@ -59,7 +59,7 @@
   <script>
     require(["LocalStorageStore", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginatedBookView", "ScrollingBookView", "LocalAnnotator", "BookSettings"], function (LocalStorageStore, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginatedBookView, ScrollingBookView, LocalAnnotator, BookSettings) {
       var element = document.getElementById("viewer");
-      var manifestUrl = new URL("manifest.json", window.location.href).href;
+      var manifestUrl = new URL("manifest.json", window.location.href);
 
       var store = new LocalStorageStore.default(manifestUrl);
       ServiceWorkerCacher.default.create(store, manifestUrl).then(function (cacher) {

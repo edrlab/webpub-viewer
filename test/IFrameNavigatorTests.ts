@@ -50,7 +50,7 @@ describe("IFrameNavigator", () => {
         public start() {
             return new Promise<void>(resolve => resolve());
         }
-        public getManifest(manifestUrl: string) {
+        public getManifest(manifestUrl: URL) {
             return getManifest(manifestUrl);
         }
     }
@@ -135,7 +135,7 @@ describe("IFrameNavigator", () => {
             { href: "item-1.html", "title": "Item 1" },
             { href: "item-2.html", "title": "Item 2" }
         ]
-    }, "http://example.com/manifest.json");
+    }, new URL("http://example.com/manifest.json"));
 
     const click = (element: any) => {
         const event = document.createEvent("HTMLEvents");
@@ -190,7 +190,7 @@ describe("IFrameNavigator", () => {
 
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
-        navigator = await IFrameNavigator.create(element, "http://example.com/manifest.json", cacher, settings, annotator, paginator, scroller);
+        navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), cacher, settings, annotator, paginator, scroller);
 
         span = window.document.createElement("span");
         link = window.document.createElement("a");

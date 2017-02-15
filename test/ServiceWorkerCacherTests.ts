@@ -55,17 +55,17 @@ describe('ServiceWorkerCacher', () => {
         it('should do nothing if the Cache API is not supported', async () => {
             // window.caches is not defined here.
 
-            await ServiceWorkerCacher.create(store, "https://example.com/manifest.json");
+            await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
             expect(register.callCount).to.equal(0);
         });
 
         it("should register the service worker", async () => {
             mockCacheAPI("i'm in the cache");
-            await ServiceWorkerCacher.create(store, "https://example.com/manifest.json");
+            await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
             expect(register.callCount).to.equal(1);
             expect(register.args[0][0]).to.equal("sw.js");
 
-            await ServiceWorkerCacher.create(store, "https://example.com/manifest.json", "../../../sw.js");
+            await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"), "../../../sw.js");
             expect(register.callCount).to.equal(2);
             expect(register.args[1][0]).to.equal("../../../sw.js");
         });
@@ -73,7 +73,7 @@ describe('ServiceWorkerCacher', () => {
         it("should find a manifest that's already in the cache", async () => {
             mockCacheAPI("i'm in the cache");
 
-            await ServiceWorkerCacher.create(store, "https://example.com/manifest.json");
+            await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
             // The manifest cache was opened.
             expect(open.callCount).to.equal(1);
             expect(open.args[0][0]).to.equal("https://example.com/manifest.json");
@@ -98,7 +98,7 @@ describe('ServiceWorkerCacher', () => {
                   { href: "resource-1.html" },
                   { href: "resource-2.html" }
               ]
-            }, "https://example.com/manifest.json");
+            }, new URL("https://example.com/manifest.json"));
 
             // A Cacher with a mock implementation of getManifest, which
             // is tested separately.
@@ -107,7 +107,7 @@ describe('ServiceWorkerCacher', () => {
                     return new Promise((resolve) => resolve(manifest));
                 }
             }
-            await MockCacher.create(store, "https://example.com/manifest.json");
+            await MockCacher.create(store, new URL("https://example.com/manifest.json"));
             let urlsThatWereCached: Array<string> = [];
             // Go through each call to addAll and aggregate the cached URLs.
             addAll.args.forEach((argsFromOneCallToAddAll: Array<Array<string>>) => {
@@ -130,7 +130,7 @@ describe('ServiceWorkerCacher', () => {
                 title: "Alice's Adventures in Wonderland"
             }
         };
-        const manifest = new Manifest(manifestJSON, "https://example.com/manifest.json");
+        const manifest = new Manifest(manifestJSON, new URL("https://example.com/manifest.json"));
 
         describe("if fetching the manifest fails", () => {
             const fetchFailure = new Promise((_, reject) => reject());
@@ -140,11 +140,11 @@ describe('ServiceWorkerCacher', () => {
             })
 
             it("should return cached manifest from local store", async () => {
-                const key = "https://example.com/manifest.json-manifest";
+                const key = "manifest";
                 await store.set(key, JSON.stringify(manifestJSON));
 
-                const cacher = await ServiceWorkerCacher.create(store, "https://example.com/manifest.json");
-                const response: Manifest = await cacher.getManifest("https://example.com/manifest.json");
+                const cacher = await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
+                const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
                 expect(response).to.deep.equal(manifest);
             });
 
@@ -156,8 +156,8 @@ describe('ServiceWorkerCacher', () => {
                 } as any);
                 mockCacheAPI(manifestResponse);
                 
-                const cacher = await ServiceWorkerCacher.create(store, "https://example.com/manifest.json");
-                const response: Manifest = await cacher.getManifest("https://example.com/manifest.json");
+                const cacher = await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
+                const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
                 expect(response).to.deep.equal(manifest);
             });
         });
@@ -172,11 +172,11 @@ describe('ServiceWorkerCacher', () => {
 
             mockFetchAPI(fetchSuccess);
 
-            const cacher = await ServiceWorkerCacher.create(store, "https://example.com/manifest.json");
-            const response: Manifest = await cacher.getManifest("https://example.com/manifest.json");
+            const cacher = await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
+            const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
             expect(response).to.deep.equal(manifest);
 
-            const key = "https://example.com/manifest.json-manifest";
+            const key = "manifest";
             const storedValue = await store.get(key);
             expect(storedValue).to.equal(JSON.stringify(manifestJSON));
         });

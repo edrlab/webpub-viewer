@@ -1,7 +1,7 @@
 import Manifest from "./Manifest";
 
 interface Cacher {
-    getManifest(manifestUrl: string): Promise<Manifest>;
+    getManifest(manifestUrl: URL): Promise<Manifest>;
 }
 
 export default Cacher;

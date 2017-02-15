@@ -22,7 +22,7 @@ describe("LocalStorageStore", () => {
     });
 
     it("falls back to memory store if localStorage is not available", async () => {
-        store = new LocalStorageStore("http://example.com/manifest.json");
+        store = new LocalStorageStore(new URL("http://example.com/manifest.json"));
 
         // #get returns null for a value that has not been set.
         let value = await store.get("key");
@@ -36,7 +36,7 @@ describe("LocalStorageStore", () => {
     it("uses localStorage if available, and adds manifest url to keys", async () => {
         mockLocalStorageAPI();
 
-        store = new LocalStorageStore("http://example.com/manifest.json");
+        store = new LocalStorageStore(new URL("http://example.com/manifest.json"));
 
         getItem.returns(null);
 

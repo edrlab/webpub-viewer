@@ -5,9 +5,9 @@ import MemoryStore from "./MemoryStore";
     but falls back to an in-memory store. */
 export default class LocalStorageStore implements Store {
     private fallbackStore: MemoryStore | null;
-    private manifestUrl: string;
+    private manifestUrl: URL;
     
-    public constructor(manifestUrl: string) {
+    public constructor(manifestUrl: URL) {
         this.manifestUrl = manifestUrl;
         try {
             // In some browsers (eg iOS Safari in private mode), 
@@ -23,7 +23,7 @@ export default class LocalStorageStore implements Store {
     }
 
     private getLocalStorageKey(key: string): string {
-        return this.manifestUrl + "-" + key;
+        return this.manifestUrl.href + "-" + key;
     }
 
     public async get(key: string): Promise<string | null> {

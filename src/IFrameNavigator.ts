@@ -39,7 +39,7 @@ interface ReadingPosition {
 
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
 export default class IFrameNavigator extends HTMLView implements Navigator {
-    private manifestUrl: string;
+    private manifestUrl: URL;
     private cacher: Cacher;
     private paginator: PaginatedBookView | null;
     private scroller: ScrollingBookView | null;
@@ -63,7 +63,7 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
     private newPosition: ReadingPosition | null;
     private isLoading: boolean;
 
-    public static async create(element: HTMLElement, manifestUrl: string, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
+    public static async create(element: HTMLElement, manifestUrl: URL, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
         const navigator = new this(cacher, settings, annotator, paginator, scroller);
         await navigator.start(element, manifestUrl);
         return navigator;
@@ -78,7 +78,7 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
         this.settings = settings;
     }
 
-    protected async start(element: HTMLElement, manifestUrl: string): Promise<void> {
+    protected async start(element: HTMLElement, manifestUrl: URL): Promise<void> {
         element.innerHTML = template;
         this.manifestUrl = manifestUrl;
         try {
@@ -167,7 +167,7 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
                 const linkElement: HTMLAnchorElement = document.createElement("a");
                 let href = "";
                 if (link.href) {
-                    href = new URL(link.href, this.manifestUrl).href;
+                    href = new URL(link.href, this.manifestUrl.href).href;
                 }
                 linkElement.href = href;
                 linkElement.text = link.title || "";
@@ -187,7 +187,7 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
         let startUrl: string | null = null;
         const startLink = manifest.getStartLink();
         if (startLink && startLink.href) {
-            startUrl = new URL(startLink.href, this.manifestUrl).href;
+            startUrl = new URL(startLink.href, this.manifestUrl.href).href;
             this.startLink.href = startUrl;
             this.startLink.className = "";
         }
@@ -231,7 +231,7 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
 
         const previous = manifest.getPreviousSpineItem(currentLocation);
         if (previous && previous.href) {
-            this.previousChapterLink.href = new URL(previous.href, this.manifestUrl).href;
+            this.previousChapterLink.href = new URL(previous.href, this.manifestUrl.href).href;
             this.previousChapterLink.className = "";
         } else {
             this.previousChapterLink.removeAttribute("href");
@@ -240,7 +240,7 @@ export default class IFrameNavigator extends HTMLView implements Navigator {
 
         const next = manifest.getNextSpineItem(currentLocation);
         if (next && next.href) {
-            this.nextChapterLink.href = new URL(next.href, this.manifestUrl).href;
+            this.nextChapterLink.href = new URL(next.href, this.manifestUrl.href).href;
             this.nextChapterLink.className = "";
         } else {
             this.nextChapterLink.removeAttribute("href");

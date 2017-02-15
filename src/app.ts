@@ -8,7 +8,7 @@ import LocalAnnotator from "./LocalAnnotator";
 
 (async () => {
     const element = document.getElementById("viewer");
-    const manifestUrl = new URL("manifest.json", window.location.href).href;
+    const manifestUrl = new URL("manifest.json", window.location.href);
 
     if (element) {
         const store = new LocalStorageStore(manifestUrl);
