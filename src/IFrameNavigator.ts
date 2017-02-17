@@ -28,7 +28,7 @@ const template = `
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
-    <iframe style="border:0;"></iframe>
+    <iframe style="border:0; overflow: hidden;"></iframe>
   </main>
 `;
 
@@ -108,6 +108,7 @@ export default class IFrameNavigator implements Navigator {
             }
             this.settings.renderControls(this.settingsView);
             this.settings.onViewChange(this.updateBookView.bind(this));
+            this.settings.onFontSizeChange(this.updateFontSize.bind(this));
 
             return await this.loadManifest();
         } catch (err) {
@@ -148,9 +149,13 @@ export default class IFrameNavigator implements Navigator {
             document.body.style.overflow = "hidden";
         } else if (this.settings.getSelectedView() === this.scroller) {
             this.paginationControls.style.display = "none";
-            document.body.onscroll = this.handleScroll.bind(this);
+            document.body.onscroll = this.saveCurrentReadingPosition.bind(this);
             document.body.style.overflow = "auto";
         }
+    }
+
+    private updateFontSize(): void {
+        this.handleResize();
     }
 
     private async loadManifest(): Promise<void> {
@@ -218,7 +223,7 @@ export default class IFrameNavigator implements Navigator {
             bookViewPosition = this.newPosition.position;
         }
         this.updateBookView();
-        this.settings.getSelectedView().setTopMargin(this.navigation.clientHeight + 5);
+        this.updateFontSize();
         this.settings.getSelectedView().start(bookViewPosition);
         this.newPosition = null;
 
@@ -347,11 +352,22 @@ export default class IFrameNavigator implements Navigator {
     private handleResize(): void {
         const selectedView = this.settings.getSelectedView();
         const oldPosition = selectedView.getCurrentPosition();
-        selectedView.goToPosition(oldPosition);
-    }
 
-    private async handleScroll(): Promise<void> {
-        return this.saveCurrentReadingPosition();
+        const fontSize = this.settings.getSelectedFontSize();
+        this.iframe.contentDocument.body.style.fontSize = fontSize;
+        this.iframe.contentDocument.body.style.lineHeight = "1.5";
+
+        const sideMargin = parseInt(fontSize.slice(0, -2)) * 2;
+        if (this.paginator) {
+            this.paginator.setSideMargin(sideMargin);
+        }
+        if (this.scroller) {
+            this.scroller.setSideMargin(sideMargin);
+        }
+        const topMargin = this.navigation.clientHeight + 5;
+        this.iframe.style.marginTop = topMargin + "px";
+
+        selectedView.goToPosition(oldPosition);
     }
 
     private handlePreviousChapterClick(event: MouseEvent): void {

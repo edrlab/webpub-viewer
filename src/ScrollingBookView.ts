@@ -2,7 +2,7 @@ import BookView from "./BookView";
 
 export default class ScrollingBookView implements BookView {
     private iframe: HTMLIFrameElement;
-    private topMargin: number = 0;
+    private sideMargin: number = 0;
 
     public readonly name = "scrolling-book-view";
     public readonly label = "Scrolling View";
@@ -11,19 +11,23 @@ export default class ScrollingBookView implements BookView {
         this.iframe = iframe;
     }
 
-    public setTopMargin(topMargin: number): void {
-        this.topMargin = topMargin;
+    public setSideMargin(margin: number) {
+        this.sideMargin = margin;
     }
 
     private setIFrameSize(): void {
         // Remove previous iframe height so body scroll height will be accurate.
         this.iframe.style.height = "";
 
-        const minHeight = (window.innerHeight - this.topMargin);
+        const marginTop = parseInt((this.iframe.style.marginTop || "0px").slice(0, -2));
+
+        this.iframe.style.width = (document.body.offsetWidth - this.sideMargin * 2) + "px";
+        this.iframe.style.marginLeft = this.sideMargin + "px";
+        this.iframe.style.marginRight = this.sideMargin + "px";
+
+        const minHeight = (window.innerHeight - marginTop);
         const bodyHeight = this.iframe.contentDocument.body.scrollHeight;
         this.iframe.style.height = Math.max(minHeight, bodyHeight) + "px";
-        this.iframe.style.marginTop = this.topMargin + "px";
-        this.iframe.style.width = document.body.offsetWidth + "px";
     }
 
     public start(position: number): void {
@@ -32,8 +36,9 @@ export default class ScrollingBookView implements BookView {
 
     public stop(): void {
         this.iframe.style.height = "";
-        this.iframe.style.marginTop = "0px";
         this.iframe.style.width = "";
+        this.iframe.style.marginLeft = "";
+        this.iframe.style.marginRight = "";
     }
 
     public getCurrentPosition(): number {

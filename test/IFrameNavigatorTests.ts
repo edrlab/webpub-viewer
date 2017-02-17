@@ -16,7 +16,7 @@ describe("IFrameNavigator", () => {
     let cacher: Cacher;
 
     let paginatorSetBookElement: Sinon.SinonStub;
-    let paginatorSetTopMargin: Sinon.SinonStub;
+    let paginatorSetSideMargin: Sinon.SinonStub;
     let paginatorStart: Sinon.SinonStub;
     let onFirstPage: Sinon.SinonStub;
     let onLastPage: Sinon.SinonStub;
@@ -35,7 +35,9 @@ describe("IFrameNavigator", () => {
 
     let renderControls: Sinon.SinonStub;
     let onViewChange: Sinon.SinonStub;
-    let getSelectedView: Sinon.SinonStub;    
+    let onFontSizeChange: Sinon.SinonStub;
+    let getSelectedView: Sinon.SinonStub;
+    let getSelectedFontSize: Sinon.SinonStub;
     let settings: BookSettings;
 
     let element: HTMLElement;
@@ -61,8 +63,8 @@ describe("IFrameNavigator", () => {
         public setBookElement(element: Element) {
             paginatorSetBookElement(element);
         }
-        public setTopMargin(topMargin: number) {
-            paginatorSetTopMargin(topMargin);
+        public setSideMargin(margin: number) {
+            paginatorSetSideMargin(margin);
         }
         public start(position: number) {
             paginatorStart(position);
@@ -92,7 +94,6 @@ describe("IFrameNavigator", () => {
         public setBookElement(element: Element) {
             scrollerSetBookElement(element);
         }
-        public setTopMargin() {}
         public start(position: number) {
             scrollerStart(position);
         }
@@ -120,8 +121,14 @@ describe("IFrameNavigator", () => {
         public onViewChange(callback: () => void) {
             onViewChange(callback);
         }
+        public onFontSizeChange(callback: () => void) {
+            onFontSizeChange(callback);
+        }
         public getSelectedView() {
             return getSelectedView();
+        }
+        public getSelectedFontSize() {
+            return getSelectedFontSize();
         }
     }
 
@@ -152,7 +159,7 @@ describe("IFrameNavigator", () => {
         cacher = new MockCacher();
 
         paginatorSetBookElement = stub();
-        paginatorSetTopMargin = stub();
+        paginatorSetSideMargin = stub();
         paginatorStart = stub();
         onFirstPage = stub().returns(false);
         onLastPage = stub().returns(false);
@@ -171,8 +178,10 @@ describe("IFrameNavigator", () => {
 
         renderControls = stub();
         onViewChange = stub();
+        onFontSizeChange = stub();
         getSelectedView = stub().returns(paginator);
-        settings = await MockSettings.create([paginator, scroller], new MemoryStore());
+        getSelectedFontSize = stub().returns("14px");
+        settings = await MockSettings.create([paginator, scroller], ["14px", "16px"], new MemoryStore());
 
         const window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
@@ -252,6 +261,29 @@ describe("IFrameNavigator", () => {
             // Now a scroll event saves the new reading position.
             await document.body.onscroll(new UIEvent("scroll"));
             expect(saveLastReadingPosition.callCount).to.equal(2);
+        });
+
+        it("should give the settings a function to call when the font size changes", async () => {
+            expect(onFontSizeChange.callCount).to.equal(1);
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+
+            await pause();
+            expect(iframe.contentDocument.body.style.fontSize).to.equal("14px");
+            expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
+            expect(paginatorSetSideMargin.callCount).to.equal(1);
+            expect(paginatorSetSideMargin.args[0][0]).to.equal(28);
+            expect(paginatorGoToPosition.callCount).to.equal(1);
+
+            const updateFontSize = onFontSizeChange.args[0][0];
+
+            getSelectedFontSize.returns("16px");
+            updateFontSize();
+
+            expect(iframe.contentDocument.body.style.fontSize).to.equal("16px");
+            expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
+            expect(paginatorSetSideMargin.callCount).to.equal(2);
+            expect(paginatorSetSideMargin.args[1][0]).to.equal(32);
+            expect(paginatorGoToPosition.callCount).to.equal(2);
         });
 
         it("should start the selected book view", async () => {
@@ -507,8 +539,9 @@ describe("IFrameNavigator", () => {
         });
 
         it("should maintain paginator position when window is resized", async () => {
-            window.dispatchEvent(new Event('resize'));
             expect(paginatorGoToPosition.callCount).to.equal(1);
+            window.dispatchEvent(new Event('resize'));
+            expect(paginatorGoToPosition.callCount).to.equal(2);
             expect(paginatorGoToPosition.args[0][0]).to.equal(0.25);
         });
 
@@ -517,13 +550,10 @@ describe("IFrameNavigator", () => {
             const navigation = element.querySelector("div[class=controls]") as HTMLUListElement;
             (navigation as any).clientHeight = 10;
 
-            expect(paginatorSetTopMargin.callCount).to.equal(1);
-
             iframe.src = "http://example.com/item-1.html";
             await pause();
 
-            expect(paginatorSetTopMargin.callCount).to.equal(2);
-            expect(paginatorSetTopMargin.args[1][0]).to.equal(15);
+            expect(iframe.style.marginTop).to.equal("15px");
         });
 
         it("should show loading message while iframe is loading", async () => {

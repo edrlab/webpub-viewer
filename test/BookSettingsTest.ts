@@ -21,7 +21,7 @@ describe("BookSettings", () => {
             this.label = label;
         }
         public setBookElement() {}
-        public setTopMargin() {}
+        public setSideMargin() {}
         public start(position: number) {
             start(this.id, position);
         }
@@ -61,18 +61,34 @@ describe("BookSettings", () => {
         view2 = new MockBookView(2, "view2", "View 2");
 
         store = new MemoryStore();
-        settings = await BookSettings.create([view1, view2], store);
+        settings = await BookSettings.create([view1, view2], ["12px", "14px", "16px"], store);
     });
 
     describe("#create", () => {
         it("obtains the selected view from the store", async () => {
             await store.set("settings-selected-view", view2.name);
-            settings = await BookSettings.create([view1, view2], store);
+            settings = await BookSettings.create([view1, view2], [], store);
             expect(settings.getSelectedView()).to.equal(view2);
         });
 
         it("sets the selected view to the first view if there's no selected view in the store", () => {
             expect(settings.getSelectedView()).to.equal(view1);
+        });
+
+        it("obtains the selected font size from the store", async () => {
+            await store.set("settings-selected-font-size", "18px");
+            settings = await BookSettings.create([view1, view2], ["12px", "14px", "16px", "18px"], store);
+            expect(settings.getSelectedFontSize()).to.equal("18px");
+        });
+
+        it("sets the selected font size to the middle font size (rounded up) if there's no selected font size in the store", async () => {
+            expect(settings.getSelectedFontSize()).to.equal("14px");
+
+            settings = await BookSettings.create([view1, view2], ["12px", "14px"], store);
+            expect(settings.getSelectedFontSize()).to.equal("14px");
+
+            settings = await BookSettings.create([view1, view2], ["10px", "12px", "14px", "16px"], store);
+            expect(settings.getSelectedFontSize()).to.equal("14px");
         });
     });
 
@@ -88,14 +104,14 @@ describe("BookSettings", () => {
 
             // If there's no views or only 1 view, views don't show up in the settings.
 
-            settings = await BookSettings.create([view1], store);
+            settings = await BookSettings.create([view1], ["12px"], store);
             settings.renderControls(element);
             view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
             expect(view1Link).to.be.null;
             view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
             expect(view2Link).to.be.null;
 
-            settings = await BookSettings.create([], store);
+            settings = await BookSettings.create([], ["12px"], store);
             settings.renderControls(element);
             view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
             expect(view1Link).to.be.null;
@@ -146,6 +162,84 @@ describe("BookSettings", () => {
             expect(view1Link.className).to.contain("active");
             expect(view2Link.className).not.to.contain("active");
         });
+
+        it("renders font size increase and decrease links", async () => {
+            const element = document.createElement("div");
+            settings.renderControls(element);
+
+            let decreaseLink = element.querySelector("a[class='decrease']") as HTMLAnchorElement;
+            expect(decreaseLink.text).to.contain("Decrease");
+            let increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
+            expect(increaseLink.text).to.contain("Increase");
+
+            // If there's no font size or only one font size, font size controls don't show up in settings.
+
+            settings = await BookSettings.create([view1], ["12px"], store);
+            settings.renderControls(element);
+            decreaseLink = element.querySelector("a[class='decrease']") as HTMLAnchorElement;
+            expect(decreaseLink).to.be.null;
+            increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
+            expect(increaseLink).to.be.null;
+
+            settings = await BookSettings.create([view1], [], store);
+            settings.renderControls(element);
+            decreaseLink = element.querySelector("a[class='decrease']") as HTMLAnchorElement;
+            expect(decreaseLink).to.be.null;
+            increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
+            expect(increaseLink).to.be.null;
+        });
+
+        it("decreases and increases font size", async () => {
+            const element = document.createElement("div");
+            settings.renderControls(element);
+
+            const decreaseLink = element.querySelector("a[class=decrease]") as HTMLAnchorElement;
+            const increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
+
+            expect(settings.getSelectedFontSize()).to.equal("14px");
+
+            click(decreaseLink);
+            await pause();
+            expect(settings.getSelectedFontSize()).to.equal("12px");
+            let storedFontSize = await store.get("settings-selected-font-size");
+            expect(storedFontSize).to.equal("12px");
+
+            // The decrease link is now disabled because the size can't be decreased more.
+            expect(decreaseLink.className).to.contain("disabled");
+            expect(increaseLink.className).not.to.contain("disabled");
+
+            // Clicking the decrease link again does nothing.
+            click(decreaseLink);
+            await pause();
+            expect(settings.getSelectedFontSize()).to.equal("12px");
+            storedFontSize = await store.get("settings-selected-font-size");
+            expect(storedFontSize).to.equal("12px");
+
+            click(increaseLink);
+            await pause();
+            expect(settings.getSelectedFontSize()).to.equal("14px");
+            storedFontSize = await store.get("settings-selected-font-size");
+            expect(storedFontSize).to.equal("14px");
+
+            expect(decreaseLink.className).not.to.contain("disabled");
+            expect(increaseLink.className).not.to.contain("disabled");
+
+            click(increaseLink);
+            await pause();
+            expect(settings.getSelectedFontSize()).to.equal("16px");
+            storedFontSize = await store.get("settings-selected-font-size");
+            expect(storedFontSize).to.equal("16px");
+
+            expect(decreaseLink.className).not.to.contain("disabled");
+            expect(increaseLink.className).to.contain("disabled");
+
+            // Clicking the increase link again does nothing.
+            click(increaseLink);
+            await pause();
+            expect(settings.getSelectedFontSize()).to.equal("16px");
+            storedFontSize = await store.get("settings-selected-font-size");
+            expect(storedFontSize).to.equal("16px");
+        });
     });
 
     describe("#onViewChange", () => {
@@ -166,6 +260,27 @@ describe("BookSettings", () => {
             click(view1Link);
             await pause();
             expect(viewChanged.callCount).to.equal(2);
+        });
+    });
+
+    describe("#onFontSizeChange", () => {
+        it("sets up font change callback", async () => {
+            const element = document.createElement("div");
+            settings.renderControls(element);
+
+            const fontSizeChanged = stub();
+            settings.onFontSizeChange(fontSizeChanged);
+
+            const decreaseLink = element.querySelector("a[class=decrease]") as HTMLAnchorElement;
+            const increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
+
+            click(decreaseLink);
+            await pause();
+            expect(fontSizeChanged.callCount).to.equal(1);
+
+            click(increaseLink);
+            await pause();
+            expect(fontSizeChanged.callCount).to.equal(2);
         });
     });
 });
