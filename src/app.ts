@@ -16,7 +16,7 @@ import LocalAnnotator from "./LocalAnnotator";
         const annotator = new LocalAnnotator(store);
         const paginator = new ColumnsPaginatedBookView();
         const scroller = new ScrollingBookView();
-        const settings = await BookSettings.create([paginator, scroller], ["16px"], store);
+        const settings = await BookSettings.create(store, [paginator, scroller], ["16px"], "16px");
         await IFrameNavigator.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
     }
 })();

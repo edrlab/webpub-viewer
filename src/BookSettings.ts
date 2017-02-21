@@ -34,20 +34,23 @@ export default class BookSettings {
     private static readonly SELECTED_VIEW_KEY = "settings-selected-view";
     private static readonly SELECTED_FONT_SIZE_KEY = "settings-selected-font-size";
 
+    /** @param store Store to save the user's selections in. */
+    /** @param bookViews Array of BookView options. */
     /** @param fontSizes Array of font size strings sorted from smallest to largest. */
-    public static async create(bookViews: BookView[], fontSizes: string[], store: Store) {
-        const settings = new this(bookViews, fontSizes, store);
-        await settings.initializeSelections();
+    /** @param defaultFontSize Initial font size to use until the user makes a selection. */
+    public static async create(store: Store, bookViews: BookView[], fontSizes: string[], defaultFontSize?: string) {
+        const settings = new this(store, bookViews, fontSizes);
+        await settings.initializeSelections(defaultFontSize);
         return settings;
     }
 
-    protected constructor(bookViews: BookView[], fontSizes: string[], store: Store) {
+    protected constructor(store: Store, bookViews: BookView[], fontSizes: string[]) {
+        this.store = store;
         this.bookViews = bookViews;
         this.fontSizes = fontSizes;
-        this.store = store;
     }
 
-    private async initializeSelections(): Promise<void> {
+    private async initializeSelections(defaultFontSize?: string): Promise<void> {
         if (this.bookViews.length >= 1) {
             let selectedView = this.bookViews[0];
             const selectedViewName = await this.store.get(BookSettings.SELECTED_VIEW_KEY);
@@ -63,10 +66,18 @@ export default class BookSettings {
         }
 
         if (this.fontSizes.length >= 1) {
+            // First, check if the user has previously set a font size.
             let selectedFontSize = await this.store.get(BookSettings.SELECTED_FONT_SIZE_KEY);
-            if (!selectedFontSize) {
-                const defaultFontSizeIndex = Math.floor(this.fontSizes.length / 2);
-                selectedFontSize = this.fontSizes[defaultFontSizeIndex];
+            let selectedFontSizeIsAvailable = (selectedFontSize && this.fontSizes.indexOf(selectedFontSize) !== -1);
+            // If not, or the user selected a size that's no longer an option, is there a default font size?
+            if ((!selectedFontSize || !selectedFontSizeIsAvailable) && defaultFontSize) {
+                selectedFontSize = defaultFontSize;
+                selectedFontSizeIsAvailable = (selectedFontSize && this.fontSizes.indexOf(selectedFontSize) !== -1);
+            }
+            // If there's no selection and no default, pick a font size in the middle of the options.
+            if (!selectedFontSize || !selectedFontSizeIsAvailable) {
+                const averageFontSizeIndex = Math.floor(this.fontSizes.length / 2);
+                selectedFontSize = this.fontSizes[averageFontSizeIndex];
             }
             this.selectedFontSize = selectedFontSize;
         }

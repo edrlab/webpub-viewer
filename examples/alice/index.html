@@ -82,7 +82,8 @@
         var scroller = new ScrollingBookView.default();
         var annotator = new LocalAnnotator.default(store);
         var fontSizes = [ "12px", "14px", "16px", "18px", "20px", "22px", "24px", "26px", "28px", "30px", "32px" ];
-        BookSettings.default.create([paginator, scroller], fontSizes, store).then(function (settings) {
+        var defaultFontSize = "16px";
+        BookSettings.default.create(store, [paginator, scroller], fontSizes, defaultFontSize).then(function (settings) {
           IFrameNavigator.default.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
         });
       });

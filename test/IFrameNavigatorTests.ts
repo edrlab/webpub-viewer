@@ -170,7 +170,7 @@ describe("IFrameNavigator", () => {
         onFontSizeChange = stub();
         getSelectedView = stub().returns(paginator);
         getSelectedFontSize = stub().returns("14px");
-        settings = await MockSettings.create([paginator, scroller], ["14px", "16px"], new MemoryStore());
+        settings = await MockSettings.create(new MemoryStore(), [paginator, scroller], ["14px", "16px"]);
 
         const window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
