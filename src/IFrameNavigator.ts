@@ -101,10 +101,10 @@ export default class IFrameNavigator implements Navigator {
             this.setupEvents();
 
             if (this.paginator) {
-                this.paginator.setBookElement(this.iframe);
+                this.paginator.bookElement = this.iframe;
             }
             if (this.scroller) {
-                this.scroller.setBookElement(this.iframe);
+                this.scroller.bookElement = this.iframe;
             }
             this.settings.renderControls(this.settingsView);
             this.settings.onViewChange(this.updateBookView.bind(this));
@@ -359,10 +359,10 @@ export default class IFrameNavigator implements Navigator {
 
         const sideMargin = parseInt(fontSize.slice(0, -2)) * 2;
         if (this.paginator) {
-            this.paginator.setSideMargin(sideMargin);
+            this.paginator.sideMargin = sideMargin;
         }
         if (this.scroller) {
-            this.scroller.setSideMargin(sideMargin);
+            this.scroller.sideMargin = sideMargin;
         }
         const topMargin = this.navigation.clientHeight + 5;
         this.iframe.style.marginTop = topMargin + "px";

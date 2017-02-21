@@ -15,13 +15,13 @@ describe("BookSettings", () => {
         public id: number;
         public name: string;
         public label: string;
+        public bookElement: Element;
+        public sideMargin: number;
         public constructor(id: number, name: string, label: string) {
             this.id = id;
             this.name = name;
             this.label = label;
         }
-        public setBookElement() {}
-        public setSideMargin() {}
         public start(position: number) {
             start(this.id, position);
         }

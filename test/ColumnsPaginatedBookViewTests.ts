@@ -14,8 +14,8 @@ describe("ColumnsPaginatedBookView", () => {
         window.document.body.appendChild(iframe);
 
         paginator = new ColumnsPaginatedBookView();
-        paginator.setBookElement(iframe);
-        paginator.setSideMargin(sideMargin);
+        paginator.bookElement = iframe;
+        paginator.sideMargin = sideMargin;
         iframe.style.marginTop = topMargin + "px";
     });
 

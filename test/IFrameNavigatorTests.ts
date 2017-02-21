@@ -15,8 +15,6 @@ describe("IFrameNavigator", () => {
     let getManifest: Sinon.SinonStub;
     let cacher: Cacher;
 
-    let paginatorSetBookElement: Sinon.SinonStub;
-    let paginatorSetSideMargin: Sinon.SinonStub;
     let paginatorStart: Sinon.SinonStub;
     let onFirstPage: Sinon.SinonStub;
     let onLastPage: Sinon.SinonStub;
@@ -25,7 +23,6 @@ describe("IFrameNavigator", () => {
     let paginatorGoToPosition: Sinon.SinonStub;
     let paginator: PaginatedBookView;
 
-    let scrollerSetBookElement: Sinon.SinonStub;
     let scrollerStart: Sinon.SinonStub;
     let scroller: ScrollingBookView;
 
@@ -58,14 +55,10 @@ describe("IFrameNavigator", () => {
     }
 
     class MockPaginator implements PaginatedBookView {
-        public name = "mock"
-        public label = "mock"
-        public setBookElement(element: Element) {
-            paginatorSetBookElement(element);
-        }
-        public setSideMargin(margin: number) {
-            paginatorSetSideMargin(margin);
-        }
+        public name = "mock";
+        public label = "mock";
+        public bookElement: Element;
+        public sideMargin: number;
         public start(position: number) {
             paginatorStart(position);
         }
@@ -91,9 +84,8 @@ describe("IFrameNavigator", () => {
     }
 
     class MockScroller extends ScrollingBookView {
-        public setBookElement(element: Element) {
-            scrollerSetBookElement(element);
-        }
+        public bookElement: HTMLIFrameElement;
+        public sideMargin: number;
         public start(position: number) {
             scrollerStart(position);
         }
@@ -158,8 +150,6 @@ describe("IFrameNavigator", () => {
         getManifest = stub().returns(new Promise(resolve => resolve(manifest)));
         cacher = new MockCacher();
 
-        paginatorSetBookElement = stub();
-        paginatorSetSideMargin = stub();
         paginatorStart = stub();
         onFirstPage = stub().returns(false);
         onLastPage = stub().returns(false);
@@ -168,7 +158,6 @@ describe("IFrameNavigator", () => {
         paginatorGoToPosition = stub();
         paginator = new MockPaginator();
 
-        scrollerSetBookElement = stub();
         scrollerStart = stub();
         scroller = new MockScroller();
 
@@ -270,9 +259,7 @@ describe("IFrameNavigator", () => {
             await pause();
             expect(iframe.contentDocument.body.style.fontSize).to.equal("14px");
             expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
-            expect(paginatorSetSideMargin.callCount).to.equal(1);
-            expect(paginatorSetSideMargin.args[0][0]).to.equal(28);
-            expect(paginatorGoToPosition.callCount).to.equal(1);
+            expect(paginator.sideMargin).to.equal(28);
 
             const updateFontSize = onFontSizeChange.args[0][0];
 
@@ -281,8 +268,7 @@ describe("IFrameNavigator", () => {
 
             expect(iframe.contentDocument.body.style.fontSize).to.equal("16px");
             expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
-            expect(paginatorSetSideMargin.callCount).to.equal(2);
-            expect(paginatorSetSideMargin.args[1][0]).to.equal(32);
+            expect(paginator.sideMargin).to.equal(32);
             expect(paginatorGoToPosition.callCount).to.equal(2);
         });
 

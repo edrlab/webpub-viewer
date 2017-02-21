@@ -12,7 +12,7 @@ describe("ScrollingBookView", () => {
         window.document.body.appendChild(iframe);
 
         scroller = new ScrollingBookView();
-        scroller.setBookElement(iframe);
+        scroller.bookElement = iframe;
     });
 
     describe("#start", () => {
@@ -30,7 +30,7 @@ describe("ScrollingBookView", () => {
         });
 
         it("should set iframe size", () => {
-            scroller.setSideMargin(11);
+            scroller.sideMargin = 11;
             (window as any).innerHeight = 100;
             iframe.style.marginTop = "10px";
             (iframe.contentDocument.body as any).scrollHeight = 200;
