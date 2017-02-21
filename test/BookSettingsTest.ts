@@ -61,7 +61,7 @@ describe("BookSettings", () => {
         view2 = new MockBookView(2, "view2", "View 2");
 
         store = new MemoryStore();
-        settings = await BookSettings.create(store, [view1, view2], ["12px", "14px", "16px"]);
+        settings = await BookSettings.create(store, [view1, view2], [12, 14, 16]);
     });
 
     describe("#create", () => {
@@ -77,33 +77,33 @@ describe("BookSettings", () => {
 
         it("obtains the selected font size from the store", async () => {
             await store.set("settings-selected-font-size", "18px");
-            settings = await BookSettings.create(store, [view1, view2], ["12px", "14px", "16px", "18px"]);
+            settings = await BookSettings.create(store, [view1, view2], [12, 14, 16, 18]);
             expect(settings.getSelectedFontSize()).to.equal("18px");
         });
 
         it("sets the selected font size to the default if the selected font size in the store isn't one of the options", async () => {
             await store.set("settings-selected-font-size", "12345px");
-            settings = await BookSettings.create(store, [view1, view2], ["12px", "14px", "16px", "18px"], "18px");
+            settings = await BookSettings.create(store, [view1, view2], [12, 14, 16, 18], 18);
             expect(settings.getSelectedFontSize()).to.equal("18px");
         });
 
         it("sets the selected font size to the default if there's no selected font size in the store", async () => {
-            settings = await BookSettings.create(store, [view1, view2], ["14px", "16px"], "14px");
+            settings = await BookSettings.create(store, [view1, view2], [14, 16], 14);
             expect(settings.getSelectedFontSize()).to.equal("14px");
         });
 
         it("sets the selected font size to the middle font size if the default isn't one of the options", async () => {
-            settings = await BookSettings.create(store, [view1, view2], ["14px", "16px"], "12345px");
+            settings = await BookSettings.create(store, [view1, view2], [14, 16], 12345);
             expect(settings.getSelectedFontSize()).to.equal("16px");
         });
 
         it("sets the selected font size to the middle font size (rounded up) if there's no default and no selected font size in the store", async () => {
             expect(settings.getSelectedFontSize()).to.equal("14px");
 
-            settings = await BookSettings.create(store, [view1, view2], ["12px", "14px"]);
+            settings = await BookSettings.create(store, [view1, view2], [12, 14]);
             expect(settings.getSelectedFontSize()).to.equal("14px");
 
-            settings = await BookSettings.create(store, [view1, view2], ["10px", "12px", "14px", "16px"]);
+            settings = await BookSettings.create(store, [view1, view2], [10, 12, 14, 16]);
             expect(settings.getSelectedFontSize()).to.equal("14px");
         });
     });
@@ -120,14 +120,14 @@ describe("BookSettings", () => {
 
             // If there's no views or only 1 view, views don't show up in the settings.
 
-            settings = await BookSettings.create(store, [view1], ["12px"]);
+            settings = await BookSettings.create(store, [view1], [12]);
             settings.renderControls(element);
             view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
             expect(view1Link).to.be.null;
             view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
             expect(view2Link).to.be.null;
 
-            settings = await BookSettings.create(store, [], ["12px"]);
+            settings = await BookSettings.create(store, [], [12]);
             settings.renderControls(element);
             view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
             expect(view1Link).to.be.null;
@@ -190,7 +190,7 @@ describe("BookSettings", () => {
 
             // If there's no font size or only one font size, font size controls don't show up in settings.
 
-            settings = await BookSettings.create(store, [view1], ["12px"]);
+            settings = await BookSettings.create(store, [view1], [12]);
             settings.renderControls(element);
             decreaseLink = element.querySelector("a[class='decrease']") as HTMLAnchorElement;
             expect(decreaseLink).to.be.null;

@@ -36,11 +36,12 @@ export default class BookSettings {
 
     /** @param store Store to save the user's selections in. */
     /** @param bookViews Array of BookView options. */
-    /** @param fontSizes Array of font size strings sorted from smallest to largest. */
-    /** @param defaultFontSize Initial font size to use until the user makes a selection. */
-    public static async create(store: Store, bookViews: BookView[], fontSizes: string[], defaultFontSize?: string) {
+    /** @param fontSizesInPixels Array of font sizes in pixels sorted from smallest to largest. */
+    /** @param defaultFontSizeInPixels Initial font size to use until the user makes a selection. */
+    public static async create(store: Store, bookViews: BookView[], fontSizesInPixels: number[], defaultFontSizeInPixels?: number) {
+        const fontSizes = fontSizesInPixels.map(fontSize => fontSize + "px");
         const settings = new this(store, bookViews, fontSizes);
-        await settings.initializeSelections(defaultFontSize);
+        await settings.initializeSelections(defaultFontSizeInPixels ? defaultFontSizeInPixels + "px" : undefined);
         return settings;
     }
 
