@@ -12,7 +12,7 @@ describe("ScrollingBookView", () => {
         window.document.body.appendChild(iframe);
 
         scroller = new ScrollingBookView();
-        scroller.setBookElement(iframe);
+        scroller.bookElement = iframe;
     });
 
     describe("#start", () => {
@@ -30,16 +30,17 @@ describe("ScrollingBookView", () => {
         });
 
         it("should set iframe size", () => {
-            scroller.setTopMargin(10);
-
+            scroller.sideMargin = 11;
             (window as any).innerHeight = 100;
+            iframe.style.marginTop = "10px";
             (iframe.contentDocument.body as any).scrollHeight = 200;
             (document.body as any).offsetWidth = 50;
 
             scroller.start(0);
             expect(iframe.style.height).to.equal("200px");
-            expect(iframe.style.marginTop).to.equal("10px");
-            expect(iframe.style.width).to.equal("50px");
+            expect(iframe.style.width).to.equal("28px");
+            expect(iframe.style.marginLeft).to.equal("11px");
+            expect(iframe.style.marginRight).to.equal("11px");
 
             // If the content doesn't fill the page, the iframe height is
             // based on the window.
@@ -47,25 +48,25 @@ describe("ScrollingBookView", () => {
 
             scroller.start(0);
             expect(iframe.style.height).to.equal("90px");
-            expect(iframe.style.marginTop).to.equal("10px");
-            expect(iframe.style.width).to.equal("50px");
+            expect(iframe.style.width).to.equal("28px");
+            expect(iframe.style.marginLeft).to.equal("11px");
+            expect(iframe.style.marginRight).to.equal("11px");
         });
     });
 
     describe("#stop", () => {
         it("should remove styling from iframe", () => {
-            scroller.setTopMargin(10);
-            (window as any).innterHeight = 100;
+            (window as any).innerHeight = 100;
             (iframe.contentDocument.body as any).scrollHeight = 200;
             scroller.start(0);
 
             expect(iframe.style.height).not.to.equal("");
-            expect(iframe.style.marginTop).not.to.equal("0px");
+            expect(iframe.style.width).not.to.equal("");
 
             scroller.stop();
 
             expect(iframe.style.height).to.equal("");
-            expect(iframe.style.marginTop).to.equal("0px");
+            expect(iframe.style.width).to.equal("");
         });
     });
 

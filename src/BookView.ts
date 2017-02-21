@@ -2,8 +2,8 @@ interface BookView {
     name: string;
     label: string;
 
-    setBookElement(element: Element): void;
-    setTopMargin(number: number): void;
+    bookElement: Element;
+    sideMargin: number;
 
     /** Load this view in its book element, at the specified position. */
     start(position: number): void;

@@ -45,11 +45,26 @@
       height: calc(100% - 2em);
       overflow: scroll;
       padding: 10px;
-      background-color: white;
-      border: 2px solid #aaa;
     }
     .controls-view .active {
       background-color: #aaa;
+    }
+    .controls-view .disabled {
+      background-color: #a00;
+    }
+    .contents-view {
+      background-color: white;
+      border: 2px solid #aaa;
+    }
+    .settings-view > ul {
+      position: relative;
+      left: 25%;
+      width: 50%;
+      height: 50%;
+      margin-top: -8px;
+      padding-top: 15px;
+      background-color: white;
+      border: 2px solid #aaa;
     }
   </style>
 </head>
@@ -66,7 +81,9 @@
         var paginator = new ColumnsPaginatedBookView.default();
         var scroller = new ScrollingBookView.default();
         var annotator = new LocalAnnotator.default(store);
-        BookSettings.default.create([paginator, scroller], store).then(function (settings) {
+        var fontSizes = [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32 ];
+        var defaultFontSize = 16;
+        BookSettings.default.create(store, [paginator, scroller], fontSizes, defaultFontSize).then(function (settings) {
           IFrameNavigator.default.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
         });
       });
