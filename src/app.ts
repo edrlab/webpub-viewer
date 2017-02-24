@@ -6,17 +6,16 @@ import ScrollingBookView from "./ScrollingBookView";
 import BookSettings from "./BookSettings";
 import LocalAnnotator from "./LocalAnnotator";
 
-(async () => {
-    const element = document.getElementById("viewer");
-    const manifestUrl = new URL("manifest.json", window.location.href);
+const app = async (element: HTMLElement, manifestUrl: URL): Promise<IFrameNavigator> => {
+    const store = new LocalStorageStore(manifestUrl);
+    const cacher = new ServiceWorkerCacher(store, manifestUrl);
+    const annotator = new LocalAnnotator(store);
+    const paginator = new ColumnsPaginatedBookView();
+    const scroller = new ScrollingBookView();
+    const fontSizes = [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32 ];
+    const settings = await BookSettings.create(store, [paginator, scroller], fontSizes, 16);
+    return await IFrameNavigator.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
+};
 
-    if (element) {
-        const store = new LocalStorageStore(manifestUrl);
-        const cacher = await ServiceWorkerCacher.create(store, manifestUrl);
-        const annotator = new LocalAnnotator(store);
-        const paginator = new ColumnsPaginatedBookView();
-        const scroller = new ScrollingBookView();
-        const settings = await BookSettings.create(store, [paginator, scroller], [16], 16);
-        await IFrameNavigator.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
-    }
-})();
+export default app;
+

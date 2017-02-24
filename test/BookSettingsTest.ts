@@ -106,6 +106,20 @@ describe("BookSettings", () => {
             settings = await BookSettings.create(store, [view1, view2], [10, 12, 14, 16]);
             expect(settings.getSelectedFontSize()).to.equal("14px");
         });
+
+        it("obtains the selected offline setting from the store", async () => {
+            await store.set("settings-offline-enabled", "true");
+            settings = await BookSettings.create(store, [view1], [12]);
+            expect(settings.getOfflineEnabled()).to.equal(true);
+
+            await store.set("settings-offline-enabled", "false");
+            settings = await BookSettings.create(store, [view1], [12]);
+            expect(settings.getOfflineEnabled()).to.equal(false);
+        });
+
+        it("disables offline by default", async () => {
+            expect(settings.getOfflineEnabled()).to.equal(false);
+        });
     });
 
     describe("#renderControls", () => {
@@ -255,6 +269,29 @@ describe("BookSettings", () => {
             expect(settings.getSelectedFontSize()).to.equal("16px");
             storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("16px");
+        });
+
+        it("renders offline link and status", async () => {
+            const element = document.createElement("div");
+            settings.renderControls(element);
+
+            let offlineLink = element.querySelector("a[class='enable-offline']") as HTMLAnchorElement;
+            expect(offlineLink.text).to.contain("Download");
+            expect(offlineLink.text).to.contain("offline use");
+            expect(offlineLink.style.display).not.to.equal("none");
+
+            let offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
+            expect(offlineStatus).not.to.be.null;
+
+            store.set("settings-offline-enabled", "true");
+            settings = await BookSettings.create(store, [view1], [12]);
+            settings.renderControls(element);
+
+            offlineLink = element.querySelector("a[class='enable-offline']") as HTMLAnchorElement;
+            expect(offlineLink.style.display).to.equal("none");
+
+            offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
+            expect(offlineStatus).not.to.be.null;
         });
     });
 

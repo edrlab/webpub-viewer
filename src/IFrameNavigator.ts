@@ -109,7 +109,12 @@ export default class IFrameNavigator implements Navigator {
             this.settings.renderControls(this.settingsView);
             this.settings.onViewChange(this.updateBookView.bind(this));
             this.settings.onFontSizeChange(this.updateFontSize.bind(this));
-
+            this.settings.onOfflineEnabled(this.enableOffline.bind(this));
+            this.cacher.renderStatus(this.settings.getOfflineStatusElement());
+            if (this.settings.getOfflineEnabled()) {
+                this.enableOffline();
+            }
+            
             return await this.loadManifest();
         } catch (err) {
             // There's a mismatch between the template and the selectors above,
@@ -156,6 +161,10 @@ export default class IFrameNavigator implements Navigator {
 
     private updateFontSize(): void {
         this.handleResize();
+    }
+
+    private enableOffline(): void {
+        this.cacher.enable();
     }
 
     private async loadManifest(): Promise<void> {

@@ -5,6 +5,7 @@ import * as jsdom from "jsdom";
 import ServiceWorkerCacher from "../src/ServiceWorkerCacher";
 import MemoryStore from "../src/MemoryStore";
 import Manifest from "../src/Manifest";
+import ApplicationCacheCacher from "../src/ApplicationCacheCacher";
 
 describe('ServiceWorkerCacher', () => {
     let register: Sinon.SinonStub;
@@ -12,6 +13,7 @@ describe('ServiceWorkerCacher', () => {
     let addAll: Sinon.SinonStub;
     let open: Sinon.SinonStub;
     let store: MemoryStore;
+    let element: HTMLElement;
 
     const mockNavigatorAPI = () => {
         register = stub();
@@ -45,27 +47,54 @@ describe('ServiceWorkerCacher', () => {
         window.fetch = stub().returns(response);
     };
 
+    const pause = (ms = 0): Promise<void> => {
+        return new Promise<void>(resolve => setTimeout(resolve, ms));
+    };
+
     beforeEach(() => {
         jsdom.changeURL(window, "https://example.com");
         mockNavigatorAPI();
         store = new MemoryStore();
+        element = document.createElement("div");
     });
 
-    describe('#start', () => {
-        it('should do nothing if the Cache API is not supported', async () => {
-            // window.caches is not defined here.
+    describe('#enable', () => {
+        it("should do nothing if the Cache API is not supported and there's no fallback URL", async () => {
+            (window as any).caches = null;
 
-            await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
+            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            cacher.renderStatus(element);
+            await cacher.enable();
             expect(register.callCount).to.equal(0);
+        });
+
+        it("should fall back to application cache if the Cache API is not supported and fallback URL is provided", async () => {
+            (window as any).caches = null;
+
+            const appCacheRenderStatusStub = stub(ApplicationCacheCacher.prototype, "renderStatus");
+            const appCacheEnableStub = stub(ApplicationCacheCacher.prototype, "enable");
+
+            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"), "sw.js", new URL("https://example.com/fallback.html"));
+            cacher.renderStatus(element);
+            await cacher.enable();
+            expect(register.callCount).to.equal(0);
+            expect(appCacheEnableStub.callCount).to.equal(1);
+
+            appCacheRenderStatusStub.restore();
+            appCacheEnableStub.restore();
         });
 
         it("should register the service worker", async () => {
             mockCacheAPI("i'm in the cache");
-            await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
+            let cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            cacher.renderStatus(element);
+            await cacher.enable();
             expect(register.callCount).to.equal(1);
             expect(register.args[0][0]).to.equal("sw.js");
 
-            await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"), "../../../sw.js");
+            cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"), "../../../sw.js", new URL("https://example.com/fallback.html"));
+            cacher.renderStatus(element);
+            await cacher.enable();
             expect(register.callCount).to.equal(2);
             expect(register.args[1][0]).to.equal("../../../sw.js");
         });
@@ -73,7 +102,9 @@ describe('ServiceWorkerCacher', () => {
         it("should find a manifest that's already in the cache", async () => {
             mockCacheAPI("i'm in the cache");
 
-            await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
+            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            cacher.renderStatus(element);
+            await cacher.enable();
             // The manifest cache was opened.
             expect(open.callCount).to.equal(1);
             expect(open.args[0][0]).to.equal("https://example.com/manifest.json");
@@ -107,7 +138,9 @@ describe('ServiceWorkerCacher', () => {
                     return new Promise((resolve) => resolve(manifest));
                 }
             }
-            await MockCacher.create(store, new URL("https://example.com/manifest.json"));
+            let cacher = new MockCacher(store, new URL("https://example.com/manifest.json"));
+            cacher.renderStatus(element);
+            await cacher.enable();
             let urlsThatWereCached: Array<string> = [];
             // Go through each call to addAll and aggregate the cached URLs.
             addAll.args.forEach((argsFromOneCallToAddAll: Array<Array<string>>) => {
@@ -121,6 +154,33 @@ describe('ServiceWorkerCacher', () => {
             expect(urlsThatWereCached).to.contain("https://example.com/spine-item-2.html");
             expect(urlsThatWereCached).to.contain("https://example.com/resource-1.html");
             expect(urlsThatWereCached).to.contain("https://example.com/resource-2.html");
+        });
+    });
+
+    describe('#renderStatus', () => {
+        it("should fall back to application cache if the Cache API is not supported and fallback URL is provided", async () => {
+            (window as any).caches = null;
+
+            const appCacheRenderStatusStub = stub(ApplicationCacheCacher.prototype, "renderStatus");
+
+            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"), "sw.js", new URL("https://example.com/fallback.html"));
+            cacher.renderStatus(element);
+            expect(appCacheRenderStatusStub.callCount).to.equal(1);
+            expect(appCacheRenderStatusStub.args[0][0]).to.equal(element);
+
+            appCacheRenderStatusStub.restore();
+        });
+
+        it("should render downloading message and update when caching is complete", async () => {
+            mockCacheAPI("i'm in the cache");
+            let cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            cacher.renderStatus(element);
+            expect(element.innerHTML).to.contain("Not available offline");
+
+            cacher.enable();
+            expect(element.innerHTML).to.contain("Downloading");
+            await pause();
+            expect(element.innerHTML).to.contain("Downloaded");            
         });
     });
 
@@ -143,7 +203,7 @@ describe('ServiceWorkerCacher', () => {
                 const key = "manifest";
                 await store.set(key, JSON.stringify(manifestJSON));
 
-                const cacher = await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
+                const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
                 const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
                 expect(response).to.deep.equal(manifest);
             });
@@ -156,7 +216,7 @@ describe('ServiceWorkerCacher', () => {
                 } as any);
                 mockCacheAPI(manifestResponse);
                 
-                const cacher = await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
+                const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
                 const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
                 expect(response).to.deep.equal(manifest);
             });
@@ -172,7 +232,7 @@ describe('ServiceWorkerCacher', () => {
 
             mockFetchAPI(fetchSuccess);
 
-            const cacher = await ServiceWorkerCacher.create(store, new URL("https://example.com/manifest.json"));
+            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
             const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
             expect(response).to.deep.equal(manifest);
 

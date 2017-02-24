@@ -13,6 +13,8 @@ import MemoryStore from "../src/MemoryStore";
 
 describe("IFrameNavigator", () => {
     let getManifest: Sinon.SinonStub;
+    let enable: Sinon.SinonStub;
+    let renderStatus: Sinon.SinonStub;
     let cacher: Cacher;
 
     let paginatorStart: Sinon.SinonStub;
@@ -30,11 +32,15 @@ describe("IFrameNavigator", () => {
     let saveLastReadingPosition: Sinon.SinonStub;
     let annotator: Annotator;
 
+    let offlineStatusElement: HTMLElement;
     let renderControls: Sinon.SinonStub;
     let onViewChange: Sinon.SinonStub;
     let onFontSizeChange: Sinon.SinonStub;
+    let onOfflineEnabled: Sinon.SinonStub;
     let getSelectedView: Sinon.SinonStub;
     let getSelectedFontSize: Sinon.SinonStub;
+    let getOfflineEnabled: Sinon.SinonStub;
+    let getOfflineStatusElement: Sinon.SinonStub;
     let settings: BookSettings;
 
     let element: HTMLElement;
@@ -46,11 +52,14 @@ describe("IFrameNavigator", () => {
     let parentLinkClicked: Sinon.SinonStub;
 
     class MockCacher implements Cacher {
-        public start() {
-            return new Promise<void>(resolve => resolve());
-        }
         public getManifest(manifestUrl: URL) {
             return getManifest(manifestUrl);
+        }
+        public enable() {
+            return enable();
+        }
+        public renderStatus(element: HTMLElement) {
+            return renderStatus(element);
         }
     }
 
@@ -116,11 +125,20 @@ describe("IFrameNavigator", () => {
         public onFontSizeChange(callback: () => void) {
             onFontSizeChange(callback);
         }
+        public onOfflineEnabled(callback: () => void) {
+            onOfflineEnabled(callback);
+        }
         public getSelectedView() {
             return getSelectedView();
         }
         public getSelectedFontSize() {
             return getSelectedFontSize();
+        }
+        public getOfflineEnabled() {
+            return getOfflineEnabled();
+        }
+        public getOfflineStatusElement() {
+            return getOfflineStatusElement();
         }
     }
 
@@ -148,6 +166,8 @@ describe("IFrameNavigator", () => {
 
     beforeEach(async () => {
         getManifest = stub().returns(new Promise(resolve => resolve(manifest)));
+        enable = stub();
+        renderStatus = stub();
         cacher = new MockCacher();
 
         paginatorStart = stub();
@@ -165,11 +185,15 @@ describe("IFrameNavigator", () => {
         saveLastReadingPosition = stub().returns(new Promise(resolve => resolve()));
         annotator = new MockAnnotator();
 
+        offlineStatusElement = document.createElement("div");
         renderControls = stub();
         onViewChange = stub();
         onFontSizeChange = stub();
+        onOfflineEnabled = stub();
         getSelectedView = stub().returns(paginator);
         getSelectedFontSize = stub().returns("14px");
+        getOfflineEnabled = stub().returns(false);
+        getOfflineStatusElement = stub().returns(offlineStatusElement);
         settings = await MockSettings.create(new MemoryStore(), [paginator, scroller], [14, 16]);
 
         const window = jsdom.jsdom("", ({
@@ -270,6 +294,29 @@ describe("IFrameNavigator", () => {
             expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
             expect(paginator.sideMargin).to.equal(32);
             expect(paginatorGoToPosition.callCount).to.equal(2);
+        });
+
+        it("should give the settings a function to call when offline is enabled", () => {
+            expect(onOfflineEnabled.callCount).to.equal(1);
+            expect(enable.callCount).to.equal(0);
+
+            const enableOffline = onOfflineEnabled.args[0][0];
+            enableOffline();
+
+            expect(enable.callCount).to.equal(1);
+        });
+
+        it("should render the cacher status", () => {
+           expect(renderStatus.callCount).to.equal(1);
+           expect(renderStatus.args[0][0]).to.equal(offlineStatusElement);
+        });
+
+        it("should enable the cacher if offline is enabled in the settings", async () => {
+            expect(enable.callCount).to.equal(0);
+
+            getOfflineEnabled.returns(true);
+            await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), cacher, settings, annotator, paginator, scroller);
+            expect(enable.callCount).to.equal(1);
         });
 
         it("should start the selected book view", async () => {
