@@ -4,3 +4,7 @@ node_modules
 typings
 lib
 dist
+
+#css~sass ingnoring
+examples/alice/css/*.css.map
+examples/alice/.sass-cache
