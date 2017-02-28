@@ -1,17 +1,64 @@
 .controls {
+  background-color: #54514a;
+  color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   position: fixed;
-  top: 0;
   right: 0;
-  width: 100%;
-  height: 2em; }
+  top: 0;
+  width: 100%; }
+  @media (max-width: 488px) {
+    .controls {
+      height: 4.5rem; } }
+  @media (min-width: 489px) {
+    .controls {
+      height: 2.5rem; } }
   .controls .links {
-    background-color: #515151;
     height: inherit;
     list-style-type: none;
     margin: 0;
     position: relative;
     padding: 2px;
     text-align: center; }
+  .controls ul li {
+    float: left;
+    margin: 10px; }
+
+.loading {
+  position: fixed;
+  width: 200px;
+  height: 200px;
+  text-align: center;
+  left: calc(50% - 100px);
+  top: calc(50% - 100px);
+  background-color: #aaa; }
+
+.controls-view {
+  position: fixed;
+  top: 2em;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 2em);
+  overflow: scroll;
+  padding: 10px; }
+
+.controls-view .active {
+  background-color: #aaa; }
+
+.controls-view .disabled {
+  background-color: #a00; }
+
+.contents-view {
+  background-color: white;
+  border: 2px solid #aaa; }
+
+.settings-view > ul {
+  position: relative;
+  left: 25%;
+  width: 50%;
+  height: 50%;
+  margin-top: -8px;
+  padding-top: 15px;
+  background-color: white;
+  border: 2px solid #aaa; }
 
 /*# sourceMappingURL=controls.css.map */
