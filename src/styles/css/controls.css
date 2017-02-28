@@ -2,13 +2,11 @@
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 16px;
+  height: 4.65rem;
   position: fixed;
   right: 0;
   top: 0;
   width: 100%; }
-  @media (max-width: 488px) {
-    .controls {
-      height: 4.65rem; } }
   @media (min-width: 489px) {
     .controls {
       height: 2.5rem; } }
@@ -36,13 +34,16 @@
   background-color: #76777b; }
 
 .controls-view {
-  position: fixed;
-  top: 0.125rem;
-  left: 0;
-  width: 100%;
   height: calc(100% - 2rem);
+  left: 0;
   overflow: scroll;
-  padding: 0.625rem; }
+  position: fixed;
+  padding: 0.625rem;
+  top: 4.75rem;
+  width: 100%; }
+  @media (min-width: 489px) {
+    .controls-view {
+      top: 2.55rem; } }
   .controls-view .active {
     background-color: #76777b; }
   .controls-view .disabled {

@@ -11,16 +11,13 @@
   color: $nypl-white;
   font-family: $sans-serif-stack;
   font-size: $basefont;
+  height: 4.65rem;
   position: fixed;
   right: 0;
   top: 0;
   width: 100%;
 
-  // media queries
-  @media (max-width: 488px) {
-    height: 4.65rem;
-  }
-
+// media queries
   @media (min-width: 489px) {
     height: 2.5rem;
   }
@@ -56,13 +53,18 @@
 }
 
 .controls-view {
-  position: fixed;
-  top: 0.125rem;
-  left: 0;
-  width: 100%;
   height: calc(100% - 2rem);
+  left: 0;
   overflow: scroll;
+  position: fixed;
   padding: 0.625rem;
+  top: 4.75rem;
+  width: 100%;
+
+  @media (min-width: 489px) {
+    top: 2.55rem;
+  }
+
 
   .active {
     background-color: $nypl-gray-cool;
