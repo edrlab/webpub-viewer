@@ -1,7 +1,7 @@
 .controls {
-  background-color: #54514a;
   color: #fff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 16px;
   position: fixed;
   right: 0;
   top: 0;
@@ -13,45 +13,44 @@
     .controls {
       height: 2.5rem; } }
   .controls .links {
+    background-color: #54514a;
     height: inherit;
     list-style-type: none;
     margin: 0;
     position: relative;
-    padding: 2px;
+    padding: 0.125rem;
     text-align: center; }
   .controls ul li {
     float: left;
-    margin: 10px; }
+    margin: 0.625rem; }
   .controls a {
     color: #fff; }
 
 .loading {
   position: fixed;
-  width: 200px;
-  height: 200px;
+  width: 12.5rem;
+  height: 12.5rem;
   text-align: center;
-  left: calc(50% - 100px);
-  top: calc(50% - 100px);
-  background-color: #aaa; }
+  left: calc(50% - 6.25rem);
+  top: calc(50% - 6.25rem);
+  background-color: #76777b; }
 
 .controls-view {
   position: fixed;
-  top: 2em;
+  top: 0.125rem;
   left: 0;
   width: 100%;
-  height: calc(100% - 2em);
+  height: calc(100% - 2rem);
   overflow: scroll;
-  padding: 10px; }
-
-.controls-view .active {
-  background-color: #aaa; }
-
-.controls-view .disabled {
-  background-color: #a00; }
+  padding: 0.625rem; }
+  .controls-view .active {
+    background-color: #76777b; }
+  .controls-view .disabled {
+    background-color: #97272c; }
 
 .contents-view {
-  background-color: white;
-  border: 2px solid #aaa; }
+  background-color: #fff;
+  border: 0.125rem solid #76777b; }
 
 .settings-view > ul {
   position: relative;
@@ -59,8 +58,8 @@
   width: 50%;
   height: 50%;
   margin-top: -8px;
-  padding-top: 15px;
-  background-color: white;
-  border: 2px solid #aaa; }
+  padding-top: 1rem;
+  background-color: #fff;
+  border: 2px solid #76777b; }
 
 /*# sourceMappingURL=controls.css.map */
