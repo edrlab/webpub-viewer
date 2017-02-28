@@ -1,0 +1,17 @@
+.controls {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 2em; }
+  .controls .links {
+    background-color: #515151;
+    height: inherit;
+    list-style-type: none;
+    margin: 0;
+    position: relative;
+    padding: 2px;
+    text-align: center; }
+
+/*# sourceMappingURL=controls.css.map */
