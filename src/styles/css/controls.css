@@ -8,7 +8,7 @@
   width: 100%; }
   @media (max-width: 488px) {
     .controls {
-      height: 4.5rem; } }
+      height: 4.65rem; } }
   @media (min-width: 489px) {
     .controls {
       height: 2.5rem; } }
@@ -22,6 +22,8 @@
   .controls ul li {
     float: left;
     margin: 10px; }
+  .controls a {
+    color: #fff; }
 
 .loading {
   position: fixed;

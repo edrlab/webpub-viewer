@@ -1,12 +1,10 @@
 // Variables & Mixins etc.
+
 // Colors
 @warn "Usinng NYPL Toolkit Monochrome: ";
 @import "colors";
 // Type
-@warn "TODO: create & add font stack to _type.scss";
-$sans-serif-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-
-$serif-stack: Cambria, "Hoefler Text", Utopia, "Liberation Serif", "Nimbus Roman No9 L Regular", Times, "Times New Roman", serif;
+@import "type";
 
 // Navigation Control
 
@@ -21,7 +19,7 @@ $serif-stack: Cambria, "Hoefler Text", Utopia, "Liberation Serif", "Nimbus Roman
 
   // media queries
   @media (max-width: 488px) {
-    height: 4.5rem;
+    height: 4.65rem;
   }
 
   @media (min-width: 489px) {
@@ -40,6 +38,9 @@ $serif-stack: Cambria, "Hoefler Text", Utopia, "Liberation Serif", "Nimbus Roman
   ul li {
     float: left;
     margin: 10px;
+    }
+    a {
+      color: $nypl-white;
     }
   }
 
