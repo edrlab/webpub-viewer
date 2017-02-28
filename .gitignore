@@ -5,6 +5,6 @@ typings
 lib
 dist
 
-#css~sass ingnoring
-examples/alice/css/*.css.map
-examples/alice/.sass-cache
+#css~sass ignoring
+src/styles/css/*.css.map
+src/styles/.sass-cache
