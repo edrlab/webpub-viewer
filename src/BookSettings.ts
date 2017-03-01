@@ -40,7 +40,7 @@ export default class BookSettings {
 
     private selectedView: BookView;
     private selectedFontSize: string;
-    private offlineEnabled: boolean;
+    private offlineEnabled: boolean | null;
 
     private static readonly SELECTED_VIEW_KEY = "settings-selected-view";
     private static readonly SELECTED_FONT_SIZE_KEY = "settings-selected-font-size";
@@ -95,8 +95,14 @@ export default class BookSettings {
             this.selectedFontSize = selectedFontSize;
         }
 
-        let offlineEnabled = await this.store.get(BookSettings.OFFLINE_ENABLED_KEY);
-        this.offlineEnabled = offlineEnabled === "true";
+        const offlineEnabled = await this.store.get(BookSettings.OFFLINE_ENABLED_KEY);
+        if (offlineEnabled === "true") {
+            this.offlineEnabled = true;
+        } else if (offlineEnabled === "false") {
+            this.offlineEnabled = false;
+        } else {
+            this.offlineEnabled = null;
+        }
     }
 
     public renderControls(element: HTMLElement): void {
@@ -252,7 +258,12 @@ export default class BookSettings {
     }
 
     public getOfflineEnabled(): boolean {
-        return this.offlineEnabled;
+        if (this.offlineEnabled === null) {
+            const enable = window.confirm("Would you like to download this book to read offline?");
+            this.offlineEnabled = enable;
+            this.storeOfflineEnabled(enable);
+        }
+        return this.offlineEnabled === true;
     }
 
     public getOfflineStatusElement(): HTMLElement {

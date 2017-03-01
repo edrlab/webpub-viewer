@@ -117,8 +117,18 @@ describe("BookSettings", () => {
             expect(settings.getOfflineEnabled()).to.equal(false);
         });
 
-        it("disables offline by default", async () => {
+        it("prompts the user to make an offline selection if there isn't one in the store", async () => {
+            const confirmStub = stub(window, "confirm").returns(true);
+            expect(settings.getOfflineEnabled()).to.equal(true);
+            let storedSetting = await store.get("settings-offline-enabled");
+            expect(storedSetting).to.equal("true");
+
+            store = new MemoryStore();
+            confirmStub.returns(false);
+            settings = await BookSettings.create(store, [view1], [12]);
             expect(settings.getOfflineEnabled()).to.equal(false);
+            storedSetting = await store.get("settings-offline-enabled");
+            expect(storedSetting).to.equal("false");
         });
     });
 
