@@ -10,7 +10,8 @@
   "scripts": {
     "prepublish": "typings install && tsc --p . && tsc --p tsconfig-sw.json",
     "test": "rm -rf lib && tsc --p tsconfig-test.json && mocha --require jsdom-global/register --recursive lib/test",
-    "clean": "rm -rf typings node_modules lib dist"
+    "clean": "rm -rf typings node_modules lib dist",
+    "sass": "node-sass src/styles/sass/ -o src/styles/css/"
   },
   "dependencies": {
     "whatwg-fetch": "^2.0.1"
@@ -20,6 +21,7 @@
     "jsdom": "9.8.3",
     "jsdom-global": "^2.1.0",
     "mocha": "^3.1.2",
+    "node-sass": "4.5.0",
     "requirejs": "^2.3.2",
     "sinon": "^1.17.6",
     "typescript": "2.1.1",
