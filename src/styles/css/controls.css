@@ -11,7 +11,7 @@
     .controls {
       height: 2.5rem; } }
   .controls .links {
-    background-color: #54514a;
+    background-color: red;
     height: inherit;
     list-style-type: none;
     margin: 0;
@@ -62,5 +62,3 @@
   padding-top: 1rem;
   background-color: #fff;
   border: 2px solid #76777b; }
-
-/*# sourceMappingURL=controls.css.map */
