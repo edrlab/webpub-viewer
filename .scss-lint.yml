@@ -1,0 +1,61 @@
+severity: error
+
+linters:
+
+  BorderZero:
+    enabled: true
+    convention: zero
+
+  BemDepth:
+    enabled: true
+
+  DeclarationOrder:
+    enabled: false
+
+  ExtendDirective:
+    enabled: true
+
+  LeadingZero:
+    enabled: true
+    style: include_zero
+
+  NameFormat:
+    enabled: true
+
+  NestingDepth:
+    enabled: true
+    max_depth: 5 #because collapsible header (refactor that)
+
+  SelectorDepth:
+    enabled: true
+    max_depth: 4 #because collapsible header (refactor that)
+
+  PrivateNamingConvention:
+    enabled: true
+    prefix: _
+
+  PropertySortOrder:
+    enabled: false
+
+  PropertyUnits:
+    global: ['rem', '%', 's'] # Allow relative units globally
+    properties:
+      line-height: [] # No units allowed
+      margin: ['rem', '%']
+
+  QualifyingElement:
+    enabled: false
+
+  SelectorFormat:
+    enabled: true
+    convention: hyphenated_BEM
+    class_convention: ^(?!js-).*
+    class_convention_explanation: should not be written in the form js-*
+
+  SingleLinePerProperty:
+    enabled: true
+    allow_single_line_rule_sets: false
+
+  StringQuotes:
+    enabled: true
+    style: double_quotes

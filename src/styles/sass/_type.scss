@@ -1,0 +1,13 @@
+// Typography
+@warn "TODO:zilch";
+
+// font base values from nypl-toolkit
+// https://github.com/NYPL/design-toolkit/blob/master/sass/_measurements.scss
+$basefontraw: 16;
+$basefont: $basefontraw * 1px;
+
+// font stack from nypl-toolkit
+// https://github.com/NYPL/design-toolkit/blob/master/sass/_typography.scss
+$sans-serif-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+$serif-stack: Cambria, "Hoefler Text", Utopia, "Liberation Serif", "Nimbus Roman No9 L Regular", Times, "Times New Roman", serif;

@@ -1,0 +1,92 @@
+// Variables & Mixins etc.
+
+// Colors
+@import "colors";
+// Type
+@import "type";
+
+// Navigation Control
+
+.controls {
+  color: $nypl-white;
+  font-family: $sans-serif-stack;
+  font-size: $basefont;
+  height: 4.65rem;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 100%;
+
+// media queries
+  @media (min-width: 489px) {
+    height: 2.5rem;
+  }
+
+  .links {
+    background-color: $nypl-gray-cool;
+    height: inherit;
+    list-style-type: none;
+    margin: 0;
+    position: relative;
+    padding: 0.125rem;
+    text-align: center;
+    }
+
+  ul li {
+    float: left;
+    margin: 0.625rem;
+  }
+
+  a {
+    color: $nypl-white;
+    }
+  }
+
+.loading {
+  position: fixed;
+  width: 12.5rem;
+  height: 12.5rem;
+  text-align: center;
+  left: calc(50% - 6.25rem);
+  top: calc(50% - 6.25rem);
+  background-color: $nypl-gray-cool;
+}
+
+.controls-view {
+  height: calc(100% - 2rem);
+  left: 0;
+  overflow: scroll;
+  position: fixed;
+  padding: 0.625rem;
+  top: 4.75rem;
+  width: 100%;
+
+  @media (min-width: 489px) {
+    top: 2.55rem;
+  }
+
+
+  .active {
+    background-color: $nypl-gray-cool;
+  }
+
+  .disabled {
+    background-color: $nypl-red-dark;
+  }
+}
+
+.contents-view {
+  background-color: $nypl-white;
+  border: 0.125rem solid $nypl-gray-cool;
+}
+
+.settings-view > ul {
+  position: relative;
+  left: 25%;
+  width: 50%;
+  height: 50%;
+  margin-top: -8px;
+  padding-top: 1rem;
+  background-color: $nypl-white;
+  border: 2px solid $nypl-gray-cool;
+}
