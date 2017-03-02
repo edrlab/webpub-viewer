@@ -25,7 +25,7 @@ const offlineTemplate = `
     </li>
 `;
 
-enum OfflineStatus {
+export enum OfflineStatus {
     ENABLED,
     DISABLED,
     NO_SELECTION    
@@ -212,7 +212,9 @@ export default class BookSettings {
 
         this.offlineLink.addEventListener("click", (event: MouseEvent) => {
             this.offlineStatus = OfflineStatus.ENABLED;
-            this.offlineEnabledCallback();
+            if (this.offlineEnabledCallback) {
+                this.offlineEnabledCallback();
+            }
             this.updateOfflineLink();
             this.storeOfflineEnabled(true);
             event.preventDefault();
@@ -246,7 +248,7 @@ export default class BookSettings {
     }
 
     private updateOfflineLink(): void {
-        if (this.getOfflineEnabled()) {
+        if (this.getOfflineStatus() === OfflineStatus.ENABLED) {
             this.offlineLink.style.display = "none";
         } else {
             this.offlineLink.style.display = "block";
@@ -261,17 +263,21 @@ export default class BookSettings {
         return this.selectedFontSize;
     }
 
-    public getOfflineEnabled(): boolean {
-        if (this.offlineStatus === OfflineStatus.NO_SELECTION) {
-            const enable = window.confirm("Would you like to download this book to read offline?");
-            if (enable) {
-                this.offlineStatus = OfflineStatus.ENABLED;
-            } else {
-                this.offlineStatus = OfflineStatus.DISABLED;
+    public getOfflineStatus(): OfflineStatus {
+        return this.offlineStatus;
+    }
+
+    public async askUserToEnableOfflineUse(): Promise<void> {
+        const enable = window.confirm("Would you like to download this book to read offline?");
+        if (enable) {
+            this.offlineStatus = OfflineStatus.ENABLED;
+            if (this.offlineEnabledCallback) {
+                this.offlineEnabledCallback();
             }
-            this.storeOfflineEnabled(enable);
+        } else {
+            this.offlineStatus = OfflineStatus.DISABLED;
         }
-        return this.offlineStatus === OfflineStatus.ENABLED;
+        await this.storeOfflineEnabled(enable);
     }
 
     public getOfflineStatusElement(): HTMLElement {

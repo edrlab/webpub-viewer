@@ -2,6 +2,7 @@ import { expect } from "chai";
 import { stub } from "sinon";
 
 import BookSettings from "../src/BookSettings";
+import { OfflineStatus } from "../src/BookSettings";
 import BookView from "../src/BookView";
 import MemoryStore from "../src/MemoryStore";
 
@@ -110,25 +111,15 @@ describe("BookSettings", () => {
         it("obtains the selected offline setting from the store", async () => {
             await store.set("settings-offline-enabled", "true");
             settings = await BookSettings.create(store, [view1], [12]);
-            expect(settings.getOfflineEnabled()).to.equal(true);
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.ENABLED);
 
             await store.set("settings-offline-enabled", "false");
             settings = await BookSettings.create(store, [view1], [12]);
-            expect(settings.getOfflineEnabled()).to.equal(false);
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.DISABLED);
         });
 
-        it("prompts the user to make an offline selection if there isn't one in the store", async () => {
-            const confirmStub = stub(window, "confirm").returns(true);
-            expect(settings.getOfflineEnabled()).to.equal(true);
-            let storedSetting = await store.get("settings-offline-enabled");
-            expect(storedSetting).to.equal("true");
-
-            store = new MemoryStore();
-            confirmStub.returns(false);
-            settings = await BookSettings.create(store, [view1], [12]);
-            expect(settings.getOfflineEnabled()).to.equal(false);
-            storedSetting = await store.get("settings-offline-enabled");
-            expect(storedSetting).to.equal("false");
+        it("has no offline selection if there isn't one in the store", async () => {
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.NO_SELECTION);
         });
     });
 
@@ -293,6 +284,13 @@ describe("BookSettings", () => {
             let offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
             expect(offlineStatus).not.to.be.null;
 
+            click(offlineLink);
+            await pause();
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.ENABLED);
+
+            const storedOfflineEnabled = await store.get("settings-offline-enabled");
+            expect(storedOfflineEnabled).to.equal("true");
+
             store.set("settings-offline-enabled", "true");
             settings = await BookSettings.create(store, [view1], [12]);
             settings.renderControls(element);
@@ -344,6 +342,42 @@ describe("BookSettings", () => {
             click(increaseLink);
             await pause();
             expect(fontSizeChanged.callCount).to.equal(2);
+        });
+    });
+
+    describe("#onOfflineEnabled", () => {
+        it("sets up offline enabled callback", async () => {
+            const element = document.createElement("div");
+            settings.renderControls(element);
+
+            const offlineEnabled = stub();
+            settings.onOfflineEnabled(offlineEnabled);
+
+            const offlineLink = element.querySelector("a[class='enable-offline']") as HTMLAnchorElement;
+            click(offlineLink);
+            await pause();
+            expect(offlineEnabled.callCount).to.equal(1);
+        });
+    });
+
+    describe("#askUserToEnabledOfflineUse", () => {
+        it("sets offline status based on user's response", async () => {
+            const offlineEnabled = stub();
+            settings.onOfflineEnabled(offlineEnabled);
+
+            const confirmStub = stub(window, "confirm").returns(true);
+            await settings.askUserToEnableOfflineUse();
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.ENABLED);
+            let storedSetting = await store.get("settings-offline-enabled");
+            expect(storedSetting).to.equal("true");
+            expect(offlineEnabled.callCount).to.equal(1);
+
+            confirmStub.returns(false);
+            await settings.askUserToEnableOfflineUse();
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.DISABLED);
+            storedSetting = await store.get("settings-offline-enabled");
+            expect(storedSetting).to.equal("false");
+            expect(offlineEnabled.callCount).to.equal(1);
         });
     });
 });

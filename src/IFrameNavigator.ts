@@ -5,6 +5,7 @@ import ScrollingBookView from "./ScrollingBookView";
 import Annotator from "./Annotator";
 import Manifest from "./Manifest";
 import BookSettings from "./BookSettings";
+import { OfflineStatus } from "./BookSettings";
 import * as HTMLUtilities from "./HTMLUtilities";
 
 const template = `
@@ -111,7 +112,7 @@ export default class IFrameNavigator implements Navigator {
             this.settings.onFontSizeChange(this.updateFontSize.bind(this));
             this.settings.onOfflineEnabled(this.enableOffline.bind(this));
             this.cacher.renderStatus(this.settings.getOfflineStatusElement());
-            if (this.settings.getOfflineEnabled()) {
+            if (this.settings.getOfflineStatus() === OfflineStatus.ENABLED) {
                 this.enableOffline();
             }
             
@@ -266,6 +267,11 @@ export default class IFrameNavigator implements Navigator {
             await this.saveCurrentReadingPosition();
         }
         this.hideLoadingMessage();
+
+        if (this.settings.getOfflineStatus() === OfflineStatus.NO_SELECTION) {
+            setTimeout(this.settings.askUserToEnableOfflineUse.bind(this.settings), 0);
+        }
+
         return new Promise<void>(resolve => resolve());
     }
 
