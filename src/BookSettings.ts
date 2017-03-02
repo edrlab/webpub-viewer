@@ -25,6 +25,12 @@ const offlineTemplate = `
     </li>
 `;
 
+enum OfflineStatus {
+    ENABLED,
+    DISABLED,
+    NO_SELECTION    
+};
+
 export default class BookSettings {
     private readonly store: Store;
     private readonly bookViews: BookView[];
@@ -40,7 +46,7 @@ export default class BookSettings {
 
     private selectedView: BookView;
     private selectedFontSize: string;
-    private offlineEnabled: boolean | null;
+    private offlineStatus: OfflineStatus = OfflineStatus.NO_SELECTION;
 
     private static readonly SELECTED_VIEW_KEY = "settings-selected-view";
     private static readonly SELECTED_FONT_SIZE_KEY = "settings-selected-font-size";
@@ -97,11 +103,9 @@ export default class BookSettings {
 
         const offlineEnabled = await this.store.get(BookSettings.OFFLINE_ENABLED_KEY);
         if (offlineEnabled === "true") {
-            this.offlineEnabled = true;
+            this.offlineStatus = OfflineStatus.ENABLED;
         } else if (offlineEnabled === "false") {
-            this.offlineEnabled = false;
-        } else {
-            this.offlineEnabled = null;
+            this.offlineStatus = OfflineStatus.DISABLED;
         }
     }
 
@@ -207,10 +211,10 @@ export default class BookSettings {
         }
 
         this.offlineLink.addEventListener("click", (event: MouseEvent) => {
-            this.offlineEnabled = true;
+            this.offlineStatus = OfflineStatus.ENABLED;
             this.offlineEnabledCallback();
             this.updateOfflineLink();
-            this.storeOfflineEnabled(this.offlineEnabled);
+            this.storeOfflineEnabled(true);
             event.preventDefault();
         });
     }
@@ -242,7 +246,7 @@ export default class BookSettings {
     }
 
     private updateOfflineLink(): void {
-        if (this.offlineEnabled) {
+        if (this.getOfflineEnabled()) {
             this.offlineLink.style.display = "none";
         } else {
             this.offlineLink.style.display = "block";
@@ -258,12 +262,16 @@ export default class BookSettings {
     }
 
     public getOfflineEnabled(): boolean {
-        if (this.offlineEnabled === null) {
+        if (this.offlineStatus === OfflineStatus.NO_SELECTION) {
             const enable = window.confirm("Would you like to download this book to read offline?");
-            this.offlineEnabled = enable;
+            if (enable) {
+                this.offlineStatus = OfflineStatus.ENABLED;
+            } else {
+                this.offlineStatus = OfflineStatus.DISABLED;
+            }
             this.storeOfflineEnabled(enable);
         }
-        return this.offlineEnabled === true;
+        return this.offlineStatus === OfflineStatus.ENABLED;
     }
 
     public getOfflineStatusElement(): HTMLElement {
