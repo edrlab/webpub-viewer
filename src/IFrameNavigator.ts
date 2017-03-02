@@ -1,4 +1,5 @@
 import Navigator from "./Navigator";
+import Store from "./Store";
 import Cacher from "./Cacher";
 import PaginatedBookView from "./PaginatedBookView";
 import ScrollingBookView from "./ScrollingBookView";
@@ -41,6 +42,7 @@ interface ReadingPosition {
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
 export default class IFrameNavigator implements Navigator {
     private manifestUrl: URL;
+    private store: Store;
     private cacher: Cacher;
     private paginator: PaginatedBookView | null;
     private scroller: ScrollingBookView | null;
@@ -64,13 +66,14 @@ export default class IFrameNavigator implements Navigator {
     private newPosition: ReadingPosition | null;
     private isLoading: boolean;
 
-    public static async create(element: HTMLElement, manifestUrl: URL, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
-        const navigator = new this(cacher, settings, annotator, paginator, scroller);
+    public static async create(element: HTMLElement, manifestUrl: URL, store: Store, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
+        const navigator = new this(store, cacher, settings, annotator, paginator, scroller);
         await navigator.start(element, manifestUrl);
         return navigator;
     }
 
-    protected constructor(cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
+    protected constructor(store: Store, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
+        this.store = store;
         this.cacher = cacher;
         this.paginator = paginator;
         this.scroller = scroller;
@@ -169,7 +172,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private async loadManifest(): Promise<void> {
-        const manifest: Manifest = await this.cacher.getManifest(this.manifestUrl);
+        const manifest: Manifest = await Manifest.getManifest(this.manifestUrl, this.store);
 
         const toc = manifest.toc;
         if (toc.length) {
@@ -237,7 +240,7 @@ export default class IFrameNavigator implements Navigator {
         this.settings.getSelectedView().start(bookViewPosition);
         this.newPosition = null;
 
-        const manifest = await this.cacher.getManifest(this.manifestUrl);
+        const manifest = await Manifest.getManifest(this.manifestUrl, this.store);
         let currentLocation = this.iframe.src;
         if (this.iframe.contentDocument && this.iframe.contentDocument.location && this.iframe.contentDocument.location.href) {
             currentLocation = this.iframe.contentDocument.location.href;

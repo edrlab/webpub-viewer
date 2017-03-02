@@ -20,7 +20,6 @@
       var bookCacheUrl = new URL("appcache.html", window.location.href);
 
       var store = new LocalStorageStore.default(webpubManifestUrl);
-      //var cacher = new ApplicationCacheCacher.default(store, bookCacheUrl);
       var cacher = new ServiceWorkerCacher.default(store, webpubManifestUrl, "sw.js", bookCacheUrl);
 
       var paginator = new ColumnsPaginatedBookView.default();
@@ -29,7 +28,7 @@
       var fontSizes = [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32 ];
       var defaultFontSize = 16;
       BookSettings.default.create(store, [paginator, scroller], fontSizes, defaultFontSize).then(function (settings) {
-        IFrameNavigator.default.create(element, webpubManifestUrl, cacher, settings, annotator, paginator, scroller);
+        IFrameNavigator.default.create(element, webpubManifestUrl, store, cacher, settings, annotator, paginator, scroller);
       });
     });
   </script>

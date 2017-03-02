@@ -33,7 +33,7 @@ export default class ServiceWorkerCacher implements Cacher {
         const protocol = window.location.protocol;
         this.areServiceWorkersSupported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
         if (!this.areServiceWorkersSupported && fallbackBookCacheUrl) {
-            this.fallbackCacher = new ApplicationCacheCacher(store, fallbackBookCacheUrl);
+            this.fallbackCacher = new ApplicationCacheCacher(fallbackBookCacheUrl);
         }
     }
 
@@ -52,25 +52,6 @@ export default class ServiceWorkerCacher implements Cacher {
         }
 
         return new Promise<void>(resolve => resolve());
-    }
-
-    public async getManifest(manifestUrl: URL): Promise<Manifest> {
-        try {
-            const response = await window.fetch(manifestUrl.href)
-            const manifestJSON = await response.json();
-            await this.store.set("manifest", JSON.stringify(manifestJSON));
-            return new Manifest(manifestJSON, manifestUrl);
-        } catch (err) {
-            // We couldn't fetch the response, but there might be a cached version.
-            const manifestString = await this.store.get("manifest");
-            if (manifestString) {
-                const manifestJSON = JSON.parse(manifestString);
-                return new Manifest(manifestJSON, manifestUrl);
-            }
-            const response = await window.caches.match(manifestUrl.href);
-            const manifestJSON = await response.json();
-            return new Manifest(manifestJSON, manifestUrl);
-        }
     }
 
     private async verifyAndCacheManifest(manifestUrl: URL): Promise<void> {
@@ -98,7 +79,7 @@ export default class ServiceWorkerCacher implements Cacher {
     }
 
     private async cacheManifest(manifestUrl: URL): Promise<void> {
-        const manifest = await this.getManifest(manifestUrl);
+        const manifest = await Manifest.getManifest(manifestUrl, this.store);
         const promises = [this.cacheSpine(manifest, manifestUrl), this.cacheResources(manifest, manifestUrl)];
         for (const promise of promises) {
             await promise;

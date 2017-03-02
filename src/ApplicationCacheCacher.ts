@@ -1,6 +1,4 @@
 import Cacher from "./Cacher";
-import Store from "./Store";
-import Manifest from "./Manifest";
 import * as HTMLUtilities from "./HTMLUtilities";
 
 const template = `
@@ -24,32 +22,12 @@ const template = `
     once the cache is ready any of those files will be loaded from the cache.
     */
 export default class ApplicationCacheCacher implements Cacher {
-    private readonly store: Store;
     private readonly bookCacheUrl: URL;
     private statusElement: HTMLDivElement;
     private bookCacheElement: HTMLIFrameElement;
 
-    public constructor(store: Store, bookCacheUrl: URL) {
-        this.store = store;
+    public constructor(bookCacheUrl: URL) {
         this.bookCacheUrl = bookCacheUrl;
-    }
-
-    public async getManifest(manifestUrl: URL): Promise<Manifest> {
-        try {
-            const response = await window.fetch(manifestUrl.href)
-            const manifestJSON = await response.json();
-            await this.store.set("manifest", JSON.stringify(manifestJSON));
-            return new Manifest(manifestJSON, manifestUrl);
-        } catch (err) {
-            // We couldn't fetch the response, but there might be a cached version.
-            const manifestString = await this.store.get("manifest");
-            if (manifestString) {
-                const manifestJSON = JSON.parse(manifestString);
-                return new Manifest(manifestJSON, manifestUrl);
-            } else {
-                throw err;
-            }
-        }
     }
 
     public async enable(): Promise<void> {

@@ -14,7 +14,7 @@ const app = async (element: HTMLElement, manifestUrl: URL): Promise<IFrameNaviga
     const scroller = new ScrollingBookView();
     const fontSizes = [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32 ];
     const settings = await BookSettings.create(store, [paginator, scroller], fontSizes, 16);
-    return await IFrameNavigator.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
+    return await IFrameNavigator.create(element, manifestUrl, store, cacher, settings, annotator, paginator, scroller);
 };
 
 export default app;

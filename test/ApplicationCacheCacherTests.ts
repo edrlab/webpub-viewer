@@ -3,21 +3,13 @@ import { stub } from "sinon";
 import * as jsdom from "jsdom";
 
 import ApplicationCacheCacher from "../src/ApplicationCacheCacher";
-import MemoryStore from "../src/MemoryStore";
-import Manifest from "../src/Manifest";
 
 describe("ApplicationCacheCacher", () => {
-    let store: MemoryStore;
     let cacher: ApplicationCacheCacher;
     let element: HTMLElement;
 
-    const mockFetchAPI = (response: Promise<Response>) => {
-        window.fetch = stub().returns(response);
-    };
-
     beforeEach(() => {
-        store = new MemoryStore();
-        cacher = new ApplicationCacheCacher(store, new URL("http://example.com/fallback.html"));
+        cacher = new ApplicationCacheCacher(new URL("http://example.com/fallback.html"));
 
         const jsdomWindow = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
@@ -59,7 +51,7 @@ describe("ApplicationCacheCacher", () => {
                 }
             }
 
-            cacher = new MockCacher(store, new URL("http://example.com/fallback.html"));
+            cacher = new MockCacher(new URL("http://example.com/fallback.html"));
             cacher.renderStatus(element);
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
@@ -86,7 +78,7 @@ describe("ApplicationCacheCacher", () => {
                 }
             }
 
-            cacher = new MockCacher(store, new URL("http://example.com/fallback.html"));
+            cacher = new MockCacher(new URL("http://example.com/fallback.html"));
             await cacher.renderStatus(element);
             expect(element.innerHTML).to.contain("Not available");
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
@@ -114,49 +106,6 @@ describe("ApplicationCacheCacher", () => {
             expect(element.innerHTML).not.to.contain("Downloading");
             expect(element.innerHTML).not.to.contain("Not available");
             expect(element.innerHTML).to.contain("Downloaded");
-        });
-    });
-
-    describe("#getManifest", () => {
-        const manifestJSON = {
-            metadata: {
-                title: "Alice's Adventures in Wonderland"
-            }
-        };
-        const manifest = new Manifest(manifestJSON, new URL("https://example.com/manifest.json"));
-
-        describe("if fetching the manifest fails", () => {
-            const fetchFailure = new Promise((_, reject) => reject());
-
-            beforeEach(() => {
-                mockFetchAPI(fetchFailure);
-            })
-
-            it("should return cached manifest from local store", async () => {
-                const key = "manifest";
-                await store.set(key, JSON.stringify(manifestJSON));
-
-                const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
-                expect(response).to.deep.equal(manifest);
-            });
-        });
-
-        it("should return the response from fetch, and save it to local store", async () => {
-            const fetchResponse = ({
-                json: () => {
-                    return new Promise(resolve => resolve(manifestJSON));
-                }
-            } as any);
-            const fetchSuccess = new Promise(resolve => resolve(fetchResponse));
-
-            mockFetchAPI(fetchSuccess);
-
-            const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
-            expect(response).to.deep.equal(manifest);
-
-            const key = "manifest";
-            const storedValue = await store.get(key);
-            expect(storedValue).to.equal(JSON.stringify(manifestJSON));
         });
     });
 });

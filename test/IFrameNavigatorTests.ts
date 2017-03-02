@@ -3,6 +3,7 @@ import { stub } from "sinon";
 import * as jsdom from "jsdom";
 
 import IFrameNavigator from "../src/IFrameNavigator";
+import Store from "../src/Store";
 import Cacher from "../src/Cacher";
 import PaginatedBookView from "../src/PaginatedBookView";
 import ScrollingBookView from "../src/ScrollingBookView";
@@ -13,7 +14,8 @@ import { OfflineStatus } from "../src/BookSettings";
 import MemoryStore from "../src/MemoryStore";
 
 describe("IFrameNavigator", () => {
-    let getManifest: Sinon.SinonStub;
+    let store: Store;
+
     let enable: Sinon.SinonStub;
     let renderStatus: Sinon.SinonStub;
     let cacher: Cacher;
@@ -54,9 +56,6 @@ describe("IFrameNavigator", () => {
     let parentLinkClicked: Sinon.SinonStub;
 
     class MockCacher implements Cacher {
-        public getManifest(manifestUrl: URL) {
-            return getManifest(manifestUrl);
-        }
         public enable() {
             return enable();
         }
@@ -170,7 +169,8 @@ describe("IFrameNavigator", () => {
     };
 
     beforeEach(async () => {
-        getManifest = stub().returns(new Promise(resolve => resolve(manifest)));
+        store = new MemoryStore();
+        store.set("manifest", JSON.stringify(manifest));
         enable = stub();
         renderStatus = stub();
         cacher = new MockCacher();
@@ -200,7 +200,7 @@ describe("IFrameNavigator", () => {
         getOfflineStatus = stub().returns(OfflineStatus.DISABLED);
         getOfflineStatusElement = stub().returns(offlineStatusElement);
         askUserToEnableOfflineUse = stub();
-        settings = await MockSettings.create(new MemoryStore(), [paginator, scroller], [14, 16]);
+        settings = await MockSettings.create(store, [paginator, scroller], [14, 16]);
 
         const window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
@@ -218,7 +218,7 @@ describe("IFrameNavigator", () => {
 
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
-        navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), cacher, settings, annotator, paginator, scroller);
+        navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
 
         span = window.document.createElement("span");
         link = window.document.createElement("a");
@@ -321,7 +321,7 @@ describe("IFrameNavigator", () => {
             expect(enable.callCount).to.equal(0);
 
             getOfflineStatus.returns(OfflineStatus.ENABLED);
-            await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), cacher, settings, annotator, paginator, scroller);
+            await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
             expect(enable.callCount).to.equal(1);
         });
 
@@ -329,7 +329,7 @@ describe("IFrameNavigator", () => {
             expect(askUserToEnableOfflineUse.callCount).to.equal(0);
 
             getOfflineStatus.returns(OfflineStatus.NO_SELECTION);
-            await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), cacher, settings, annotator, paginator, scroller);
+            await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
             await pause(1);
             expect(askUserToEnableOfflineUse.callCount).to.equal(1);
         });

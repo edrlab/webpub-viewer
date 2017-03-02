@@ -1,6 +1,8 @@
 import { expect } from "chai";
+import { stub } from "sinon";
 
 import Manifest, { Link } from "../src/Manifest";
+import MemoryStore from "../src/MemoryStore";
 
 describe("Manifest", () => {
     let manifest: Manifest;
@@ -30,6 +32,54 @@ describe("Manifest", () => {
         }, new URL("http://example.com/manifest.json"));
 
         emptyManifest = new Manifest({}, new URL("http://example.com/manifest.json"));
+    });
+
+    describe("#getManifest", () => {
+        const manifestJSON = {
+            metadata: {
+                title: "Alice's Adventures in Wonderland"
+            }
+        };
+        const manifest = new Manifest(manifestJSON, new URL("https://example.com/manifest.json"));
+        const store = new MemoryStore();
+
+        const mockFetchAPI = (response: Promise<Response>) => {
+            window.fetch = stub().returns(response);
+        };
+
+        describe("if fetching the manifest fails", () => {
+            const fetchFailure = new Promise((_, reject) => reject());
+
+            beforeEach(() => {
+                mockFetchAPI(fetchFailure);
+            })
+
+            it("should return cached manifest from local store", async () => {
+                const key = "manifest";
+                await store.set(key, JSON.stringify(manifestJSON));
+
+                const response: Manifest = await Manifest.getManifest(new URL("https://example.com/manifest.json"), store);
+                expect(response).to.deep.equal(manifest);
+            });
+        });
+
+        it("should return the response from fetch, and save it to local store", async () => {
+            const fetchResponse = ({
+                json: () => {
+                    return new Promise(resolve => resolve(manifestJSON));
+                }
+            } as any);
+            const fetchSuccess = new Promise(resolve => resolve(fetchResponse));
+
+            mockFetchAPI(fetchSuccess);
+
+            const response: Manifest = await Manifest.getManifest(new URL("https://example.com/manifest.json"), store);
+            expect(response).to.deep.equal(manifest);
+
+            const key = "manifest";
+            const storedValue = await store.get(key);
+            expect(storedValue).to.equal(JSON.stringify(manifestJSON));
+        });
     });
 
     describe("#constructor", () => {

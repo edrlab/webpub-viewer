@@ -43,10 +43,6 @@ describe('ServiceWorkerCacher', () => {
         } as any);
     };
 
-    const mockFetchAPI = (response: Promise<Response>) => {
-        window.fetch = stub().returns(response);
-    };
-
     const pause = (ms = 0): Promise<void> => {
         return new Promise<void>(resolve => setTimeout(resolve, ms));
     };
@@ -131,14 +127,8 @@ describe('ServiceWorkerCacher', () => {
               ]
             }, new URL("https://example.com/manifest.json"));
 
-            // A Cacher with a mock implementation of getManifest, which
-            // is tested separately.
-            class MockCacher extends ServiceWorkerCacher {
-                public getManifest(): Promise<Manifest> {
-                    return new Promise((resolve) => resolve(manifest));
-                }
-            }
-            let cacher = new MockCacher(store, new URL("https://example.com/manifest.json"));
+            await store.set("manifest", JSON.stringify(manifest));
+            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
             cacher.renderStatus(element);
             await cacher.enable();
             let urlsThatWereCached: Array<string> = [];
@@ -181,64 +171,6 @@ describe('ServiceWorkerCacher', () => {
             expect(element.innerHTML).to.contain("Downloading");
             await pause();
             expect(element.innerHTML).to.contain("Downloaded");            
-        });
-    });
-
-    describe("#getManifest", () => {
-        const manifestJSON = {
-            metadata: {
-                title: "Alice's Adventures in Wonderland"
-            }
-        };
-        const manifest = new Manifest(manifestJSON, new URL("https://example.com/manifest.json"));
-
-        describe("if fetching the manifest fails", () => {
-            const fetchFailure = new Promise((_, reject) => reject());
-
-            beforeEach(() => {
-                mockFetchAPI(fetchFailure);
-            })
-
-            it("should return cached manifest from local store", async () => {
-                const key = "manifest";
-                await store.set(key, JSON.stringify(manifestJSON));
-
-                const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
-                const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
-                expect(response).to.deep.equal(manifest);
-            });
-
-            it("should return cached manifest from Cache API", async () => {
-                // There's nothing in the store.
-
-                const manifestResponse = ({
-                    json: stub().returns(new Promise(resolve => resolve(manifestJSON)))
-                } as any);
-                mockCacheAPI(manifestResponse);
-                
-                const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
-                const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
-                expect(response).to.deep.equal(manifest);
-            });
-        });
-
-        it("should return the response from fetch, and save it to local store", async () => {
-            const fetchResponse = ({
-                json: () => {
-                    return new Promise(resolve => resolve(manifestJSON));
-                }
-            } as any);
-            const fetchSuccess = new Promise(resolve => resolve(fetchResponse));
-
-            mockFetchAPI(fetchSuccess);
-
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
-            const response: Manifest = await cacher.getManifest(new URL("https://example.com/manifest.json"));
-            expect(response).to.deep.equal(manifest);
-
-            const key = "manifest";
-            const storedValue = await store.get(key);
-            expect(storedValue).to.equal(JSON.stringify(manifestJSON));
         });
     });
 });
