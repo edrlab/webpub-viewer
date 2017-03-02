@@ -8,6 +8,12 @@ const template = `
     <div class="cache-status"></div>
 `;
 
+enum CacheStatus {
+    NOT_STARTED,
+    STARTED,
+    FINISHED
+};
+
 /** Class that caches responses using ServiceWorker's Cache API, and optionally
     falls back to the application cache if service workers aren't available. */
 export default class ServiceWorkerCacher implements Cacher {
@@ -17,8 +23,7 @@ export default class ServiceWorkerCacher implements Cacher {
     private readonly areServiceWorkersSupported: boolean;
     private readonly fallbackCacher: ApplicationCacheCacher | null;
     private statusElement: HTMLDivElement;
-    private cachingStarted: boolean = false;
-    private cachingFinished: boolean = false;
+    private cacheStatus: CacheStatus = CacheStatus.NOT_STARTED;
 
     /** Create a ServiceWorkerCacher. */
     /** @param store Store to cache the manifest in. */
@@ -42,12 +47,12 @@ export default class ServiceWorkerCacher implements Cacher {
             return this.fallbackCacher.enable();
 
         } else if (this.areServiceWorkersSupported) {
-            this.cachingStarted = true;
+            this.cacheStatus = CacheStatus.STARTED;
             this.updateStatus();
             navigator.serviceWorker.register(this.serviceWorkerPath);
 
             await this.verifyAndCacheManifest(this.manifestUrl);
-            this.cachingFinished = true;
+            this.cacheStatus = CacheStatus.FINISHED;
             this.updateStatus();
         }
 
@@ -118,9 +123,9 @@ export default class ServiceWorkerCacher implements Cacher {
     }
 
     private updateStatus(): void {
-        if (this.cachingFinished) {
+        if (this.cacheStatus === CacheStatus.FINISHED) {
             this.statusElement.innerHTML = "Downloaded for offline use";
-        } else if (this.cachingStarted) {
+        } else if (this.cacheStatus === CacheStatus.STARTED) {
             this.statusElement.innerHTML = "Downloading for offline use";
         } else {
             this.statusElement.innerHTML = "Not available offline";
