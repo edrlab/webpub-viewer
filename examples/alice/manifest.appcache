@@ -1,6 +1,7 @@
 CACHE MANIFEST
 
 index.html
+main.css
 sw.js
 webpub-viewer.js
 require.js

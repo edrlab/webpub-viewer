@@ -4,7 +4,8 @@ const urlsToCache: any = [
     "require.js",
     "fetch.js",
     "webpub-viewer.js",
-    "index.html"
+    "index.html",
+    "main.css"
 ];
 
 self.addEventListener('install', event => {
