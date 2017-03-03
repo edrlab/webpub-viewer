@@ -11,7 +11,7 @@
   color: $nypl-white;
   font-family: $sans-serif-stack;
   font-size: $basefont;
-  height: 4.65rem;
+  height: 2.65rem;
   position: fixed;
   right: 0;
   top: 0;
@@ -30,6 +30,25 @@
     position: relative;
     padding: 0.125rem;
     text-align: center;
+
+    &.top {
+      background-color: $nypl-gray;
+
+      li:nth-child(3) {
+        float: right;
+      }
+    }
+
+    &.bottom {
+      border-top: 0.16rem solid $nypl-black;
+      bottom: 0;
+      position: fixed;
+      width: 100%;
+
+      @media (min-width: 375px) {
+        background-color: darken($nypl-gray, 15%);
+        }
+      }
     }
 
   ul li {

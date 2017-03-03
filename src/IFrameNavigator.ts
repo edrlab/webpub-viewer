@@ -10,12 +10,14 @@ import * as HTMLUtilities from "./HTMLUtilities";
 const template = `
   <nav class="publication">
     <div class="controls">
-      <ul class="links" style="z-index: 2000;">
+      <ul class="links top" style="z-index: 2000;">
         <li><a rel="start" class="disabled">Start</a></li>
         <li><a rel="contents" class="disabled">Contents</a></li>
+        <li><a class="settings">Settings</a></li>
+      </ul>
+      <ul class="links bottom" style="z-index: 2000;">
         <li><a rel="prev" class="disabled">Previous Chapter</a></li>
         <li><a rel="next" class="disabled">Next Chapter</a></li>
-        <li><a class="settings">Settings</a></li>
       </ul>
       <div class="pagination-controls" style="-webkit-tap-highlight-color: transparent; display: none;">
         <div class="previous-page" style="position: fixed; top: 0; left: 0; width: 30%; height: 100%; z-index: 1000;"></div>
@@ -53,6 +55,7 @@ export default class IFrameNavigator implements Navigator {
     private settingsLink: HTMLAnchorElement;
     public navigation: Element;
     private links: HTMLUListElement;
+    private linksBottom: HTMLUListElement;
     private tocView: HTMLDivElement;
     private settingsView: HTMLDivElement;
     private loadingMessage: HTMLDivElement;
@@ -88,7 +91,8 @@ export default class IFrameNavigator implements Navigator {
             this.contentsLink = HTMLUtilities.findRequiredElement(element, "a[rel=contents]") as HTMLAnchorElement;
             this.settingsLink = HTMLUtilities.findRequiredElement(element, "a[class=settings]") as HTMLAnchorElement;
             this.navigation = HTMLUtilities.findRequiredElement(element, "div[class=controls]");
-            this.links = HTMLUtilities.findRequiredElement(element, "ul[class=links]") as HTMLUListElement;
+            this.links = HTMLUtilities.findRequiredElement(element, "ul[class='links top']") as HTMLUListElement;
+            this.linksBottom = HTMLUtilities.findRequiredElement(element, "ul[class='links bottom']") as HTMLUListElement;
             this.tocView = HTMLUtilities.findRequiredElement(element, "div[class='contents-view controls-view']") as HTMLDivElement;
             this.settingsView = HTMLUtilities.findRequiredElement(element, "div[class='settings-view controls-view']") as HTMLDivElement;
             this.loadingMessage = HTMLUtilities.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
@@ -285,7 +289,7 @@ export default class IFrameNavigator implements Navigator {
                 window.location.port === link.port &&
                 window.location.hostname === link.hostname
             );
-            if (isSameOrigin) { 
+            if (isSameOrigin) {
                 const newEvent = new MouseEvent(event.type, event);
                 link.dispatchEvent(newEvent);
             } else {
@@ -310,6 +314,7 @@ export default class IFrameNavigator implements Navigator {
         this.hideTOC();
         if (!this.checkForIFrameLink(event)) {
             this.toggleDisplay(this.links);
+            this.toggleDisplay(this.linksBottom);
         }
     }
 
