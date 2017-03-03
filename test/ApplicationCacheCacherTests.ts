@@ -7,11 +7,12 @@ import ApplicationCacheCacher from "../src/ApplicationCacheCacher";
 describe("ApplicationCacheCacher", () => {
     let cacher: ApplicationCacheCacher;
     let element: HTMLElement;
+    let jsdomWindow: Window;
 
     beforeEach(() => {
         cacher = new ApplicationCacheCacher(new URL("http://example.com/fallback.html"));
 
-        const jsdomWindow = jsdom.jsdom("", ({
+        jsdomWindow = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
             virtualConsole: jsdom.createVirtualConsole().sendTo(console),
             resourceLoader: (_: any, callback: any) => {
@@ -25,9 +26,6 @@ describe("ApplicationCacheCacher", () => {
         } as any)).defaultView;
 
         element = jsdomWindow.document.createElement("div");
-
-        // The element must be in a document for iframe load events to work.
-        jsdomWindow.document.body.appendChild(element);
 
         (window as any).applicationCache = {
             UNCACHED: 0,
@@ -53,12 +51,12 @@ describe("ApplicationCacheCacher", () => {
 
             cacher = new MockCacher(new URL("http://example.com/fallback.html"));
             cacher.renderStatus(element);
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
             expect(updateStatus.callCount).to.equal(1);
 
             await cacher.enable();
             expect(updateStatus.callCount).to.equal(2);
+            const iframe = document.body.querySelector("iframe") as HTMLIFrameElement;
             expect(iframe.src).to.equal("http://example.com/fallback.html");
 
             // The iframe load handler should be tested here too, but I
@@ -69,10 +67,17 @@ describe("ApplicationCacheCacher", () => {
 
     describe("#renderStatus", () => {
         it("should render status updates based on application cache status", async () => {
+            const iframe = document.createElement("iframe");
+            // The element must be in a document for iframe load events to work.
+            jsdomWindow.document.body.appendChild(iframe);
+
+            iframe.src = "http://example.com/test";
+
             // Cacher with a mock implementation of enable, which
             // is tested separately.
             class MockCacher extends ApplicationCacheCacher {
                 public enable() {
+                    this.bookCacheElement = iframe;
                     this.updateStatus();
                     return new Promise<void>(resolve => resolve());
                 }
@@ -81,7 +86,6 @@ describe("ApplicationCacheCacher", () => {
             cacher = new MockCacher(new URL("http://example.com/fallback.html"));
             await cacher.renderStatus(element);
             expect(element.innerHTML).to.contain("Not available");
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             (iframe.contentWindow as any).applicationCache = {};
 
             (iframe.contentWindow as any).applicationCache.status = window.applicationCache.UPDATEREADY;

@@ -3,8 +3,6 @@ import * as HTMLUtilities from "./HTMLUtilities";
 
 const template = `
     <div class="cache-status"></div>
-    <iframe style="display: none">
-    </iframe>
 `;
 
 /** Class that caches files using the (deprecated) application cache API. 
@@ -24,13 +22,16 @@ const template = `
 export default class ApplicationCacheCacher implements Cacher {
     private readonly bookCacheUrl: URL;
     private statusElement: HTMLDivElement;
-    private bookCacheElement: HTMLIFrameElement;
+    protected bookCacheElement: HTMLIFrameElement;
 
     public constructor(bookCacheUrl: URL) {
         this.bookCacheUrl = bookCacheUrl;
     }
 
     public async enable(): Promise<void> {
+        this.bookCacheElement = window.document.createElement("iframe");
+        this.bookCacheElement.style.display = "none";
+        window.document.body.appendChild(this.bookCacheElement);
         this.bookCacheElement.src = this.bookCacheUrl.href;
         this.updateStatus();
 
@@ -53,7 +54,6 @@ export default class ApplicationCacheCacher implements Cacher {
     public renderStatus(element: HTMLElement): void {
         element.innerHTML = template;
         this.statusElement = HTMLUtilities.findRequiredElement(element, "div[class=cache-status]") as HTMLDivElement;
-        this.bookCacheElement = HTMLUtilities.findRequiredElement(element, "iframe") as HTMLIFrameElement;
         this.updateStatus();
     }
 
