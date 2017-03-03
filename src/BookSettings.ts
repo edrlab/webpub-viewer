@@ -277,6 +277,7 @@ export default class BookSettings {
         } else {
             this.offlineStatus = OfflineStatus.DISABLED;
         }
+        this.updateOfflineLink();
         await this.storeOfflineEnabled(enable);
     }
 

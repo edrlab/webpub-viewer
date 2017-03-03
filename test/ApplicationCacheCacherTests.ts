@@ -3,6 +3,7 @@ import { stub } from "sinon";
 import * as jsdom from "jsdom";
 
 import ApplicationCacheCacher from "../src/ApplicationCacheCacher";
+import { CacheStatus } from "../src/Cacher";
 
 describe("ApplicationCacheCacher", () => {
     let cacher: ApplicationCacheCacher;
@@ -50,12 +51,9 @@ describe("ApplicationCacheCacher", () => {
             }
 
             cacher = new MockCacher(new URL("http://example.com/fallback.html"));
-            cacher.renderStatus(element);
-
-            expect(updateStatus.callCount).to.equal(1);
 
             await cacher.enable();
-            expect(updateStatus.callCount).to.equal(2);
+            expect(updateStatus.callCount).to.equal(1);
             const iframe = document.body.querySelector("iframe") as HTMLIFrameElement;
             expect(iframe.src).to.equal("http://example.com/fallback.html");
 
@@ -65,8 +63,8 @@ describe("ApplicationCacheCacher", () => {
         });
     });
 
-    describe("#renderStatus", () => {
-        it("should render status updates based on application cache status", async () => {
+    describe("#onStatusUpdate", () => {
+        it("should provide status updates based on application cache status", async () => {
             const iframe = document.createElement("iframe");
             // The element must be in a document for iframe load events to work.
             jsdomWindow.document.body.appendChild(iframe);
@@ -74,42 +72,50 @@ describe("ApplicationCacheCacher", () => {
             iframe.src = "http://example.com/test";
 
             // Cacher with a mock implementation of enable, which
-            // is tested separately.
+            // is tested separately, and a method to simulate an error.
             class MockCacher extends ApplicationCacheCacher {
                 public enable() {
                     this.bookCacheElement = iframe;
                     this.updateStatus();
                     return new Promise<void>(resolve => resolve());
                 }
+
+                public error() {
+                    this.handleError();
+                }
             }
 
-            cacher = new MockCacher(new URL("http://example.com/fallback.html"));
-            await cacher.renderStatus(element);
-            expect(element.innerHTML).to.contain("Not available");
+            const callback = stub();
+
+            const cacher: MockCacher = new MockCacher(new URL("http://example.com/fallback.html"));
+            cacher.onStatusUpdate(callback);
+            expect(callback.callCount).to.equal(1);
+            expect(callback.args[0][0]).to.equal(CacheStatus.UNCACHED);
             (iframe.contentWindow as any).applicationCache = {};
 
             (iframe.contentWindow as any).applicationCache.status = window.applicationCache.UPDATEREADY;
             await cacher.enable();
-            expect(element.innerHTML).not.to.contain("Not available");
-            expect(element.innerHTML).to.contain("Update");
+            expect(callback.callCount).to.equal(2);
+            expect(callback.args[1][0]).to.equal(CacheStatus.UPDATE_AVAILABLE);
 
             (iframe.contentWindow as any).applicationCache.status = window.applicationCache.DOWNLOADING;
             await cacher.enable();
-            expect(element.innerHTML).not.to.contain("Update");
-            expect(element.innerHTML).to.contain("Downloading");
+            expect(callback.callCount).to.equal(3);
+            expect(callback.args[2][0]).to.equal(CacheStatus.DOWNLOADING);
 
             (iframe.contentWindow as any).applicationCache.status = window.applicationCache.OBSOLETE;
             await cacher.enable();
-            expect(element.innerHTML).not.to.contain("Update");
-            expect(element.innerHTML).not.to.contain("Downloading");
-            expect(element.innerHTML).to.contain("Not available");
+            expect(callback.callCount).to.equal(4);
+            expect(callback.args[3][0]).to.equal(CacheStatus.UNCACHED);
 
             (iframe.contentWindow as any).applicationCache.status = window.applicationCache.IDLE;
             await cacher.enable();
-            expect(element.innerHTML).not.to.contain("Update");
-            expect(element.innerHTML).not.to.contain("Downloading");
-            expect(element.innerHTML).not.to.contain("Not available");
-            expect(element.innerHTML).to.contain("Downloaded");
+            expect(callback.callCount).to.equal(5);
+            expect(callback.args[4][0]).to.equal(CacheStatus.DOWNLOADED);
+
+            cacher.error();
+            expect(callback.callCount).to.equal(6);
+            expect(callback.args[5][0]).to.equal(CacheStatus.ERROR);
         });
     });
 });

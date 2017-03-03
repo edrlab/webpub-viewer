@@ -1,9 +1,5 @@
 import Cacher from "./Cacher";
-import * as HTMLUtilities from "./HTMLUtilities";
-
-const template = `
-    <div class="cache-status"></div>
-`;
+import { CacheStatus } from "./Cacher";
 
 /** Class that caches files using the (deprecated) application cache API. 
     This is necessary until Service Worker support improves.
@@ -21,8 +17,8 @@ const template = `
     */
 export default class ApplicationCacheCacher implements Cacher {
     private readonly bookCacheUrl: URL;
-    private statusElement: HTMLDivElement;
     protected bookCacheElement: HTMLIFrameElement;
+    private statusUpdateCallback: (status: CacheStatus) => void;
 
     public constructor(bookCacheUrl: URL) {
         this.bookCacheUrl = bookCacheUrl;
@@ -43,7 +39,7 @@ export default class ApplicationCacheCacher implements Cacher {
             bookCache.oncached = this.updateStatus.bind(this);
             bookCache.onchecking = this.updateStatus.bind(this);
             bookCache.ondownloading = this.updateStatus.bind(this);
-            bookCache.onerror = this.updateStatus.bind(this);
+            bookCache.onerror = this.handleError.bind(this);
             bookCache.onnoupdate = this.updateStatus.bind(this);
             bookCache.onupdateready = this.updateStatus.bind(this);
         });
@@ -51,36 +47,44 @@ export default class ApplicationCacheCacher implements Cacher {
         return new Promise<void>(resolve => resolve());
     }
 
-    public renderStatus(element: HTMLElement): void {
-        element.innerHTML = template;
-        this.statusElement = HTMLUtilities.findRequiredElement(element, "div[class=cache-status]") as HTMLDivElement;
+    public onStatusUpdate(callback: (status: CacheStatus) => void): void {
+        this.statusUpdateCallback = callback;
         this.updateStatus();
     }
 
     protected updateStatus() {
-        let status = "";
-        let bookCacheStatus = window.applicationCache.UNCACHED;
+        let status: CacheStatus;
+        let appCacheStatus = window.applicationCache.UNCACHED;
         if (this.bookCacheElement &&
             this.bookCacheElement.contentWindow.applicationCache &&
             this.bookCacheElement.contentWindow.applicationCache.status !== undefined) {
-            bookCacheStatus = this.bookCacheElement.contentWindow.applicationCache.status;
+            appCacheStatus = this.bookCacheElement.contentWindow.applicationCache.status;
         }
 
-        if (bookCacheStatus === window.applicationCache.UPDATEREADY) {
-            status = "Update available";
+        if (appCacheStatus === window.applicationCache.UPDATEREADY) {
+            status = CacheStatus.UPDATE_AVAILABLE;
         } else if (
-            bookCacheStatus === window.applicationCache.DOWNLOADING) {
-            status = "Downloading for offline use";
+            appCacheStatus === window.applicationCache.DOWNLOADING) {
+            status = CacheStatus.DOWNLOADING;
         } else if (
-            bookCacheStatus === window.applicationCache.UNCACHED ||
-            bookCacheStatus === window.applicationCache.OBSOLETE) {
-            status = "Not available offline";
+            appCacheStatus === window.applicationCache.UNCACHED ||
+            appCacheStatus === window.applicationCache.OBSOLETE) {
+            status = CacheStatus.UNCACHED;
         } else if (
-            bookCacheStatus === window.applicationCache.CHECKING) {
-            status = "Checking for update";
+            appCacheStatus === window.applicationCache.CHECKING) {
+            status = CacheStatus.CHECKING_FOR_UPDATE;
         } else {
-            status = "Downloaded for offline use";
+            status = CacheStatus.DOWNLOADED;
         }
-        this.statusElement.innerHTML = status;
+
+        if (this.statusUpdateCallback) {
+            this.statusUpdateCallback(status);
+        }
+    }
+
+    protected handleError() {
+        if (this.statusUpdateCallback) {
+            this.statusUpdateCallback(CacheStatus.ERROR);
+        }
     }
 }

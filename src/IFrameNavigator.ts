@@ -1,6 +1,7 @@
 import Navigator from "./Navigator";
 import Store from "./Store";
 import Cacher from "./Cacher";
+import { CacheStatus } from "./Cacher";
 import PaginatedBookView from "./PaginatedBookView";
 import ScrollingBookView from "./ScrollingBookView";
 import Annotator from "./Annotator";
@@ -114,7 +115,7 @@ export default class IFrameNavigator implements Navigator {
             this.settings.onViewChange(this.updateBookView.bind(this));
             this.settings.onFontSizeChange(this.updateFontSize.bind(this));
             this.settings.onOfflineEnabled(this.enableOffline.bind(this));
-            this.cacher.renderStatus(this.settings.getOfflineStatusElement());
+            this.cacher.onStatusUpdate(this.updateOfflineCacheStatus.bind(this));
             if (this.settings.getOfflineStatus() === OfflineStatus.ENABLED) {
                 this.enableOffline();
             }
@@ -169,6 +170,27 @@ export default class IFrameNavigator implements Navigator {
 
     private enableOffline(): void {
         this.cacher.enable();
+    }
+
+    private updateOfflineCacheStatus(status: CacheStatus): void {
+        const statusElement = this.settings.getOfflineStatusElement();
+
+        let statusMessage = "";
+        if (status === CacheStatus.UNCACHED) {
+            statusMessage = "Not available offline";
+        } else if (status === CacheStatus.UPDATE_AVAILABLE) {
+            statusMessage = "A new version is available. Refresh to update.";
+        } else if (status === CacheStatus.CHECKING_FOR_UPDATE) {
+            statusMessage = "Checking for update.";
+        } else if (status === CacheStatus.DOWNLOADING) {
+            statusMessage = "Downloading for offline use";
+        } else if (status === CacheStatus.DOWNLOADED) {
+            statusMessage = "Downloaded for offline use";
+        } else if (status === CacheStatus.ERROR) {
+            statusMessage = "Error downloading for offline use";
+        }
+
+        statusElement.innerHTML = statusMessage;
     }
 
     private async loadManifest(): Promise<void> {

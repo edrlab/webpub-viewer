@@ -5,6 +5,7 @@ import * as jsdom from "jsdom";
 import IFrameNavigator from "../src/IFrameNavigator";
 import Store from "../src/Store";
 import Cacher from "../src/Cacher";
+import { CacheStatus } from "../src/Cacher";
 import PaginatedBookView from "../src/PaginatedBookView";
 import ScrollingBookView from "../src/ScrollingBookView";
 import Annotator from "../src/Annotator";
@@ -17,7 +18,7 @@ describe("IFrameNavigator", () => {
     let store: Store;
 
     let enable: Sinon.SinonStub;
-    let renderStatus: Sinon.SinonStub;
+    let onStatusUpdate: Sinon.SinonStub;
     let cacher: Cacher;
 
     let paginatorStart: Sinon.SinonStub;
@@ -59,8 +60,8 @@ describe("IFrameNavigator", () => {
         public enable() {
             return enable();
         }
-        public renderStatus(element: HTMLElement) {
-            return renderStatus(element);
+        public onStatusUpdate(callback: (status: CacheStatus) => void) {
+            return onStatusUpdate(callback);
         }
     }
 
@@ -172,7 +173,7 @@ describe("IFrameNavigator", () => {
         store = new MemoryStore();
         store.set("manifest", JSON.stringify(manifest));
         enable = stub();
-        renderStatus = stub();
+        onStatusUpdate = stub();
         cacher = new MockCacher();
 
         paginatorStart = stub();
@@ -312,9 +313,27 @@ describe("IFrameNavigator", () => {
             expect(enable.callCount).to.equal(1);
         });
 
-        it("should render the cacher status", () => {
-           expect(renderStatus.callCount).to.equal(1);
-           expect(renderStatus.args[0][0]).to.equal(offlineStatusElement);
+        it("should render the cache status", () => {
+           expect(onStatusUpdate.callCount).to.equal(1);
+           const callback = onStatusUpdate.args[0][0];
+
+           callback(CacheStatus.UNCACHED);
+           expect(offlineStatusElement.innerHTML).to.contain("Not available");
+
+           callback(CacheStatus.UPDATE_AVAILABLE);
+           expect(offlineStatusElement.innerHTML).to.contain("new version");
+
+           callback(CacheStatus.CHECKING_FOR_UPDATE);
+           expect(offlineStatusElement.innerHTML).to.contain("Checking");
+
+           callback(CacheStatus.DOWNLOADING);
+           expect(offlineStatusElement.innerHTML).to.contain("Downloading");
+
+           callback(CacheStatus.DOWNLOADED);
+           expect(offlineStatusElement.innerHTML).to.contain("Downloaded");
+
+           callback(CacheStatus.ERROR);
+           expect(offlineStatusElement.innerHTML).to.contain("Error");
         });
 
         it("should enable the cacher if offline is enabled in the settings", async () => {
@@ -330,7 +349,7 @@ describe("IFrameNavigator", () => {
 
             getOfflineStatus.returns(OfflineStatus.NO_SELECTION);
             await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
-            await pause(1);
+            await pause(10);
             expect(askUserToEnableOfflineUse.callCount).to.equal(1);
         });
 

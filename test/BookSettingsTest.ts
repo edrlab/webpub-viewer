@@ -360,16 +360,21 @@ describe("BookSettings", () => {
         });
     });
 
-    describe("#askUserToEnabledOfflineUse", () => {
+    describe("#askUserToEnableOfflineUse", () => {
         it("sets offline status based on user's response", async () => {
             const offlineEnabled = stub();
             settings.onOfflineEnabled(offlineEnabled);
+
+            const element = document.createElement("div");
+            settings.renderControls(element);
 
             const confirmStub = stub(window, "confirm").returns(true);
             await settings.askUserToEnableOfflineUse();
             expect(settings.getOfflineStatus()).to.equal(OfflineStatus.ENABLED);
             let storedSetting = await store.get("settings-offline-enabled");
             expect(storedSetting).to.equal("true");
+            let offlineLink = element.querySelector("a[class='enable-offline']") as HTMLAnchorElement;
+            expect(offlineLink.style.display).to.equal("none");
             expect(offlineEnabled.callCount).to.equal(1);
 
             confirmStub.returns(false);
@@ -377,6 +382,7 @@ describe("BookSettings", () => {
             expect(settings.getOfflineStatus()).to.equal(OfflineStatus.DISABLED);
             storedSetting = await store.get("settings-offline-enabled");
             expect(storedSetting).to.equal("false");
+            expect(offlineLink.style.display).not.to.equal("none");
             expect(offlineEnabled.callCount).to.equal(1);
         });
     });

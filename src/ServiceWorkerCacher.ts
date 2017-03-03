@@ -1,18 +1,8 @@
 import Cacher from "./Cacher";
+import { CacheStatus } from "./Cacher";
 import Store from "./Store";
 import Manifest from "./Manifest";
-import * as HTMLUtilities from "./HTMLUtilities";
 import ApplicationCacheCacher from "./ApplicationCacheCacher";
-
-const template = `
-    <div class="cache-status"></div>
-`;
-
-enum CacheStatus {
-    NOT_STARTED,
-    STARTED,
-    FINISHED
-};
 
 /** Class that caches responses using ServiceWorker's Cache API, and optionally
     falls back to the application cache if service workers aren't available. */
@@ -22,8 +12,8 @@ export default class ServiceWorkerCacher implements Cacher {
     private readonly manifestUrl: URL;
     private readonly areServiceWorkersSupported: boolean;
     private readonly fallbackCacher: ApplicationCacheCacher | null;
-    private statusElement: HTMLDivElement;
-    private cacheStatus: CacheStatus = CacheStatus.NOT_STARTED;
+    private cacheStatus: CacheStatus = CacheStatus.UNCACHED;
+    private statusUpdateCallback: (status: CacheStatus) => void;
 
     /** Create a ServiceWorkerCacher. */
     /** @param store Store to cache the manifest in. */
@@ -47,13 +37,18 @@ export default class ServiceWorkerCacher implements Cacher {
             return this.fallbackCacher.enable();
 
         } else if (this.areServiceWorkersSupported) {
-            this.cacheStatus = CacheStatus.STARTED;
+            this.cacheStatus = CacheStatus.DOWNLOADING;
             this.updateStatus();
             navigator.serviceWorker.register(this.serviceWorkerPath);
 
-            await this.verifyAndCacheManifest(this.manifestUrl);
-            this.cacheStatus = CacheStatus.FINISHED;
-            this.updateStatus();
+            try {
+                await this.verifyAndCacheManifest(this.manifestUrl);
+                this.cacheStatus = CacheStatus.DOWNLOADED;
+                this.updateStatus();
+            } catch (err) {
+                this.cacheStatus = CacheStatus.ERROR;
+                this.updateStatus();
+            }
         }
 
         return new Promise<void>(resolve => resolve());
@@ -73,8 +68,9 @@ export default class ServiceWorkerCacher implements Cacher {
                    await promise;
                 }
             }
-        } finally {
             return new Promise<void>(resolve => resolve());
+        } catch (err) {
+            return new Promise<void>((_, reject) => reject());
         }
     }
 
@@ -112,23 +108,18 @@ export default class ServiceWorkerCacher implements Cacher {
         return await this.cacheUrls(urls, manifestUrl);
     }
 
-    public renderStatus(element: HTMLElement): void {
+    public onStatusUpdate(callback: (status: CacheStatus) => void) {
         if (this.fallbackCacher) {
-            return this.fallbackCacher.renderStatus(element);
+           this.fallbackCacher.onStatusUpdate(callback);
         } else {
-            element.innerHTML = template;
-            this.statusElement = HTMLUtilities.findRequiredElement(element, "div[class=cache-status]") as HTMLDivElement;        
+            this.statusUpdateCallback = callback;
             this.updateStatus();
         }
     }
 
     private updateStatus(): void {
-        if (this.cacheStatus === CacheStatus.FINISHED) {
-            this.statusElement.innerHTML = "Downloaded for offline use";
-        } else if (this.cacheStatus === CacheStatus.STARTED) {
-            this.statusElement.innerHTML = "Downloading for offline use";
-        } else {
-            this.statusElement.innerHTML = "Not available offline";
+        if (this.statusUpdateCallback) {
+            this.statusUpdateCallback(this.cacheStatus);
         }
     }
 }
