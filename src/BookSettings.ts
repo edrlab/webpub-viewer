@@ -40,9 +40,9 @@ export default class BookSettings {
     private offlineLink: HTMLAnchorElement;
     private offlineStatusElement: HTMLElement;
 
-    private viewChangeCallback: () => void;
-    private fontSizeChangeCallback: () => void;
-    private offlineEnabledCallback: () => void;
+    private viewChangeCallback: () => void = () => {};
+    private fontSizeChangeCallback: () => void = () => {};
+    private offlineEnabledCallback: () => void = () => {};
 
     private selectedView: BookView;
     private selectedFontSize: string;
@@ -172,9 +172,7 @@ export default class BookSettings {
                     this.selectedView = view;
                     this.updateViewLinks();
                     this.storeSelectedView(view);
-                    if (this.viewChangeCallback) {
-                        this.viewChangeCallback();
-                    }
+                    this.viewChangeCallback();
                     event.preventDefault();
                 });
             }
@@ -186,9 +184,7 @@ export default class BookSettings {
                 if (currentFontSizeIndex > 0) {
                     const newFontSize = this.fontSizes[currentFontSizeIndex - 1];
                     this.selectedFontSize = newFontSize;
-                    if (this.fontSizeChangeCallback) {
-                        this.fontSizeChangeCallback();
-                    }
+                    this.fontSizeChangeCallback();
                     this.updateFontSizeLinks();
                     this.storeSelectedFontSize(newFontSize);
                 }
@@ -200,9 +196,7 @@ export default class BookSettings {
                 if (currentFontSizeIndex < this.fontSizes.length - 1) {
                     const newFontSize = this.fontSizes[currentFontSizeIndex + 1];
                     this.selectedFontSize = newFontSize;
-                    if (this.fontSizeChangeCallback) {
-                        this.fontSizeChangeCallback();
-                    }
+                    this.fontSizeChangeCallback();
                     this.updateFontSizeLinks();
                     this.storeSelectedFontSize(newFontSize);
                 }
@@ -212,9 +206,7 @@ export default class BookSettings {
 
         this.offlineLink.addEventListener("click", (event: MouseEvent) => {
             this.offlineStatus = OfflineStatus.ENABLED;
-            if (this.offlineEnabledCallback) {
-                this.offlineEnabledCallback();
-            }
+            this.offlineEnabledCallback();
             this.updateOfflineLink();
             this.storeOfflineEnabled(true);
             event.preventDefault();
@@ -271,9 +263,7 @@ export default class BookSettings {
         const enable = window.confirm("Would you like to download this book to read offline?");
         if (enable) {
             this.offlineStatus = OfflineStatus.ENABLED;
-            if (this.offlineEnabledCallback) {
-                this.offlineEnabledCallback();
-            }
+            this.offlineEnabledCallback();
         } else {
             this.offlineStatus = OfflineStatus.DISABLED;
         }

@@ -13,7 +13,7 @@ export default class ServiceWorkerCacher implements Cacher {
     private readonly areServiceWorkersSupported: boolean;
     private readonly fallbackCacher: ApplicationCacheCacher | null;
     private cacheStatus: CacheStatus = CacheStatus.UNCACHED;
-    private statusUpdateCallback: (status: CacheStatus) => void;
+    private statusUpdateCallback: (status: CacheStatus) => void = () => {};
 
     /** Create a ServiceWorkerCacher. */
     /** @param store Store to cache the manifest in. */
@@ -118,8 +118,6 @@ export default class ServiceWorkerCacher implements Cacher {
     }
 
     private updateStatus(): void {
-        if (this.statusUpdateCallback) {
-            this.statusUpdateCallback(this.cacheStatus);
-        }
+        this.statusUpdateCallback(this.cacheStatus);
     }
 }

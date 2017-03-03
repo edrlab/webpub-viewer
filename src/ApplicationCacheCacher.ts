@@ -18,7 +18,7 @@ import { CacheStatus } from "./Cacher";
 export default class ApplicationCacheCacher implements Cacher {
     private readonly bookCacheUrl: URL;
     protected bookCacheElement: HTMLIFrameElement;
-    private statusUpdateCallback: (status: CacheStatus) => void;
+    private statusUpdateCallback: (status: CacheStatus) => void = () => {};
 
     public constructor(bookCacheUrl: URL) {
         this.bookCacheUrl = bookCacheUrl;
@@ -77,14 +77,10 @@ export default class ApplicationCacheCacher implements Cacher {
             status = CacheStatus.DOWNLOADED;
         }
 
-        if (this.statusUpdateCallback) {
-            this.statusUpdateCallback(status);
-        }
+        this.statusUpdateCallback(status);
     }
 
     protected handleError() {
-        if (this.statusUpdateCallback) {
-            this.statusUpdateCallback(CacheStatus.ERROR);
-        }
+        this.statusUpdateCallback(CacheStatus.ERROR);
     }
 }
