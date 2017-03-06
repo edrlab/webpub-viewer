@@ -6,6 +6,10 @@
 @import "type";
 
 // Navigation Control
+// Temp grayscaling for ease of styling...
+body {
+  filter: grayscale(1);
+}
 
 .controls {
   color: $nypl-white;
@@ -30,6 +34,25 @@
     position: relative;
     padding: 0.125rem;
     text-align: center;
+
+    .icon {
+      color: $nypl-white;
+      fill: $nypl-white;
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .setting-text {
+      display: none;
+    }
+
+    @media (min-width: 489px) {
+      .setting-text {
+        display: inline-block;
+        position: relative;
+        top: -0.8rem;
+      }
+    }
 
     &.top {
       background-color: $nypl-gray;
