@@ -41,9 +41,25 @@ body {
       width: 2rem;
       height: 2rem;
     }
+    svg[aria-label="settings"] {
+      height: 1.5rem;
+      width: 1.5rem;
+    }
 
+    svg[aria-label="contents"] {
+      height: 1.75rem;
+      width: 1.75rem;
+    }
     .setting-text {
       display: none;
+
+      &.settings {
+        top: -0.4rem;
+      }
+
+      &.contents {
+        top: -0.55rem;
+      }
     }
 
     @media (min-width: 489px) {
@@ -71,6 +87,10 @@ body {
       @media (min-width: 375px) {
         background-color: darken($nypl-gray, 15%);
         }
+
+        .chapter-control {
+          display: none;
+        }
       }
     }
 
@@ -95,27 +115,32 @@ body {
 }
 
 .controls-view {
+  font-family: $sans-serif-stack;
   height: calc(100% - 2rem);
   left: 0;
   overflow: scroll;
   position: fixed;
   padding: 0.625rem;
-  top: 4.75rem;
+  top: 2.75rem;
   width: 100%;
 
   @media (min-width: 489px) {
     top: 2.55rem;
   }
 
+  ul {
+    list-style: none;
+  }
 
   .active {
     background-color: $nypl-gray-cool;
   }
 
   .disabled {
-    background-color: $nypl-red-dark;
+    background-color: darken($nypl-gray-cool, 20%);
+    }
   }
-}
+
 
 .contents-view {
   background-color: $nypl-white;
@@ -124,7 +149,7 @@ body {
 
 .settings-view > ul {
   position: relative;
-  left: 25%;
+  left: 35%;
   width: 50%;
   height: 50%;
   margin-top: -8px;
