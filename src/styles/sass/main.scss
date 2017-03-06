@@ -41,6 +41,9 @@ body {
       width: 2rem;
       height: 2rem;
     }
+    // Do some clean up on the deep nesting...
+    @warn "TODO: Clean up the nestings...its getting out of hand. ";
+
     svg[aria-label="settings"] {
       height: 1.5rem;
       width: 1.5rem;
@@ -50,6 +53,7 @@ body {
       height: 1.75rem;
       width: 1.75rem;
     }
+
     .setting-text {
       display: none;
 
@@ -77,30 +81,88 @@ body {
         float: right;
       }
     }
-
+    // Bottom Controls
+    // the, fixed bar and the arrows.
     &.bottom {
       border-top: 0.16rem solid $nypl-black;
       bottom: 0;
+      display: block;
+      height: 3.2rem;
       position: fixed;
       width: 100%;
+
+      // ul {
+      //   display: flex;
+      //   justify-content: space-between;
+      //
+      //   @media (min-width: 489px) {
+      //     display: inline-block;
+      //   }
+      // }
+      li {
+        float: none;
+
+        @media (min-width: 489px) {
+          &:nth-child(1) {
+            float: left;
+          }
+
+          &:nth-child(3) {
+            float: right;
+          }
+        }
+      }
+
+      // The Chapters label found only on mobile
+      li[aria-label="chapters"] {
+        font-weight: 900;
+        margin: 0 20%;
+        position: relative;
+        top: -0.3rem;
+        text-align: center;
+
+        @media (min-width: 489px) {
+          display: none;
+          }
+        }
 
       @media (min-width: 489px) {
         background-color: darken($nypl-gray, 15%);
         }
 
-        .chapter-control {
-          display: none;
+      .icon {
+        height: 1.5rem;
+        width: 1.5rem;
+
+        @media (min-width: 489px) {
+          position: relative;
+          top: 0.375rem;
+        }
+      }
+
+      .chapter-control {
+        display: none;
+
+        @media (min-width: 489px) {
+          display: inline-block;
+          }
         }
       }
     }
 
   ul li {
+    display: inline-block;
     float: left;
     margin: 0.625rem;
+
+    // @media (min-width: 489px) {
+    //   border: 1px solid $nypl-white;
+    // }
   }
 
   a {
     color: $nypl-white;
+    text-decoration: none;
     }
   }
 
