@@ -18,21 +18,39 @@ const optionTemplate = (className: string, label: string) => `
     <li><a href='#' class='${className}'>${label}</a></li>
 `;
 
+const offlineTemplate = `
+    <li>
+        <div class='offline-status'></div>
+        <a class='enable-offline' href='#'>Download book for offline use</a>
+    </li>
+`;
+
+export enum OfflineStatus {
+    Enabled,
+    Disabled,
+    NoSelection    
+};
+
 export default class BookSettings {
     private readonly store: Store;
     private readonly bookViews: BookView[];
     private viewLinks: { [key: string]: HTMLAnchorElement };
     private readonly fontSizes: string[];
     private fontSizeLinks: { [key: string]: HTMLAnchorElement };
+    private offlineLink: HTMLAnchorElement;
+    private offlineStatusElement: HTMLElement;
 
-    private viewChangeCallback: () => void;
-    private fontSizeChangeCallback: () => void;
+    private viewChangeCallback: () => void = () => {};
+    private fontSizeChangeCallback: () => void = () => {};
+    private offlineEnabledCallback: () => void = () => {};
 
     private selectedView: BookView;
     private selectedFontSize: string;
+    private offlineStatus: OfflineStatus = OfflineStatus.NoSelection;
 
     private static readonly SELECTED_VIEW_KEY = "settings-selected-view";
     private static readonly SELECTED_FONT_SIZE_KEY = "settings-selected-font-size";
+    private static readonly OFFLINE_ENABLED_KEY = "settings-offline-enabled";
 
     /** @param store Store to save the user's selections in. */
     /** @param bookViews Array of BookView options. */
@@ -82,6 +100,13 @@ export default class BookSettings {
             }
             this.selectedFontSize = selectedFontSize;
         }
+
+        const offlineEnabled = await this.store.get(BookSettings.OFFLINE_ENABLED_KEY);
+        if (offlineEnabled === "true") {
+            this.offlineStatus = OfflineStatus.Enabled;
+        } else if (offlineEnabled === "false") {
+            this.offlineStatus = OfflineStatus.Disabled;
+        }
     }
 
     public renderControls(element: HTMLElement): void {
@@ -99,6 +124,8 @@ export default class BookSettings {
             sections.push(sectionTemplate("Font Size", fontSizeOptions));
         }
 
+        sections.push(offlineTemplate);
+
         element.innerHTML = template(sections.join(""));
         this.viewLinks = {};
         if (this.bookViews.length > 1) {
@@ -114,7 +141,11 @@ export default class BookSettings {
             }
             this.updateFontSizeLinks();
         }
-        
+
+        this.offlineLink = HTMLUtilities.findRequiredElement(element, 'a[class="enable-offline"]') as HTMLAnchorElement;
+        this.offlineStatusElement = HTMLUtilities.findRequiredElement(element, 'div[class="offline-status"]') as HTMLElement;
+        this.updateOfflineLink();
+
         this.setupEvents();
     }
 
@@ -124,6 +155,10 @@ export default class BookSettings {
 
     public onFontSizeChange(callback: () => void) {
         this.fontSizeChangeCallback = callback;
+    }
+
+    public onOfflineEnabled(callback: () => void) {
+        this.offlineEnabledCallback = callback;
     }
 
     private setupEvents(): void {
@@ -137,9 +172,7 @@ export default class BookSettings {
                     this.selectedView = view;
                     this.updateViewLinks();
                     this.storeSelectedView(view);
-                    if (this.viewChangeCallback) {
-                        this.viewChangeCallback();
-                    }
+                    this.viewChangeCallback();
                     event.preventDefault();
                 });
             }
@@ -151,9 +184,7 @@ export default class BookSettings {
                 if (currentFontSizeIndex > 0) {
                     const newFontSize = this.fontSizes[currentFontSizeIndex - 1];
                     this.selectedFontSize = newFontSize;
-                    if (this.fontSizeChangeCallback) {
-                        this.fontSizeChangeCallback();
-                    }
+                    this.fontSizeChangeCallback();
                     this.updateFontSizeLinks();
                     this.storeSelectedFontSize(newFontSize);
                 }
@@ -165,15 +196,21 @@ export default class BookSettings {
                 if (currentFontSizeIndex < this.fontSizes.length - 1) {
                     const newFontSize = this.fontSizes[currentFontSizeIndex + 1];
                     this.selectedFontSize = newFontSize;
-                    if (this.fontSizeChangeCallback) {
-                        this.fontSizeChangeCallback();
-                    }
+                    this.fontSizeChangeCallback();
                     this.updateFontSizeLinks();
                     this.storeSelectedFontSize(newFontSize);
                 }
                 event.preventDefault();
             });
         }
+
+        this.offlineLink.addEventListener("click", (event: MouseEvent) => {
+            this.offlineStatus = OfflineStatus.Enabled;
+            this.offlineEnabledCallback();
+            this.updateOfflineLink();
+            this.storeOfflineEnabled(true);
+            event.preventDefault();
+        });
     }
 
     private updateViewLinks(): void {
@@ -202,6 +239,14 @@ export default class BookSettings {
         }
     }
 
+    private updateOfflineLink(): void {
+        if (this.getOfflineStatus() === OfflineStatus.Enabled) {
+            this.offlineLink.style.display = "none";
+        } else {
+            this.offlineLink.style.display = "block";
+        }
+    }
+
     public getSelectedView(): BookView {
         return this.selectedView;
     }
@@ -210,11 +255,35 @@ export default class BookSettings {
         return this.selectedFontSize;
     }
 
+    public getOfflineStatus(): OfflineStatus {
+        return this.offlineStatus;
+    }
+
+    public async askUserToEnableOfflineUse(): Promise<void> {
+        const enable = window.confirm("Would you like to download this book to read offline?");
+        if (enable) {
+            this.offlineStatus = OfflineStatus.Enabled;
+            this.offlineEnabledCallback();
+        } else {
+            this.offlineStatus = OfflineStatus.Disabled;
+        }
+        this.updateOfflineLink();
+        await this.storeOfflineEnabled(enable);
+    }
+
+    public getOfflineStatusElement(): HTMLElement {
+        return this.offlineStatusElement;
+    }
+
     private async storeSelectedView(view: BookView): Promise<void> {
         return this.store.set(BookSettings.SELECTED_VIEW_KEY, view.name);
     }
 
     private async storeSelectedFontSize(fontSize: string): Promise<void> {
         return this.store.set(BookSettings.SELECTED_FONT_SIZE_KEY, fontSize);
+    }
+
+    private async storeOfflineEnabled(offlineEnabled: boolean): Promise<void> {
+        return this.store.set(BookSettings.OFFLINE_ENABLED_KEY, offlineEnabled ? "true" : "false");
     }
 };

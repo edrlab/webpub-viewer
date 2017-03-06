@@ -1,10 +1,13 @@
 import Navigator from "./Navigator";
+import Store from "./Store";
 import Cacher from "./Cacher";
+import { CacheStatus } from "./Cacher";
 import PaginatedBookView from "./PaginatedBookView";
 import ScrollingBookView from "./ScrollingBookView";
 import Annotator from "./Annotator";
 import Manifest from "./Manifest";
 import BookSettings from "./BookSettings";
+import { OfflineStatus } from "./BookSettings";
 import * as HTMLUtilities from "./HTMLUtilities";
 
 const template = `
@@ -88,6 +91,7 @@ interface ReadingPosition {
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
 export default class IFrameNavigator implements Navigator {
     private manifestUrl: URL;
+    private store: Store;
     private cacher: Cacher;
     private paginator: PaginatedBookView | null;
     private scroller: ScrollingBookView | null;
@@ -112,13 +116,14 @@ export default class IFrameNavigator implements Navigator {
     private newPosition: ReadingPosition | null;
     private isLoading: boolean;
 
-    public static async create(element: HTMLElement, manifestUrl: URL, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
-        const navigator = new this(cacher, settings, annotator, paginator, scroller);
+    public static async create(element: HTMLElement, manifestUrl: URL, store: Store, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
+        const navigator = new this(store, cacher, settings, annotator, paginator, scroller);
         await navigator.start(element, manifestUrl);
         return navigator;
     }
 
-    protected constructor(cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
+    protected constructor(store: Store, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
+        this.store = store;
         this.cacher = cacher;
         this.paginator = paginator;
         this.scroller = scroller;
@@ -159,7 +164,12 @@ export default class IFrameNavigator implements Navigator {
             this.settings.renderControls(this.settingsView);
             this.settings.onViewChange(this.updateBookView.bind(this));
             this.settings.onFontSizeChange(this.updateFontSize.bind(this));
-
+            this.settings.onOfflineEnabled(this.enableOffline.bind(this));
+            this.cacher.onStatusUpdate(this.updateOfflineCacheStatus.bind(this));
+            if (this.settings.getOfflineStatus() === OfflineStatus.Enabled) {
+                this.enableOffline();
+            }
+            
             return await this.loadManifest();
         } catch (err) {
             // There's a mismatch between the template and the selectors above,
@@ -208,8 +218,33 @@ export default class IFrameNavigator implements Navigator {
         this.handleResize();
     }
 
+    private enableOffline(): void {
+        this.cacher.enable();
+    }
+
+    private updateOfflineCacheStatus(status: CacheStatus): void {
+        const statusElement = this.settings.getOfflineStatusElement();
+
+        let statusMessage = "";
+        if (status === CacheStatus.Uncached) {
+            statusMessage = "Not available offline";
+        } else if (status === CacheStatus.UpdateAvailable) {
+            statusMessage = "A new version is available. Refresh to update.";
+        } else if (status === CacheStatus.CheckingForUpdate) {
+            statusMessage = "Checking for update.";
+        } else if (status === CacheStatus.Downloading) {
+            statusMessage = "Downloading for offline use";
+        } else if (status === CacheStatus.Downloaded) {
+            statusMessage = "Downloaded for offline use";
+        } else if (status === CacheStatus.Error) {
+            statusMessage = "Error downloading for offline use";
+        }
+
+        statusElement.innerHTML = statusMessage;
+    }
+
     private async loadManifest(): Promise<void> {
-        const manifest: Manifest = await this.cacher.getManifest(this.manifestUrl);
+        const manifest: Manifest = await Manifest.getManifest(this.manifestUrl, this.store);
 
         const toc = manifest.toc;
         if (toc.length) {
@@ -277,7 +312,7 @@ export default class IFrameNavigator implements Navigator {
         this.settings.getSelectedView().start(bookViewPosition);
         this.newPosition = null;
 
-        const manifest = await this.cacher.getManifest(this.manifestUrl);
+        const manifest = await Manifest.getManifest(this.manifestUrl, this.store);
         let currentLocation = this.iframe.src;
         if (this.iframe.contentDocument && this.iframe.contentDocument.location && this.iframe.contentDocument.location.href) {
             currentLocation = this.iframe.contentDocument.location.href;
@@ -307,6 +342,11 @@ export default class IFrameNavigator implements Navigator {
             await this.saveCurrentReadingPosition();
         }
         this.hideLoadingMessage();
+
+        if (this.settings.getOfflineStatus() === OfflineStatus.NoSelection) {
+            setTimeout(this.settings.askUserToEnableOfflineUse.bind(this.settings), 0);
+        }
+
         return new Promise<void>(resolve => resolve());
     }
 
