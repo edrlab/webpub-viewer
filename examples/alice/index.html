@@ -4,32 +4,31 @@
   <title>Webpub Viewer Example</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <script src="../../node_modules/requirejs/require.js"></script>
-  <script src="../../node_modules/whatwg-fetch/fetch.js"></script>
-  <script src="../../dist/webpub-viewer.js"></script>
-  <link rel="stylesheet" href="../../dist/styles/css/main.css">
-  <style>
-  /* moved to main.scss */
-  </style>
+  <link rel="stylesheet" href="main.css">
 </head>
 <body style="overflow: hidden; margin: 0;">
   <div id="viewer">
   </div>
+  <script src="require.js"></script>
+  <script src="fetch.js"></script>
+  <script src="webpub-viewer.js"></script>
   <script>
-    require(["LocalStorageStore", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginatedBookView", "ScrollingBookView", "LocalAnnotator", "BookSettings"], function (LocalStorageStore, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginatedBookView, ScrollingBookView, LocalAnnotator, BookSettings) {
+    require(["LocalStorageStore", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginatedBookView", "ScrollingBookView", "LocalAnnotator", "BookSettings"],
+            function (LocalStorageStore, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginatedBookView, ScrollingBookView, LocalAnnotator, BookSettings) {
       var element = document.getElementById("viewer");
-      var manifestUrl = new URL("manifest.json", window.location.href);
+      var webpubManifestUrl = new URL("manifest.json", window.location.href);
+      var bookCacheUrl = new URL("appcache.html", window.location.href);
 
-      var store = new LocalStorageStore.default(manifestUrl);
-      ServiceWorkerCacher.default.create(store, manifestUrl).then(function (cacher) {
-        var paginator = new ColumnsPaginatedBookView.default();
-        var scroller = new ScrollingBookView.default();
-        var annotator = new LocalAnnotator.default(store);
-        var fontSizes = [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32 ];
-        var defaultFontSize = 16;
-        BookSettings.default.create(store, [paginator, scroller], fontSizes, defaultFontSize).then(function (settings) {
-          IFrameNavigator.default.create(element, manifestUrl, cacher, settings, annotator, paginator, scroller);
-        });
+      var store = new LocalStorageStore.default(webpubManifestUrl);
+      var cacher = new ServiceWorkerCacher.default(store, webpubManifestUrl, "sw.js", bookCacheUrl);
+
+      var paginator = new ColumnsPaginatedBookView.default();
+      var scroller = new ScrollingBookView.default();
+      var annotator = new LocalAnnotator.default(store);
+      var fontSizes = [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32 ];
+      var defaultFontSize = 16;
+      BookSettings.default.create(store, [paginator, scroller], fontSizes, defaultFontSize).then(function (settings) {
+        IFrameNavigator.default.create(element, webpubManifestUrl, store, cacher, settings, annotator, paginator, scroller);
       });
     });
   </script>
