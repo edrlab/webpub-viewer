@@ -90,32 +90,32 @@ describe("ApplicationCacheCacher", () => {
             const cacher: MockCacher = new MockCacher(new URL("http://example.com/fallback.html"));
             cacher.onStatusUpdate(callback);
             expect(callback.callCount).to.equal(1);
-            expect(callback.args[0][0]).to.equal(CacheStatus.UNCACHED);
+            expect(callback.args[0][0]).to.equal(CacheStatus.Uncached);
             (iframe.contentWindow as any).applicationCache = {};
 
             (iframe.contentWindow as any).applicationCache.status = window.applicationCache.UPDATEREADY;
             await cacher.enable();
             expect(callback.callCount).to.equal(2);
-            expect(callback.args[1][0]).to.equal(CacheStatus.UPDATE_AVAILABLE);
+            expect(callback.args[1][0]).to.equal(CacheStatus.UpdateAvailable);
 
             (iframe.contentWindow as any).applicationCache.status = window.applicationCache.DOWNLOADING;
             await cacher.enable();
             expect(callback.callCount).to.equal(3);
-            expect(callback.args[2][0]).to.equal(CacheStatus.DOWNLOADING);
+            expect(callback.args[2][0]).to.equal(CacheStatus.Downloading);
 
             (iframe.contentWindow as any).applicationCache.status = window.applicationCache.OBSOLETE;
             await cacher.enable();
             expect(callback.callCount).to.equal(4);
-            expect(callback.args[3][0]).to.equal(CacheStatus.UNCACHED);
+            expect(callback.args[3][0]).to.equal(CacheStatus.Uncached);
 
             (iframe.contentWindow as any).applicationCache.status = window.applicationCache.IDLE;
             await cacher.enable();
             expect(callback.callCount).to.equal(5);
-            expect(callback.args[4][0]).to.equal(CacheStatus.DOWNLOADED);
+            expect(callback.args[4][0]).to.equal(CacheStatus.Downloaded);
 
             cacher.error();
             expect(callback.callCount).to.equal(6);
-            expect(callback.args[5][0]).to.equal(CacheStatus.ERROR);
+            expect(callback.args[5][0]).to.equal(CacheStatus.Error);
         });
     });
 });

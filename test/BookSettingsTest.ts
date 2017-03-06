@@ -111,15 +111,15 @@ describe("BookSettings", () => {
         it("obtains the selected offline setting from the store", async () => {
             await store.set("settings-offline-enabled", "true");
             settings = await BookSettings.create(store, [view1], [12]);
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.ENABLED);
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Enabled);
 
             await store.set("settings-offline-enabled", "false");
             settings = await BookSettings.create(store, [view1], [12]);
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.DISABLED);
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Disabled);
         });
 
         it("has no offline selection if there isn't one in the store", async () => {
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.NO_SELECTION);
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.NoSelection);
         });
     });
 
@@ -286,7 +286,7 @@ describe("BookSettings", () => {
 
             click(offlineLink);
             await pause();
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.ENABLED);
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Enabled);
 
             const storedOfflineEnabled = await store.get("settings-offline-enabled");
             expect(storedOfflineEnabled).to.equal("true");
@@ -370,7 +370,7 @@ describe("BookSettings", () => {
 
             const confirmStub = stub(window, "confirm").returns(true);
             await settings.askUserToEnableOfflineUse();
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.ENABLED);
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Enabled);
             let storedSetting = await store.get("settings-offline-enabled");
             expect(storedSetting).to.equal("true");
             let offlineLink = element.querySelector("a[class='enable-offline']") as HTMLAnchorElement;
@@ -379,7 +379,7 @@ describe("BookSettings", () => {
 
             confirmStub.returns(false);
             await settings.askUserToEnableOfflineUse();
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.DISABLED);
+            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Disabled);
             storedSetting = await store.get("settings-offline-enabled");
             expect(storedSetting).to.equal("false");
             expect(offlineLink.style.display).not.to.equal("none");

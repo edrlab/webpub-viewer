@@ -62,25 +62,25 @@ export default class ApplicationCacheCacher implements Cacher {
         }
 
         if (appCacheStatus === window.applicationCache.UPDATEREADY) {
-            status = CacheStatus.UPDATE_AVAILABLE;
+            status = CacheStatus.UpdateAvailable;
         } else if (
             appCacheStatus === window.applicationCache.DOWNLOADING) {
-            status = CacheStatus.DOWNLOADING;
+            status = CacheStatus.Downloading;
         } else if (
             appCacheStatus === window.applicationCache.UNCACHED ||
             appCacheStatus === window.applicationCache.OBSOLETE) {
-            status = CacheStatus.UNCACHED;
+            status = CacheStatus.Uncached;
         } else if (
             appCacheStatus === window.applicationCache.CHECKING) {
-            status = CacheStatus.CHECKING_FOR_UPDATE;
+            status = CacheStatus.CheckingForUpdate;
         } else {
-            status = CacheStatus.DOWNLOADED;
+            status = CacheStatus.Downloaded;
         }
 
         this.statusUpdateCallback(status);
     }
 
     protected handleError() {
-        this.statusUpdateCallback(CacheStatus.ERROR);
+        this.statusUpdateCallback(CacheStatus.Error);
     }
 }

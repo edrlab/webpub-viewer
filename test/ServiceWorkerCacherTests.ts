@@ -163,15 +163,15 @@ describe('ServiceWorkerCacher', () => {
             cacher.onStatusUpdate(callback);
 
             expect(callback.callCount).to.equal(1);
-            expect(callback.args[0][0]).to.equal(CacheStatus.UNCACHED);
+            expect(callback.args[0][0]).to.equal(CacheStatus.Uncached);
 
             cacher.enable();
             expect(callback.callCount).to.equal(2);
-            expect(callback.args[1][0]).to.equal(CacheStatus.DOWNLOADING);
+            expect(callback.args[1][0]).to.equal(CacheStatus.Downloading);
 
             await pause();
             expect(callback.callCount).to.equal(3);
-            expect(callback.args[2][0]).to.equal(CacheStatus.DOWNLOADED);
+            expect(callback.args[2][0]).to.equal(CacheStatus.Downloaded);
         });
 
         it("should provide status updates when there's an error", async () => {
@@ -183,15 +183,15 @@ describe('ServiceWorkerCacher', () => {
             cacher.onStatusUpdate(callback);
 
             expect(callback.callCount).to.equal(1);
-            expect(callback.args[0][0]).to.equal(CacheStatus.UNCACHED);
+            expect(callback.args[0][0]).to.equal(CacheStatus.Uncached);
 
             cacher.enable();
             expect(callback.callCount).to.equal(2);
-            expect(callback.args[1][0]).to.equal(CacheStatus.DOWNLOADING);
+            expect(callback.args[1][0]).to.equal(CacheStatus.Downloading);
 
             await pause();
             expect(callback.callCount).to.equal(3);
-            expect(callback.args[2][0]).to.equal(CacheStatus.ERROR);
+            expect(callback.args[2][0]).to.equal(CacheStatus.Error);
         });
     });
 });

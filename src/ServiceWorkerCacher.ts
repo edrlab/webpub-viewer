@@ -12,7 +12,7 @@ export default class ServiceWorkerCacher implements Cacher {
     private readonly manifestUrl: URL;
     private readonly areServiceWorkersSupported: boolean;
     private readonly fallbackCacher: ApplicationCacheCacher | null;
-    private cacheStatus: CacheStatus = CacheStatus.UNCACHED;
+    private cacheStatus: CacheStatus = CacheStatus.Uncached;
     private statusUpdateCallback: (status: CacheStatus) => void = () => {};
 
     /** Create a ServiceWorkerCacher. */
@@ -37,16 +37,16 @@ export default class ServiceWorkerCacher implements Cacher {
             return this.fallbackCacher.enable();
 
         } else if (this.areServiceWorkersSupported) {
-            this.cacheStatus = CacheStatus.DOWNLOADING;
+            this.cacheStatus = CacheStatus.Downloading;
             this.updateStatus();
             navigator.serviceWorker.register(this.serviceWorkerPath);
 
             try {
                 await this.verifyAndCacheManifest(this.manifestUrl);
-                this.cacheStatus = CacheStatus.DOWNLOADED;
+                this.cacheStatus = CacheStatus.Downloaded;
                 this.updateStatus();
             } catch (err) {
-                this.cacheStatus = CacheStatus.ERROR;
+                this.cacheStatus = CacheStatus.Error;
                 this.updateStatus();
             }
         }

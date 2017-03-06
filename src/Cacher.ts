@@ -1,21 +1,21 @@
 export enum CacheStatus {
-    // The book has not been cached.
-    UNCACHED,
+    /** The book has not been cached. */
+    Uncached,
 
-    // There is a new version available (Application Cache only - refresh the page to update).
-    UPDATE_AVAILABLE,
+    /** There is a new version available (Application Cache only - refresh the page to update). */
+    UpdateAvailable,
 
-    // The app is checking for a new version (Application Cache only).
-    CHECKING_FOR_UPDATE,
+    /** The app is checking for a new version (Application Cache only). */
+    CheckingForUpdate,
 
-    // The cache is downloading.
-    DOWNLOADING,
+    /** The cache is downloading. */
+    Downloading,
 
-    // The cache is fully downloaded and the book is available offline.
-    DOWNLOADED,
+    /** The cache is fully downloaded and the book is available offline. */
+    Downloaded,
 
-    // There was an error downloading the cache, and the book is not available offline.
-    ERROR
+    /** There was an error downloading the cache, and the book is not available offline. */
+    Error
 }
 
 

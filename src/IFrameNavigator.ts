@@ -116,7 +116,7 @@ export default class IFrameNavigator implements Navigator {
             this.settings.onFontSizeChange(this.updateFontSize.bind(this));
             this.settings.onOfflineEnabled(this.enableOffline.bind(this));
             this.cacher.onStatusUpdate(this.updateOfflineCacheStatus.bind(this));
-            if (this.settings.getOfflineStatus() === OfflineStatus.ENABLED) {
+            if (this.settings.getOfflineStatus() === OfflineStatus.Enabled) {
                 this.enableOffline();
             }
             
@@ -176,17 +176,17 @@ export default class IFrameNavigator implements Navigator {
         const statusElement = this.settings.getOfflineStatusElement();
 
         let statusMessage = "";
-        if (status === CacheStatus.UNCACHED) {
+        if (status === CacheStatus.Uncached) {
             statusMessage = "Not available offline";
-        } else if (status === CacheStatus.UPDATE_AVAILABLE) {
+        } else if (status === CacheStatus.UpdateAvailable) {
             statusMessage = "A new version is available. Refresh to update.";
-        } else if (status === CacheStatus.CHECKING_FOR_UPDATE) {
+        } else if (status === CacheStatus.CheckingForUpdate) {
             statusMessage = "Checking for update.";
-        } else if (status === CacheStatus.DOWNLOADING) {
+        } else if (status === CacheStatus.Downloading) {
             statusMessage = "Downloading for offline use";
-        } else if (status === CacheStatus.DOWNLOADED) {
+        } else if (status === CacheStatus.Downloaded) {
             statusMessage = "Downloaded for offline use";
-        } else if (status === CacheStatus.ERROR) {
+        } else if (status === CacheStatus.Error) {
             statusMessage = "Error downloading for offline use";
         }
 
@@ -293,7 +293,7 @@ export default class IFrameNavigator implements Navigator {
         }
         this.hideLoadingMessage();
 
-        if (this.settings.getOfflineStatus() === OfflineStatus.NO_SELECTION) {
+        if (this.settings.getOfflineStatus() === OfflineStatus.NoSelection) {
             setTimeout(this.settings.askUserToEnableOfflineUse.bind(this.settings), 0);
         }
 

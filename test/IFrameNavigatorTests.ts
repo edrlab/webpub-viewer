@@ -198,7 +198,7 @@ describe("IFrameNavigator", () => {
         onOfflineEnabled = stub();
         getSelectedView = stub().returns(paginator);
         getSelectedFontSize = stub().returns("14px");
-        getOfflineStatus = stub().returns(OfflineStatus.DISABLED);
+        getOfflineStatus = stub().returns(OfflineStatus.Disabled);
         getOfflineStatusElement = stub().returns(offlineStatusElement);
         askUserToEnableOfflineUse = stub();
         settings = await MockSettings.create(store, [paginator, scroller], [14, 16]);
@@ -317,29 +317,29 @@ describe("IFrameNavigator", () => {
            expect(onStatusUpdate.callCount).to.equal(1);
            const callback = onStatusUpdate.args[0][0];
 
-           callback(CacheStatus.UNCACHED);
+           callback(CacheStatus.Uncached);
            expect(offlineStatusElement.innerHTML).to.contain("Not available");
 
-           callback(CacheStatus.UPDATE_AVAILABLE);
+           callback(CacheStatus.UpdateAvailable);
            expect(offlineStatusElement.innerHTML).to.contain("new version");
 
-           callback(CacheStatus.CHECKING_FOR_UPDATE);
+           callback(CacheStatus.CheckingForUpdate);
            expect(offlineStatusElement.innerHTML).to.contain("Checking");
 
-           callback(CacheStatus.DOWNLOADING);
+           callback(CacheStatus.Downloading);
            expect(offlineStatusElement.innerHTML).to.contain("Downloading");
 
-           callback(CacheStatus.DOWNLOADED);
+           callback(CacheStatus.Downloaded);
            expect(offlineStatusElement.innerHTML).to.contain("Downloaded");
 
-           callback(CacheStatus.ERROR);
+           callback(CacheStatus.Error);
            expect(offlineStatusElement.innerHTML).to.contain("Error");
         });
 
         it("should enable the cacher if offline is enabled in the settings", async () => {
             expect(enable.callCount).to.equal(0);
 
-            getOfflineStatus.returns(OfflineStatus.ENABLED);
+            getOfflineStatus.returns(OfflineStatus.Enabled);
             await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
             expect(enable.callCount).to.equal(1);
         });
@@ -347,7 +347,7 @@ describe("IFrameNavigator", () => {
         it("should ask the user to enable offline use if there's no selection", async () => {
             expect(askUserToEnableOfflineUse.callCount).to.equal(0);
 
-            getOfflineStatus.returns(OfflineStatus.NO_SELECTION);
+            getOfflineStatus.returns(OfflineStatus.NoSelection);
             await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
             await pause(10);
             expect(askUserToEnableOfflineUse.callCount).to.equal(1);
