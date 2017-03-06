@@ -48,9 +48,9 @@ const template = `
       <ul class="links bottom" style="z-index: 2000;">
         <li>
         <a rel="prev" class="disabled">
-          <svg width="48" height="48" viewBox="0 0 32 32" class="icon">
+          <svg viewBox="0 0 13.5 22.7" class="icon" role="img" aria-label="previous">
             <title>wedge.left.icon.svg</title>
-            <polygon points="19.156 23.563 11.593 16 19.156 8.438 20.563 9.845 14.408 16 20.563 22.155 19.156 23.563" />
+            <polygon points="11.3,22.7 0,11.3 11.3,0 13.5,2.1 4.2,11.3 13.5,20.6 "/>
           </svg>
           <span class="chapter-control">Previous Chapter</span>
           </a>
@@ -58,9 +58,9 @@ const template = `
         <li>
           <a rel="next" class="disabled">
             <span class="chapter-control">Next Chapter</span>
-            <svg width="48" height="48" viewBox="0 0 32 32" class="icon">
-            <title>wedge.right.icon.svg</title>
-            <polygon points="13 8.437 20.563 16 13 23.563 11.593 22.155 17.748 16 11.593 9.845 13 8.437"/>
+            <svg viewBox="0 0 13.5 22.7" class="icon" role="img" aria-label="next">
+              <title>wedge.right.icon.svg</title>
+              <polygon points="2.1,0 13.5,11.3 2.1,22.7 0,20.6 9.2,11.3 0,2.1 "/>
             </svg>
           </a>
         </li>
