@@ -467,8 +467,12 @@ export default class IFrameNavigator implements Navigator {
         if (this.scroller) {
             this.scroller.sideMargin = sideMargin;
         }
-        const topMargin = this.navigation.clientHeight + 5;
+
+        const topMargin = this.links.clientHeight + 5;
         this.iframe.style.marginTop = topMargin + "px";
+
+        const bottomMargin = this.linksBottom.clientHeight + 5;
+        this.iframe.style.marginBottom = bottomMargin + "px";
 
         selectedView.goToPosition(oldPosition);
     }

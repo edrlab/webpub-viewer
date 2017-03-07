@@ -12,12 +12,13 @@ export default class ScrollingBookView implements BookView {
         this.bookElement.style.height = "";
 
         const marginTop = parseInt((this.bookElement.style.marginTop || "0px").slice(0, -2));
+        const marginBottom = parseInt((this.bookElement.style.marginBottom || "0px").slice(0, -2));
 
         this.bookElement.style.width = (document.body.offsetWidth - this.sideMargin * 2) + "px";
         this.bookElement.style.marginLeft = this.sideMargin + "px";
         this.bookElement.style.marginRight = this.sideMargin + "px";
 
-        const minHeight = (window.innerHeight - marginTop);
+        const minHeight = (window.innerHeight - marginTop - marginBottom);
         const bodyHeight = this.bookElement.contentDocument.body.scrollHeight;
         this.bookElement.style.height = Math.max(minHeight, bodyHeight) + "px";
     }
