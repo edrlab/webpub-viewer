@@ -147,6 +147,11 @@ export default class BookSettings {
         this.updateOfflineLink();
 
         this.setupEvents();
+
+        // Clicking the settings view outside the ul hides it, but clicking inside the ul keeps it up.
+        HTMLUtilities.findRequiredElement(element, "ul").addEventListener("click", (event: Event) => {
+            event.stopPropagation();
+        });
     }
 
     public onViewChange(callback: () => void) {

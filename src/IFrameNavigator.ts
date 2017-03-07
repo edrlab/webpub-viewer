@@ -202,6 +202,8 @@ export default class IFrameNavigator implements Navigator {
         this.contentsLink.addEventListener("click", this.handleContentsClick.bind(this));
 
         this.settingsLink.addEventListener("click", this.handleSettingsClick.bind(this));
+
+        this.settingsView.addEventListener("click", this.hideSettings.bind(this));
     }
 
     private updateBookView(): void {
