@@ -35,8 +35,9 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         // all the vendor-prefixed attributes.
         const body = this.bookElement.contentDocument.body as any;
         const marginTop = parseInt((this.bookElement.style.marginTop || "0px").slice(0, -2));
+        const marginBottom = parseInt((this.bookElement.style.marginBottom || "0px").slice(0, -2));
 
-        const height = (window.innerHeight - marginTop) + "px";
+        const height = (window.innerHeight - marginTop - marginBottom) + "px";
         const width = (document.body.offsetWidth - this.sideMargin * 2) + "px"
         body.style.columnWidth = width;
         body.style.WebkitColumnWidth = width;

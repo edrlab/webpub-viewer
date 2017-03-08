@@ -118,6 +118,7 @@ export default class IFrameNavigator implements Navigator {
     private nextPageLink: Element;
     private newPosition: ReadingPosition | null;
     private isLoading: boolean;
+    private firstLoad: boolean;
 
     public static async create(element: HTMLElement, manifestUrl: URL, store: Store, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null) {
         const navigator = new this(store, cacher, settings, annotator, paginator, scroller);
@@ -156,6 +157,7 @@ export default class IFrameNavigator implements Navigator {
             this.nextPageLink = HTMLUtilities.findRequiredElement(element, "div[class=next-page]");
             this.newPosition = null;
             this.isLoading = true;
+            this.firstLoad = false;
             this.setupEvents();
 
             if (this.paginator) {
@@ -203,6 +205,8 @@ export default class IFrameNavigator implements Navigator {
         this.contentsLink.addEventListener("click", this.handleContentsClick.bind(this));
 
         this.settingsLink.addEventListener("click", this.handleSettingsClick.bind(this));
+
+        this.settingsView.addEventListener("click", this.hideSettings.bind(this));
     }
 
     private updateBookView(): void {
@@ -297,14 +301,20 @@ export default class IFrameNavigator implements Navigator {
                 position: 0
             };
             this.navigate(position);
+            // Show TOC when book is first opened.
+            this.firstLoad = true;
+            this.toggleDisplay(this.tocView);
         }
 
         return new Promise<void>(resolve => resolve());
     }
 
     private async handleIFrameLoad(): Promise<void> {
-        this.hideTOC();
         this.showLoadingMessageAfterDelay();
+        if (!this.firstLoad) {
+            this.hideTOC();
+        }
+        this.firstLoad = false;
 
         let bookViewPosition = 0;
         if (this.newPosition) {
@@ -458,8 +468,12 @@ export default class IFrameNavigator implements Navigator {
         if (this.scroller) {
             this.scroller.sideMargin = sideMargin;
         }
-        const topMargin = this.navigation.clientHeight + 5;
+
+        const topMargin = this.links.clientHeight + 5;
         this.iframe.style.marginTop = topMargin + "px";
+
+        const bottomMargin = this.linksBottom.clientHeight + 5;
+        this.iframe.style.marginBottom = bottomMargin + "px";
 
         selectedView.goToPosition(oldPosition);
     }
