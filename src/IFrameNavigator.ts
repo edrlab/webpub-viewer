@@ -27,19 +27,20 @@ const template = `
         </li>
         <li>
           <a rel="contents" class="disabled" role="button" aria-label="Book Content" aria-haspopup="true" aria-expanded="false">
-            <svg viewBox="0 0 24 24" class="icon" role="img" aria-label="contents" preserveAspectRatio="xMidYMid meet">
-              <title id="content-icon">Contents</title>
-              <path d="M20.5,0h-17C2.673,0,2,0.673,2,1.5v16c0,0.065,0.013,0.13,0.039,0.191c0.025,0.06,0.061,0.113,0.105,0.158  c0.001,0.001,0.001,0.003,0.002,0.004l6,6c0.001,0.002,0.004,0.002,0.006,0.004c0.045,0.044,0.098,0.08,0.157,0.104  C8.37,23.987,8.435,24,8.5,24h12c0.827,0,1.5-0.673,1.5-1.5v-21C22,0.673,21.327,0,20.5,0z M8,22.293L3.707,18H7.5  C7.776,18,8,18.224,8,18.5V22.293z M21,22.5c0,0.276-0.224,0.5-0.5,0.5H9v-4.5C9,17.673,8.327,17,7.5,17H3V1.5  C3,1.224,3.224,1,3.5,1h17C20.776,1,21,1.224,21,1.5V22.5z"></path>
-              <path d="M17,5H7C6.724,5,6.5,4.776,6.5,4.5S6.724,4,7,4h10c0.276,0,0.5,0.224,0.5,0.5S17.276,5,17,5z"></path>
-              <path d="M17,8H7C6.724,8,6.5,7.776,6.5,7.5S6.724,7,7,7h10c0.276,0,0.5,0.224,0.5,0.5S17.276,8,17,8z"></path>
-              <path d="M12,11H7c-0.276,0-0.5-0.224-0.5-0.5S6.724,10,7,10h5c0.276,0,0.5,0.224,0.5,0.5S12.276,11,12,11z"></path>
+          <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 20 27" aria-label="contents">
+            <title>toc-icon</title>
+            <path d="M17,27H3a3.00328,3.00328,0,0,1-3-3V3A3.00328,3.00328,0,0,1,3,0H15.48047L20,5.64941V24A3.00328,3.00328,0,0,1,17,27ZM3,2A1.0013,1.0013,0,0,0,2,3V24a1.001,1.001,0,0,0,1,1H17a1.00068,1.00068,0,0,0,1-1V6.35059L14.51953,2Z"/>
+            <rect x="4" y="8" width="12" height="2"/>
+            <rect x="4" y="12" width="12" height="2"/>
+            <rect x="4" y="16" width="12" height="2"/>
+            <rect x="4" y="20" width="6" height="2"/>
             </svg>
             <span class="setting-text contents">Contents</span>
           </a>
         </li>
         <li>
           <a class="settings" role="button" aria-label="Settings Menu" aria-expanded="false" aria-haspopup="true">
-          <svg role="img" preserveAspectRatio="xMidYMid meet" width="29.515" height="29.51584" viewBox="0 0 29.515 29.51584">
+          <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 29.515 29.51584" aria-label="settings">
             <title>settings-icon</title>
             <path d="M14.75238,21.19041a6.4375,6.4375,0,1,1,6.4375-6.4375A6.44459,6.44459,0,0,1,14.75238,21.19041Zm0-10.875a4.4375,4.4375,0,1,0,4.4375,4.4375A4.44261,4.44261,0,0,0,14.75238,10.31541Z"/>
             <path d="M15.72966,2.00105l1.43724,4.0416,2.035.84489,3.8748-1.84187,1.38294,1.38274-1.84192,3.8749.84381,2.0347,4.0483,1.43963L27.5028,15.7307l-4.04148,1.43721-.843,2.03574,1.84015,3.87117-1.38573,1.38342L19.303,22.66631l-2.13549.79519-1.43718,4.0414-1.95321.00751-1.43963-4.0483-2.03467-.84382L6.428,24.46016,5.04507,23.07742,6.887,19.20251l-.84381-2.03469L2.00467,15.73166,2.002,13.77512l4.04241-1.43753.84208-2.03542L5.04408,6.42631,6.42649,5.04495,10.30062,6.8865l2.03643-.8416,1.43754-4.0424,1.95507-.00145M17.14076,0,15.72818.001,13.77311.0025l-1.41036.001L11.8902,1.33238l-1.1394,3.204-.39348.16261L7.28511,3.23864,6.01085,2.63292l-.998.99728L3.6304,5.01156l-.99884.99808.60621,1.27529,1.461,3.07353-.16248.39273L1.33185,11.89072,0,12.36434l.002,1.41355.00271,1.95654.002,1.40939,1.32793.47223,3.20151,1.13851.16281.39257L3.23876,22.2188l-.606,1.27487.99821.99807L5.0139,25.87448l.99805.99791,1.27468-.60592,3.07154-1.46.39257.16281,1.142,3.2113.47485,1.33531,1.41723-.00544,1.95321-.00751,1.40571-.00541.471-1.32446,1.1247-3.1627.46886-.17459,3.00584,1.42881,1.27365.60543.998-.99635,1.38573-1.38342.99978-.99811-.6065-1.27591-1.45859-3.06848.16286-.39327,3.20389-1.13935,1.32477-.4711.0051-1.406.00708-1.95306L29.515,12.368l-1.335-.47474-3.2113-1.142-.16281-.39258L26.266,7.287l.606-1.27487-.99821-.99807L24.49086,3.63135l-.998-.99791-1.27468.60592L19.147,4.69921,18.75381,4.536l-1.13975-3.205L17.14076,0Z"/>
@@ -50,21 +51,21 @@ const template = `
       </ul>
       <ul class="links bottom" style="z-index: 2000;">
         <li>
-          <a rel="prev" class="disabled">
-          <svg viewBox="0 0 13.5 22.7" class="icon" role="img" aria-label="previous" preserveAspectRatio="xMidYMid meet">
-            <title>wedge.left.icon.svg</title>
-            <polygon points="11.3,22.7 0,11.3 11.3,0 13.5,2.1 4.2,11.3 13.5,20.6 "/>
-          </svg>
+          <a rel="prev" class="disabled" role="button">
+          <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 13.43359 24.06299" aria-label="previous chapter">
+            <title>left-arrow-icon</title>
+              <polygon points="11.995 24.063 0 12.019 12.02 0 13.434 1.414 2.825 12.022 13.413 22.651 11.995 24.063"/>
+            </svg>
           <span class="chapter-control">Previous Chapter</span>
           </a>
         </li>
         <li aria-label="chapters">Chapters</li>
         <li>
-          <a rel="next" class="disabled">
+          <a rel="next" class="disabled" role="button">
             <span class="chapter-control">Next Chapter</span>
-            <svg viewBox="0 0 13.5 22.7" class="icon" role="img" aria-label="next" preserveAspectRatio="xMidYMid meet">
-              <title>wedge.right.icon.svg</title>
-              <polygon points="2.1,0 13.5,11.3 2.1,22.7 0,20.6 9.2,11.3 0,2.1 "/>
+            <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 13.43359 24.06299" aria-label="next chapter">
+            <title>right-arrow-icon</title>
+              <polygon points="1.438 0 13.434 12.044 1.414 24.063 0 22.649 10.608 12.041 0.021 1.412 1.438 0"/>
             </svg>
           </a>
         </li>

@@ -38,21 +38,21 @@ body {
     .icon {
       color: $nypl-white;
       fill: $nypl-white;
-      width: 2rem;
-      height: 2rem;
+      //width: 2rem;
+      //height: 2rem;
     }
     // Do some clean up on the deep nesting...
     @warn "TODO: Clean up the nestings...its getting out of hand. ";
 
-    svg[aria-label="settings"] {
+    svg[aria-label] {
       height: 1.5rem;
       width: 1.5rem;
     }
 
-    svg[aria-label="contents"] {
-      height: 1.75rem;
-      width: 1.75rem;
-    }
+    // svg[aria-label="contents"] {
+    //   height: 1.75rem;
+    //   width: 1.75rem;
+    // }
 
     .setting-text {
       display: none;
@@ -76,6 +76,10 @@ body {
 
     &.top {
       background-color: $nypl-gray;
+
+      li:nth-child(1) {
+        display: none;
+      }
 
       li:nth-child(3) {
         float: right;
@@ -115,7 +119,6 @@ body {
 
       // The Chapters label found only on mobile
       li[aria-label="chapters"] {
-        font-weight: 900;
         margin: 0 20%;
         position: relative;
         top: -0.3rem;
