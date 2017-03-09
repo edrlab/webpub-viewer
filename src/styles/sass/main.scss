@@ -9,6 +9,7 @@
 // Temp grayscaling for ease of styling...
 body {
   filter: grayscale(1);
+  filter: grayscale(0);
 }
 
 .controls {
@@ -38,8 +39,6 @@ body {
     .icon {
       color: $nypl-white;
       fill: $nypl-white;
-      //width: 2rem;
-      //height: 2rem;
     }
     // Do some clean up on the deep nesting...
     @warn "TODO: Clean up the nestings...its getting out of hand. ";
@@ -48,11 +47,6 @@ body {
       height: 1.5rem;
       width: 1.5rem;
     }
-
-    // svg[aria-label="contents"] {
-    //   height: 1.75rem;
-    //   width: 1.75rem;
-    // }
 
     .setting-text {
       display: none;
@@ -95,14 +89,6 @@ body {
       position: fixed;
       width: 100%;
 
-      // ul {
-      //   display: flex;
-      //   justify-content: space-between;
-      //
-      //   @media (min-width: 489px) {
-      //     display: inline-block;
-      //   }
-      // }
       li {
         float: none;
 
@@ -198,7 +184,7 @@ body {
   }
 
   .active {
-    background-color: $nypl-gray-cool;
+    // background-color: $nypl-gray-cool;
   }
 
   .disabled {
@@ -212,13 +198,57 @@ body {
   border: 0.125rem solid $nypl-gray-cool;
 }
 
-.settings-view > ul {
-  position: relative;
-  left: 35%;
-  width: 50%;
-  height: 50%;
-  margin-top: -8px;
-  padding-top: 1rem;
-  background-color: $nypl-white;
-  border: 2px solid $nypl-gray-cool;
+@warn  "Move Setting section to a partial";
+
+.settings-view {
+
+  > .settings-menu {
+    background-color: $nypl-gray;
+    border: 2px solid darken($nypl-gray, 20%);
+    left: 0;
+    height: calc(100% - 10rem);
+    margin-top: -8px;
+    padding: 1rem 1rem 0;
+    position: relative;
+    //width: 85%;
+
+    a {
+      border: 2px solid $nypl-white;
+      border-radius: 6px;
+      color: $nypl-white;
+      // margin-bottom: 1rem;
+      // margin-left: 0;
+      padding: 0.5rem;
+      text-decoration: none;
+
+      &.active {
+        color: $nypl-gray;
+        background-color: $nypl-white;
+      }
+    }
+
+    > li {
+      color: $nypl-white;
+      margin: 0.5rem 0;
+    }
+
+    > li:nth-child(3) {
+      margin-top: 2rem;
+    }
+
+    .settings-options {
+      margin-top: 1rem;
+      padding-left: 0;
+      width: 65%;
+      // media q here
+
+      li {
+        // border: 1px solid $nypl-white;
+        // border-radius: 3px;
+        margin-bottom: 1rem;
+        margin-left: 0;
+        padding: 0.5rem 0;
+      }
+    }
+  }
 }

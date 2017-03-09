@@ -3,19 +3,19 @@ import * as HTMLUtilities from "./HTMLUtilities";
 import Store from "./Store";
 
 const template = (sections: string) => `
-    <ul>
+    <ul class="settings-menu" role="menu">
         ${sections}
     </ul>
 `;
 
 const sectionTemplate = (sectionName: string, options: string) => `
-    <li>${sectionName}<ul>
+    <li>${sectionName}<ul class="settings-options">
         ${options}
     </ul></li>
 `;
 
 const optionTemplate = (className: string, label: string) => `
-    <li><a href='#' class='${className}'>${label}</a></li>
+    <li><a href='#' class='${className}' role="button">${label}</a></li>
 `;
 
 const offlineTemplate = `
@@ -28,7 +28,7 @@ const offlineTemplate = `
 export enum OfflineStatus {
     Enabled,
     Disabled,
-    NoSelection    
+    NoSelection
 };
 
 export default class BookSettings {
