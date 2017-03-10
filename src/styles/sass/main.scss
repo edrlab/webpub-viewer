@@ -203,7 +203,7 @@ body {
 .settings-view {
 
   > .settings-menu {
-    background-color: $nypl-gray;
+    background-color: transparentize($nypl-gray, 0.1);
     border: 2px solid darken($nypl-gray, 20%);
     left: 0;
     height: calc(100% - 10rem);
