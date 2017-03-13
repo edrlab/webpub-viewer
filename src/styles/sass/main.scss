@@ -16,7 +16,7 @@ body {
   color: $nypl-white;
   font-family: $sans-serif-stack;
   font-size: $basefont;
-  height: 3rem;
+  height: 4rem;
   position: fixed;
   right: 0;
   top: 0;
@@ -171,10 +171,9 @@ body {
   height: calc(100% - 2rem);
   left: 0;
   overflow: scroll;
-  padding-left: 0.625rem;
   position: fixed;
-  top: 3.4rem;
-  width: calc(100% - 1.2rem);
+  top: 4.4rem;
+  width: 100%;
 
   @media (min-width: 489px) {
     top: 2.55rem;
@@ -196,7 +195,7 @@ body {
 
 .contents-view {
   background-color: $nypl-white;
-  border: 0.125rem solid $nypl-blue;
+    border: 0.125rem solid $nypl-blue;
 }
 
 @warn  "Move Setting section to a partial";
@@ -207,7 +206,7 @@ body {
     background-color: transparentize($nypl-blue-dark, 0.1);
     border: 2px solid darken($nypl-blue-dark, 20%);
     left: 0;
-    height: calc(100% - 10rem);
+    //height: calc(100% - 10rem);
     margin-top: -8px;
     padding: 1rem 1rem 0;
     position: relative;
@@ -219,9 +218,10 @@ body {
       color: $nypl-white;
       // margin-bottom: 1rem;
       // margin-left: 0;
-      padding: 0.5rem;
+      padding: 0.35rem;
       text-decoration: none;
 
+      // reverse the active state
       &.active {
         color: $nypl-blue-dark;
         background-color: $nypl-white;
@@ -234,21 +234,22 @@ body {
     }
 
     > li:nth-child(3) {
-      margin-top: 2rem;
+      margin: 1rem 0 1.25rem;
     }
 
     .settings-options {
-      margin-top: 1rem;
+      margin-top: 0.35rem;
       padding-left: 0;
-      width: 65%;
+      // width: 65%;
       // media q here
 
       li {
         // border: 1px solid $nypl-white;
         // border-radius: 3px;
+        display: inline-block;
         margin-bottom: 1rem;
         margin-left: 0;
-        padding: 0.5rem 0;
+        padding: 0.5rem 0 0.25rem;
       }
     }
   }
