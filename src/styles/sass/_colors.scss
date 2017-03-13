@@ -22,3 +22,10 @@ $nypl-light-gray: lighten($nypl-gray, 40%);
 $nypl-white: #fff;
 
 $nypl-black: #111;
+
+// NYPL Blues
+$nypl-blue: #1b7fa7;
+
+$nypl-blue-dark: #135772;
+
+$nypl-blue-tint: tint($nypl-blue, 30%);
