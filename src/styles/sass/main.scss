@@ -9,7 +9,7 @@
 // Temp grayscaling for ease of styling...
 body {
   filter: grayscale(1);
-  filter: grayscale(0);
+//  filter: grayscale(0);
 }
 
 .controls {
@@ -39,14 +39,16 @@ body {
     .icon {
       color: $nypl-white;
       fill: $nypl-white;
+      height: 1.5rem;
+      width: 1.5rem;
     }
     // Do some clean up on the deep nesting...
     @warn "TODO: Clean up the nestings...its getting out of hand. ";
 
-    svg[aria-label] {
-      height: 1.5rem;
-      width: 1.5rem;
-    }
+    // svg[aria-label] {
+    //   height: 1.5rem;
+    //   width: 1.5rem;
+    // }
 
     .setting-text {
       display: none;
@@ -143,7 +145,7 @@ body {
     }
 
   ul li {
-    border: 3px solid $nypl-white;
+    border: 0.125rem solid $nypl-white;
     border-radius: 0.3125rem;
     display: inline-block;
     float: left;
@@ -184,8 +186,9 @@ body {
     top: 2.55rem;
   }
 
-  ul {
+  ul li {
     list-style: none;
+    margin: 0.375rem 0;
   }
 
   .active {
@@ -196,7 +199,7 @@ body {
     background-color: darken($nypl-blue, 20%);
     }
   }
-
+// /controls-view
 
 .contents-view {
   background-color: $nypl-white;
