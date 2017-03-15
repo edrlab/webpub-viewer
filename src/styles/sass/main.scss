@@ -91,7 +91,9 @@ body {
       width: 100%;
 
       li {
+        border: 0;
         float: none;
+        padding: 0;
 
         @media (min-width: 489px) {
           &:nth-child(1) {
@@ -141,8 +143,11 @@ body {
     }
 
   ul li {
+    border: 3px solid $nypl-white;
+    border-radius: 0.3125rem;
     display: inline-block;
     float: left;
+    padding: 0.35rem;
     margin: 0.625rem;
 
     // @media (min-width: 489px) {
@@ -203,7 +208,7 @@ body {
 .settings-view {
 
   > .settings-menu {
-    background-color: transparentize($nypl-blue-dark, 0.1);
+    background-color: $nypl-blue-dark;
     border: 2px solid darken($nypl-blue-dark, 20%);
     left: 0;
     //height: calc(100% - 10rem);
