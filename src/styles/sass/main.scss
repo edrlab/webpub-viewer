@@ -8,12 +8,16 @@
 // Navigation Control
 // Temp grayscaling for ease of styling...
 body {
-  filter: grayscale(1);
-//  filter: grayscale(0);
+  // filter: grayscale(1);
+  // filter: grayscale(0);
+  @media (min-width: 960px) {
+    margin: 0 auto;
+    width: 960px;
+  }
 }
 
 .controls {
-  color: $nypl-white;
+  color: $nypl-blue-dark;
   font-family: $sans-serif-stack;
   font-size: $basefont;
   height: 4rem;
@@ -24,11 +28,11 @@ body {
 
 // media queries
   @media (min-width: 489px) {
-    height: 2.5rem;
+    //height: 2.5rem;
   }
 
   .links {
-    background-color: $nypl-blue;
+    background-color: $nypl-white;
     height: inherit;
     list-style-type: none;
     margin: 0;
@@ -37,18 +41,13 @@ body {
     text-align: center;
 
     .icon {
-      color: $nypl-white;
-      fill: $nypl-white;
+      color: $nypl-blue-dark;
+      fill: $nypl-blue-dark;
       height: 1.5rem;
       width: 1.5rem;
     }
     // Do some clean up on the deep nesting...
     @warn "TODO: Clean up the nestings...its getting out of hand. ";
-
-    // svg[aria-label] {
-    //   height: 1.5rem;
-    //   width: 1.5rem;
-    // }
 
     .setting-text {
       display: none;
@@ -59,20 +58,26 @@ body {
 
       &.contents {
         top: -0.55rem;
+
+        @media (min-width: 489px) {
+          display: inline-block;
+          position: relative;
+          top: -0.35rem;
+        }
       }
     }
 
-    @media (min-width: 489px) {
-      .setting-text {
-        display: inline-block;
-        position: relative;
-        top: -0.8rem;
-      }
-    }
+    // @media (min-width: 489px) {
+    //   .setting-text {
+    //     display: inline-block;
+    //     position: relative;
+    //     top: -0.8rem;
+    //   }
+    // }
 
     &.top {
-      background-color: $nypl-blue-dark;
-      border-bottom: 3px solid darken($nypl-blue-dark, 25%);
+      background-color: $nypl-white;
+      border-bottom: 3px solid $nypl-blue-dark;
 
       li:nth-child(1) {
         display: none;
@@ -85,13 +90,18 @@ body {
     // Bottom Controls
     // the, fixed bar and the arrows.
     &.bottom {
-      border-top: 0.16rem solid $nypl-black;
+      border-top: 0.16rem solid $nypl-blue-dark;
       bottom: 0;
       display: block;
       height: 3.2rem;
+      padding-top: 0.625rem;
       position: fixed;
       width: 100%;
 
+      @media (min-width: 489px) {
+        padding-top: 0;
+        }
+        
       li {
         border: 0;
         float: none;
@@ -121,7 +131,7 @@ body {
         }
 
       @media (min-width: 489px) {
-        background-color: darken($nypl-blue-dark, 15%);
+        background: lighten($nypl-blue-dark, 50%);
         }
 
       .icon {
@@ -145,7 +155,7 @@ body {
     }
 
   ul li {
-    border: 0.125rem solid $nypl-white;
+    border: 0.125rem solid $nypl-blue-dark;
     border-radius: 0.3125rem;
     display: inline-block;
     float: left;
@@ -158,19 +168,20 @@ body {
   }
 
   a {
-    color: $nypl-white;
+    color: $nypl-blue-dark;
     text-decoration: none;
     }
   }
 
 .loading {
-  position: fixed;
-  width: 12.5rem;
-  height: 12.5rem;
-  text-align: center;
-  left: calc(50% - 6.25rem);
-  top: calc(50% - 6.25rem);
   background-color: $nypl-blue;
+  font-family: $sans-serif-stack;
+  height: 12.5rem;
+  left: calc(50% - 6.25rem);
+  position: fixed;
+  text-align: center;
+  top: calc(50% - 6.25rem);
+  width: 12.5rem;
 }
 
 .controls-view {
@@ -183,7 +194,7 @@ body {
   width: 100%;
 
   @media (min-width: 489px) {
-    top: 2.55rem;
+    top: 4.4rem;
   }
 
   ul li {
@@ -203,7 +214,7 @@ body {
 
 .contents-view {
   background-color: $nypl-white;
-    border: 0.125rem solid $nypl-blue;
+  border: 0.125rem solid $nypl-blue;
 }
 
 @warn  "Move Setting section to a partial";
@@ -211,8 +222,8 @@ body {
 .settings-view {
 
   > .settings-menu {
-    background-color: $nypl-blue-dark;
-    border: 2px solid darken($nypl-blue-dark, 20%);
+    background-color: $nypl-white;
+    border: 2px solid $nypl-blue-dark;
     left: 0;
     //height: calc(100% - 10rem);
     margin-top: -8px;
@@ -220,24 +231,31 @@ body {
     position: relative;
     //width: 85%;
 
+    @media (min-width: 489px) {
+      left: calc(100vw - 37vw);
+    }
+
     a {
-      border: 2px solid $nypl-white;
+      border: 2px solid $nypl-blue-dark;
       border-radius: 0.375rem;
-      color: $nypl-white;
-      // margin-bottom: 1rem;
-      // margin-left: 0;
+      color: $nypl-blue-dark;
       padding: 0.35rem;
       text-decoration: none;
+      width: 50%;
+
+      @media (min-width: 489px) {
+        width: 30%;
+      }
 
       // reverse the active state
       &.active {
-        color: $nypl-blue-dark;
-        background-color: $nypl-white;
+        color: $nypl-white;
+        background-color: $nypl-blue-dark;
       }
     }
 
     > li {
-      color: $nypl-white;
+      color: $nypl-blue-dark;
       margin: 0.5rem 0;
     }
 
