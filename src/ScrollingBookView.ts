@@ -2,7 +2,7 @@ import BookView from "./BookView";
 
 export default class ScrollingBookView implements BookView {
     public readonly name = "scrolling-book-view";
-    public readonly label = "Scrolling View";
+    public readonly label = "Scrolling";
 
     public bookElement: HTMLIFrameElement;
     public sideMargin: number = 0;
