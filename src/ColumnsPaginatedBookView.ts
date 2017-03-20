@@ -2,7 +2,7 @@ import PaginatedBookView from "./PaginatedBookView";
 
 export default class ColumnsPaginatedBookView implements PaginatedBookView {
     public readonly name = "columns-paginated-view"
-    public readonly label = "Paginated View"
+    public readonly label = "Paginated"
 
     public bookElement: HTMLIFrameElement;
     public sideMargin: number = 0;
