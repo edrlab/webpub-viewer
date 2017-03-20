@@ -203,6 +203,7 @@ body {
   position: fixed;
   top: 3.5rem;
   width: 100%;
+  -webkit-overflow-scrolling: touch;
 
   @media (min-width: 30rem) {
     //top: 4.4rem;
@@ -258,10 +259,10 @@ body {
 
     .enable-offline {
       margin-top: 0.35rem;
-      width: 52%;
+      width: 32%;
 
       @media (min-width: 60rem) {
-        width: 72%;
+        width: 52%;
       }
     }
 
