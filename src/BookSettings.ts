@@ -21,7 +21,7 @@ const optionTemplate = (liClassName: string, buttonClassName: string, label: str
 const offlineTemplate = `
     <li>
         <div class='offline-status'></div>
-        <button class='enable-offline' href='#'>Download book for offline use</button>
+        <button class='enable-offline' href='#'>Read offline</button>
     </li>
 `;
 
