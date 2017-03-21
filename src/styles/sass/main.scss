@@ -305,8 +305,7 @@ body {
     .settings-options {
       margin-top: 0.35rem;
       padding-left: 0;
-      // width: 65%;
-      // media q here
+
       @media (min-width: 60rem) {
         width: 100%;
       }

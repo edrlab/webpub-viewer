@@ -120,7 +120,7 @@ export default class BookSettings {
         }
 
         if (this.fontSizes.length > 1) {
-            const fontSizeOptions = optionTemplate("decrease", "Decrease") + optionTemplate("increase", "Increase");
+            const fontSizeOptions = optionTemplate("decrease", "A") + optionTemplate("increase", "A");
             sections.push(sectionTemplate("Font Size", fontSizeOptions));
         }
 
