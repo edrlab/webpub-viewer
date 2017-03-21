@@ -174,7 +174,7 @@ body {
     // }
   }
 
-  a {
+  button {
     color: $nypl-blue-dark;
     text-decoration: none;
     }
@@ -197,6 +197,7 @@ body {
 
 .controls-view {
   font-family: $sans-serif-stack;
+  font-size: $basefont;
   height: calc(100% - 2rem);
   left: 0;
   overflow: scroll;
@@ -216,7 +217,7 @@ body {
     padding-bottom: 0.8rem;
     width: 90%;
 
-    a {
+    button {
       color: $nypl-blue-dark;
       text-decoration: none;
     }
@@ -266,13 +267,15 @@ body {
       // }
     }
 
-    a {
+    button {
+      background: $nypl-white;
       border: 0.0625rem solid $nypl-blue-dark;
       border-radius: 0.375rem;
       color: $nypl-blue-dark;
+      font-size: 1rem;
       padding: 0.35rem;
       text-decoration: none;
-      width: 50%;
+      //width: 50%;
 
       @media (min-width: 60rem) {
         width: auto;
