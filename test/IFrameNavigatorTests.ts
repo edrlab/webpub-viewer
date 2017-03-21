@@ -451,7 +451,7 @@ describe("IFrameNavigator", () => {
 
         it("should toggle the navigation links", async () => {
             jsdom.changeURL(window, "http://example.com");
-            const links = element.querySelector("ul[class=links]") as HTMLUListElement;
+            const links = element.querySelector("ul[class='links top']") as HTMLUListElement;
             const toggleElement = element.querySelector("div[class=links-toggle]");
             
             // Initially, the navigation links are visible.
@@ -612,15 +612,18 @@ describe("IFrameNavigator", () => {
             expect(paginatorGoToPosition.args[0][0]).to.equal(0.25);
         });
 
-        it("should set top margin on view when loading iframe", async () => {
+        it("should set margins on view when loading iframe", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            const navigation = element.querySelector("div[class=controls]") as HTMLUListElement;
-            (navigation as any).clientHeight = 10;
+            const linksTop = element.querySelector("ul[class='links top']") as HTMLUListElement;
+            const linksBottom = element.querySelector("ul[class='links bottom']") as HTMLUListElement;
+            (linksTop as any).clientHeight = 10;
+            (linksBottom as any).clientHeight = 20;
 
             iframe.src = "http://example.com/item-1.html";
             await pause();
 
             expect(iframe.style.marginTop).to.equal("15px");
+            expect(iframe.style.marginBottom).to.equal("25px");
         });
 
         it("should show loading message while iframe is loading", async () => {
@@ -662,19 +665,29 @@ describe("IFrameNavigator", () => {
             expect(link2.text).to.equal("Item 2");
         });
 
+        it("should show on first load if there's no last reading position yet", async () => {
+            let toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
+            expect(toc.style.display).not.to.equal("none");
+
+            getLastReadingPosition.returns("http://example.com/item-1.html");
+            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
+            toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
+            expect(toc.style.display).to.equal("none");
+        });
+
         it("should show and hide when contents link is clicked", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
-            expect(toc.style.display).to.equal("none");
+            expect(toc.style.display).not.to.equal("none");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
             const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
             click(contentsLink);
-            expect(toc.style.display).not.to.equal("none");
+            expect(toc.style.display).to.equal("none");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
             click(contentsLink);
-            expect(toc.style.display).to.equal("none");
+            expect(toc.style.display).not.to.equal("none");
             expect(iframe.src).to.equal("http://example.com/start.html");
         });
 
@@ -682,13 +695,11 @@ describe("IFrameNavigator", () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             iframe.contentDocument.elementFromPoint = stub().returns(span);
             const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
-
             const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
-            click(contentsLink);
-            expect(toc.style.display).not.to.equal("none");
 
             iframe.src = "http://example.com/item-1.html";
             await pause();
+            expect(toc.style.display).not.to.equal("none");
 
             const nextChapterLink = element.querySelector("a[rel=next]") as HTMLAnchorElement;
             click(nextChapterLink);
@@ -766,6 +777,18 @@ describe("IFrameNavigator", () => {
             click(settingsLink);
             expect(settings.style.display).to.equal("none");
             expect(iframe.src).to.equal("http://example.com/start.html");
+        });
+
+        it("should hide when settings view is clicked", async () => {
+            const settings = element.querySelector("div[class='settings-view controls-view']") as HTMLDivElement;
+            expect(settings.style.display).to.equal("none");
+
+            const settingsLink = element.querySelector("a[class=settings]") as HTMLAnchorElement;
+            click(settingsLink);
+            expect(settings.style.display).not.to.equal("none");
+
+            click(settings);
+            expect(settings.style.display).to.equal("none");
         });
     });
 });
