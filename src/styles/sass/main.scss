@@ -306,7 +306,6 @@ body {
     }
 
     .settings-options {
-      margin-top: 0.35rem;
       padding-left: 0;
 
       @media (min-width: 60rem) {
@@ -316,11 +315,24 @@ body {
       li {
         border: 0;
         display: inline-block;
-        margin-bottom: 1rem;
-        margin-left: 0;
-        margin: 0 0 1rem;
+        margin: 0;
         padding: 0.5rem 0 0.25rem;
         width: auto;
+      }
+
+      .font-setting {
+        padding: 0 0.3rem;
+        vertical-align: text-bottom;
+      }
+
+      .increase {
+        font-size: 1.3rem;
+        padding: 0 0.69rem;
+        }
+
+      .decrease {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
       }
     }
   }
