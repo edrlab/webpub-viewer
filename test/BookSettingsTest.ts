@@ -124,38 +124,38 @@ describe("BookSettings", () => {
     });
 
     describe("#renderControls", () => {
-        it("renders a link for each view", async () => {
+        it("renders a button for each view", async () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
-            let view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
-            expect(view1Link.text).to.equal("View 1");
-            let view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
-            expect(view2Link.text).to.equal("View 2");
+            let view1Button = element.querySelector("button[class='view1 active']") as HTMLButtonElement;
+            expect(view1Button.innerHTML).to.equal("View 1");
+            let view2Button = element.querySelector("button[class=view2]") as HTMLButtonElement;
+            expect(view2Button.innerHTML).to.equal("View 2");
 
             // If there's no views or only 1 view, views don't show up in the settings.
 
             settings = await BookSettings.create(store, [view1], [12]);
             settings.renderControls(element);
-            view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
-            expect(view1Link).to.be.null;
-            view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
-            expect(view2Link).to.be.null;
+            view1Button = element.querySelector("button[class='view1 active']") as HTMLButtonElement;
+            expect(view1Button).to.be.null;
+            view2Button = element.querySelector("button[class=view2]") as HTMLButtonElement;
+            expect(view2Button).to.be.null;
 
             settings = await BookSettings.create(store, [], [12]);
             settings.renderControls(element);
-            view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
-            expect(view1Link).to.be.null;
+            view1Button = element.querySelector("button[class='view1 active']") as HTMLButtonElement;
+            expect(view1Button).to.be.null;
         });
 
-        it("changes view when a view link is clicked", async () => {
+        it("changes view when a view button is clicked", async () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
-            const view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
-            const view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
+            const view1Button = element.querySelector("button[class='view1 active']") as HTMLButtonElement;
+            const view2Button = element.querySelector("button[class=view2]") as HTMLButtonElement;
 
-            click(view2Link);
+            click(view2Button);
             await pause();
 
             expect(getCurrentPosition.callCount).to.equal(1);
@@ -171,10 +171,10 @@ describe("BookSettings", () => {
             let storedView = await store.get("settings-selected-view")
             expect(storedView).to.equal(view2.name);
 
-            expect(view1Link.className).not.to.contain("active");
-            expect(view2Link.className).to.contain("active");
+            expect(view1Button.className).not.to.contain("active");
+            expect(view2Button.className).to.contain("active");
 
-            click(view1Link);
+            click(view1Button);
             await pause();
 
             expect(getCurrentPosition.callCount).to.equal(2);
@@ -190,101 +190,101 @@ describe("BookSettings", () => {
             storedView = await store.get("settings-selected-view")
             expect(storedView).to.equal(view1.name);
 
-            expect(view1Link.className).to.contain("active");
-            expect(view2Link.className).not.to.contain("active");
+            expect(view1Button.className).to.contain("active");
+            expect(view2Button.className).not.to.contain("active");
         });
 
-        it("renders font size increase and decrease links", async () => {
+        it("renders font size increase and decrease buttons", async () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
-            let decreaseLink = element.querySelector("a[class='decrease']") as HTMLAnchorElement;
-            expect(decreaseLink.text).to.contain("Decrease");
-            let increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
-            expect(increaseLink.text).to.contain("Increase");
+            let decreaseButton = element.querySelector("button[class='decrease']") as HTMLButtonElement;
+            expect(decreaseButton.innerHTML).to.contain("Decrease");
+            let increaseButton = element.querySelector("button[class=increase]") as HTMLButtonElement;
+            expect(increaseButton.innerHTML).to.contain("Increase");
 
             // If there's no font size or only one font size, font size controls don't show up in settings.
 
             settings = await BookSettings.create(store, [view1], [12]);
             settings.renderControls(element);
-            decreaseLink = element.querySelector("a[class='decrease']") as HTMLAnchorElement;
-            expect(decreaseLink).to.be.null;
-            increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
-            expect(increaseLink).to.be.null;
+            decreaseButton = element.querySelector("button[class='decrease']") as HTMLButtonElement;
+            expect(decreaseButton).to.be.null;
+            increaseButton = element.querySelector("button[class=increase]") as HTMLButtonElement;
+            expect(increaseButton).to.be.null;
 
             settings = await BookSettings.create(store, [view1], []);
             settings.renderControls(element);
-            decreaseLink = element.querySelector("a[class='decrease']") as HTMLAnchorElement;
-            expect(decreaseLink).to.be.null;
-            increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
-            expect(increaseLink).to.be.null;
+            decreaseButton = element.querySelector("button[class='decrease']") as HTMLButtonElement;
+            expect(decreaseButton).to.be.null;
+            increaseButton = element.querySelector("button[class=increase]") as HTMLButtonElement;
+            expect(increaseButton).to.be.null;
         });
 
         it("decreases and increases font size", async () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
-            const decreaseLink = element.querySelector("a[class=decrease]") as HTMLAnchorElement;
-            const increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
+            const decreaseButton = element.querySelector("button[class=decrease]") as HTMLButtonElement;
+            const increaseButton = element.querySelector("button[class=increase]") as HTMLButtonElement;
 
             expect(settings.getSelectedFontSize()).to.equal("14px");
 
-            click(decreaseLink);
+            click(decreaseButton);
             await pause();
             expect(settings.getSelectedFontSize()).to.equal("12px");
             let storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("12px");
 
-            // The decrease link is now disabled because the size can't be decreased more.
-            expect(decreaseLink.className).to.contain("disabled");
-            expect(increaseLink.className).not.to.contain("disabled");
+            // The decrease button is now disabled because the size can't be decreased more.
+            expect(decreaseButton.className).to.contain("disabled");
+            expect(increaseButton.className).not.to.contain("disabled");
 
-            // Clicking the decrease link again does nothing.
-            click(decreaseLink);
+            // Clicking decrease again does nothing.
+            click(decreaseButton);
             await pause();
             expect(settings.getSelectedFontSize()).to.equal("12px");
             storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("12px");
 
-            click(increaseLink);
+            click(increaseButton);
             await pause();
             expect(settings.getSelectedFontSize()).to.equal("14px");
             storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("14px");
 
-            expect(decreaseLink.className).not.to.contain("disabled");
-            expect(increaseLink.className).not.to.contain("disabled");
+            expect(decreaseButton.className).not.to.contain("disabled");
+            expect(increaseButton.className).not.to.contain("disabled");
 
-            click(increaseLink);
+            click(increaseButton);
             await pause();
             expect(settings.getSelectedFontSize()).to.equal("16px");
             storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("16px");
 
-            expect(decreaseLink.className).not.to.contain("disabled");
-            expect(increaseLink.className).to.contain("disabled");
+            expect(decreaseButton.className).not.to.contain("disabled");
+            expect(increaseButton.className).to.contain("disabled");
 
-            // Clicking the increase link again does nothing.
-            click(increaseLink);
+            // Clicking increase again does nothing.
+            click(increaseButton);
             await pause();
             expect(settings.getSelectedFontSize()).to.equal("16px");
             storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("16px");
         });
 
-        it("renders offline link and status", async () => {
+        it("renders offline button and status", async () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
-            let offlineLink = element.querySelector("a[class='enable-offline']") as HTMLAnchorElement;
-            expect(offlineLink.text).to.contain("Download");
-            expect(offlineLink.text).to.contain("offline use");
-            expect(offlineLink.style.display).not.to.equal("none");
+            let offlineButton = element.querySelector("button[class='enable-offline']") as HTMLButtonElement;
+            expect(offlineButton.innerHTML).to.contain("Download");
+            expect(offlineButton.innerHTML).to.contain("offline use");
+            expect(offlineButton.style.display).not.to.equal("none");
 
             let offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
             expect(offlineStatus).not.to.be.null;
 
-            click(offlineLink);
+            click(offlineButton);
             await pause();
             expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Enabled);
 
@@ -295,8 +295,8 @@ describe("BookSettings", () => {
             settings = await BookSettings.create(store, [view1], [12]);
             settings.renderControls(element);
 
-            offlineLink = element.querySelector("a[class='enable-offline']") as HTMLAnchorElement;
-            expect(offlineLink.style.display).to.equal("none");
+            offlineButton = element.querySelector("button[class='enable-offline']") as HTMLButtonElement;
+            expect(offlineButton.style.display).to.equal("none");
 
             offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
             expect(offlineStatus).not.to.be.null;
@@ -310,8 +310,8 @@ describe("BookSettings", () => {
             });
 
             settings.renderControls(element);
-            const increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
-            click(increaseLink);
+            const increaseButton = element.querySelector("button[class=increase]") as HTMLButtonElement;
+            click(increaseButton);
             expect(clickEventTriggered).to.equal(false);
 
             const ul = element.querySelector("ul") as HTMLUListElement;
@@ -331,14 +331,14 @@ describe("BookSettings", () => {
             const viewChanged = stub();
             settings.onViewChange(viewChanged);
 
-            const view1Link = element.querySelector("a[class='view1 active']") as HTMLAnchorElement;
-            const view2Link = element.querySelector("a[class=view2]") as HTMLAnchorElement;
+            const view1Button = element.querySelector("button[class='view1 active']") as HTMLButtonElement;
+            const view2Button = element.querySelector("button[class=view2]") as HTMLButtonElement;
 
-            click(view2Link);
+            click(view2Button);
             await pause();
             expect(viewChanged.callCount).to.equal(1);
 
-            click(view1Link);
+            click(view1Button);
             await pause();
             expect(viewChanged.callCount).to.equal(2);
         });
@@ -352,14 +352,14 @@ describe("BookSettings", () => {
             const fontSizeChanged = stub();
             settings.onFontSizeChange(fontSizeChanged);
 
-            const decreaseLink = element.querySelector("a[class=decrease]") as HTMLAnchorElement;
-            const increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
+            const decreaseButton = element.querySelector("button[class=decrease]") as HTMLButtonElement;
+            const increaseButton = element.querySelector("button[class=increase]") as HTMLButtonElement;
 
-            click(decreaseLink);
+            click(decreaseButton);
             await pause();
             expect(fontSizeChanged.callCount).to.equal(1);
 
-            click(increaseLink);
+            click(increaseButton);
             await pause();
             expect(fontSizeChanged.callCount).to.equal(2);
         });
@@ -373,8 +373,8 @@ describe("BookSettings", () => {
             const offlineEnabled = stub();
             settings.onOfflineEnabled(offlineEnabled);
 
-            const offlineLink = element.querySelector("a[class='enable-offline']") as HTMLAnchorElement;
-            click(offlineLink);
+            const offlineButton = element.querySelector("button[class='enable-offline']") as HTMLButtonElement;
+            click(offlineButton);
             await pause();
             expect(offlineEnabled.callCount).to.equal(1);
         });
@@ -393,8 +393,8 @@ describe("BookSettings", () => {
             expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Enabled);
             let storedSetting = await store.get("settings-offline-enabled");
             expect(storedSetting).to.equal("true");
-            let offlineLink = element.querySelector("a[class='enable-offline']") as HTMLAnchorElement;
-            expect(offlineLink.style.display).to.equal("none");
+            let offlineButton = element.querySelector("button[class='enable-offline']") as HTMLButtonElement;
+            expect(offlineButton.style.display).to.equal("none");
             expect(offlineEnabled.callCount).to.equal(1);
 
             confirmStub.returns(false);
@@ -402,7 +402,7 @@ describe("BookSettings", () => {
             expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Disabled);
             storedSetting = await store.get("settings-offline-enabled");
             expect(storedSetting).to.equal("false");
-            expect(offlineLink.style.display).not.to.equal("none");
+            expect(offlineButton.style.display).not.to.equal("none");
             expect(offlineEnabled.callCount).to.equal(1);
         });
     });

@@ -303,7 +303,7 @@ export default class IFrameNavigator implements Navigator {
             this.navigate(position);
             // Show TOC when book is first opened.
             this.firstLoad = true;
-            this.toggleDisplay(this.tocView);
+            this.toggleDisplay(this.tocView, this.contentsLink);
         }
 
         return new Promise<void>(resolve => resolve());
@@ -399,12 +399,18 @@ export default class IFrameNavigator implements Navigator {
         return false;
     }
 
-    private toggleDisplay(element: HTMLDivElement | HTMLUListElement): void {
+    private toggleDisplay(element: HTMLDivElement | HTMLUListElement, link?: HTMLAnchorElement): void {
         const display: string | null = element.style.display;
         if (display === "none") {
             element.style.display = "block";
+            if (link) {
+                link.setAttribute("aria-expanded", "true");
+            }
         } else {
             element.style.display = "none";
+            if (link) {
+                link.setAttribute("aria-expanded", "false");
+            }
         }
     }
 
@@ -513,12 +519,13 @@ export default class IFrameNavigator implements Navigator {
 
     private handleContentsClick(event: MouseEvent): void {
         this.hideSettings();
-        this.toggleDisplay(this.tocView);
+        this.toggleDisplay(this.tocView, this.contentsLink);
         event.preventDefault();
     }
 
     private hideTOC(): void {
         this.tocView.style.display = "none";
+        this.contentsLink.setAttribute("aria-expanded", "false");
     }
 
     private setActiveTOCItem(resource: string): void {
@@ -534,12 +541,13 @@ export default class IFrameNavigator implements Navigator {
 
     private handleSettingsClick(event: MouseEvent): void {
         this.hideTOC();
-        this.toggleDisplay(this.settingsView);
+        this.toggleDisplay(this.settingsView, this.settingsLink);
         event.preventDefault();
     }
 
     private hideSettings(): void {
         this.settingsView.style.display = "none";
+        this.settingsLink.setAttribute("aria-expanded", "false");
     }
 
     private navigate(readingPosition: ReadingPosition): void {
