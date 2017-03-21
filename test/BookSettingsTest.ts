@@ -301,6 +301,26 @@ describe("BookSettings", () => {
             offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
             expect(offlineStatus).not.to.be.null;
         });
+
+        it("blocks click events for container element when something in the ul is clicked", () => {
+            let clickEventTriggered: boolean = false;
+            const element = document.createElement("div");
+            element.addEventListener("click", () => {
+                clickEventTriggered = true;
+            });
+
+            settings.renderControls(element);
+            const increaseLink = element.querySelector("a[class=increase]") as HTMLAnchorElement;
+            click(increaseLink);
+            expect(clickEventTriggered).to.equal(false);
+
+            const ul = element.querySelector("ul") as HTMLUListElement;
+            click(ul);
+            expect(clickEventTriggered).to.equal(false);
+
+            click(element);
+            expect(clickEventTriggered).to.equal(true);
+        });
     });
 
     describe("#onViewChange", () => {
