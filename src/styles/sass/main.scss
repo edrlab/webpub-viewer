@@ -213,13 +213,23 @@ body {
   ul li {
     border-bottom: 1px solid darken($nypl-white, 20%);
     list-style: none;
-    margin: 1rem 0;
-    padding-bottom: 0.8rem;
     width: 90%;
 
-    button {
+    &:hover {
+      background: $nypl-blue-dark;
+      //color: $nypl-white;
+    }
+
+    a {
       color: $nypl-blue-dark;
+      display: block;
+      padding: 1rem;
       text-decoration: none;
+      width: 100%;
+
+      &:hover {
+        color: $nypl-white;
+      }
     }
   }
 
@@ -328,7 +338,7 @@ body {
       .increase {
         font-size: 1.3rem;
         padding: 0 0.69rem;
-        }
+      }
 
       .decrease {
         font-size: 0.8rem;
