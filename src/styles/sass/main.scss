@@ -16,6 +16,10 @@ body {
   }
 }
 
+ul li {
+  list-style: none;
+}
+
 .controls {
   color: $nypl-blue-dark;
   font-family: $sans-serif-stack;
@@ -26,10 +30,10 @@ body {
   top: 0;
   width: 100%;
 
-// media queries
-  @media (min-width: 30rem) {
-    //height: 2.5rem;
-  }
+
+  // @media (min-width: 30rem) {
+  //   //height: 2.5rem;
+  // }
 
   .links {
     background-color: $nypl-white;
@@ -47,8 +51,6 @@ body {
       width: 1.5rem;
     }
 
-    //.settings {}
-
     .setting-text {
       display: none;
       position: relative;
@@ -57,10 +59,6 @@ body {
       @media (min-width: 30rem) {
         display: inline-block;
       }
-
-      // &.settings {
-      //   top: -0.4rem;
-      // }
 
       &.contents {
         top: -0.55rem;
@@ -174,7 +172,8 @@ body {
     // }
   }
 
-  button {
+  button,
+  a {
     color: $nypl-blue-dark;
     text-decoration: none;
     }
@@ -210,29 +209,6 @@ body {
     //top: 4.4rem;
   }
 
-  ul li {
-    border-bottom: 1px solid darken($nypl-white, 20%);
-    list-style: none;
-    width: 90%;
-
-    &:hover {
-      background: $nypl-blue-dark;
-      //color: $nypl-white;
-    }
-
-    a {
-      color: $nypl-blue-dark;
-      display: block;
-      padding: 1rem;
-      text-decoration: none;
-      width: 100%;
-
-      &:hover {
-        color: $nypl-white;
-      }
-    }
-  }
-
   .active {
     // background-color: $nypl-blue;
   }
@@ -247,6 +223,27 @@ body {
   background-color: $nypl-white;
   border-bottom: 0.125rem solid $nypl-blue;
   border-top: 0.125rem solid $nypl-blue;
+
+  ul li {
+    border-bottom: 1px solid darken($nypl-white, 20%);
+    width: 90%;
+
+    &:hover {
+      background: $nypl-blue-dark;
+    }
+
+    a {
+      color: $nypl-blue-dark;
+      display: block;
+      padding: 1rem;
+      text-decoration: none;
+      width: 100%;
+
+      &:hover {
+        color: $nypl-white;
+      }
+    }
+  }
 }
 
 @warn  "Move Setting section to a partial";
