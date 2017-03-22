@@ -199,9 +199,9 @@ describe("BookSettings", () => {
             settings.renderControls(element);
 
             let decreaseButton = element.querySelector("button[class='decrease']") as HTMLButtonElement;
-            expect(decreaseButton.innerHTML).to.contain("Decrease");
+            expect(decreaseButton).to.be.ok;
             let increaseButton = element.querySelector("button[class=increase]") as HTMLButtonElement;
-            expect(increaseButton.innerHTML).to.contain("Increase");
+            expect(increaseButton).to.be.ok;
 
             // If there's no font size or only one font size, font size controls don't show up in settings.
 
@@ -277,8 +277,7 @@ describe("BookSettings", () => {
             settings.renderControls(element);
 
             let offlineButton = element.querySelector("button[class='enable-offline']") as HTMLButtonElement;
-            expect(offlineButton.innerHTML).to.contain("Download");
-            expect(offlineButton.innerHTML).to.contain("offline use");
+            expect(offlineButton.innerHTML).to.contain("offline");
             expect(offlineButton.style.display).not.to.equal("none");
 
             let offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
