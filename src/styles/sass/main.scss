@@ -251,7 +251,7 @@ ul li {
 .settings-view {
 
   > .settings-menu {
-    background-color: darken($nypl-white, 2.5%);
+    background-color: transparentize($nypl-white, 0.15);
     border-bottom: 1px solid $nypl-blue-dark;
     border-top: 1px solid $nypl-blue-dark;
     left: 0;
@@ -267,11 +267,10 @@ ul li {
 
     .enable-offline {
       margin-top: 0.35rem;
-      width: 30%;
 
-      // @media (min-width: 60rem) {
-      //   width: 52%;
-      // }
+      @media (min-width: 60rem) {
+        width: 52%;
+      }
     }
 
     button {
@@ -298,6 +297,7 @@ ul li {
     > li {
       border: 0;
       color: $nypl-blue-dark;
+      display: inline-block;
       margin: 0.5rem 0;
       padding: 0;
       width: auto;
@@ -309,7 +309,7 @@ ul li {
     }
 
     > li:nth-child(3) {
-      margin: 1rem 0 1.25rem;
+      margin: 0 0 1.25rem;
     }
 
     .settings-options {
@@ -323,12 +323,12 @@ ul li {
         border: 0;
         display: inline-block;
         margin: 0;
-        padding: 0.5rem 0 0.25rem;
+        padding: 0 0 0.25rem;
         width: auto;
       }
 
       .font-setting {
-        padding: 0 0.3rem;
+        padding: 0 0.3rem 0 0;
         vertical-align: text-bottom;
       }
 
