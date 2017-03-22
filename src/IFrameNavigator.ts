@@ -234,13 +234,13 @@ export default class IFrameNavigator implements Navigator {
 
         let statusMessage = "";
         if (status === CacheStatus.Uncached) {
-            statusMessage = "Not available offline";
+            statusMessage = "Download";
         } else if (status === CacheStatus.UpdateAvailable) {
             statusMessage = "A new version is available. Refresh to update.";
         } else if (status === CacheStatus.CheckingForUpdate) {
             statusMessage = "Checking for update.";
         } else if (status === CacheStatus.Downloading) {
-            statusMessage = "Downloading for offline use";
+            statusMessage = "Downloading...";
         } else if (status === CacheStatus.Downloaded) {
             statusMessage = "Downloaded for offline use";
         } else if (status === CacheStatus.Error) {
