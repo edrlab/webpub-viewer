@@ -26,7 +26,7 @@ const template = `
           </a>
         </li>
         <li>
-          <button class="contents disabled" role="button" aria-labelledby="contents" aria-haspopup="true" aria-expanded="false">
+          <button class="contents disabled" aria-labelledby="contents" aria-haspopup="true" aria-expanded="false">
             <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 20 27">
               <title id="contents">Table of Contents</title>
               <path d="M17,27H3a3.00328,3.00328,0,0,1-3-3V3A3.00328,3.00328,0,0,1,3,0H15.48047L20,5.64941V24A3.00328,3.00328,0,0,1,17,27ZM3,2A1.0013,1.0013,0,0,0,2,3V24a1.001,1.001,0,0,0,1,1H17a1.00068,1.00068,0,0,0,1-1V6.35059L14.51953,2Z"/>
