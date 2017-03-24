@@ -116,12 +116,12 @@ export default class BookSettings {
             const viewOptions = this.bookViews.map(bookView =>
                 optionTemplate("", bookView.name, bookView.label)
             );
-            sections.push(sectionTemplate("View", viewOptions.join("")));
+            sections.push(sectionTemplate("", viewOptions.join("")));
         }
 
         if (this.fontSizes.length > 1) {
             const fontSizeOptions = optionTemplate("font-setting", "decrease", "A") + optionTemplate("font-setting", "increase", "A");
-            sections.push(sectionTemplate("Font Size", fontSizeOptions));
+            sections.push(sectionTemplate("", fontSizeOptions));
         }
 
         sections.push(offlineTemplate);
