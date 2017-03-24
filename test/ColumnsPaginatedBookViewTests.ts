@@ -5,6 +5,7 @@ import ColumnsPaginatedBookView from "../src/ColumnsPaginatedBookView";
 describe("ColumnsPaginatedBookView", () => {
     let iframe: HTMLIFrameElement;
     let topMargin: number = 10;
+    let bottomMargin: number = 20;
     let sideMargin: number = 11;
     let paginator: ColumnsPaginatedBookView;
 
@@ -17,6 +18,7 @@ describe("ColumnsPaginatedBookView", () => {
         paginator.bookElement = iframe;
         paginator.sideMargin = sideMargin;
         iframe.style.marginTop = topMargin + "px";
+        iframe.style.marginBottom = bottomMargin + "px";
     });
 
     describe("#start", () => {
@@ -31,7 +33,7 @@ describe("ColumnsPaginatedBookView", () => {
         });
 
         it("should set iframe and iframe body width and height and column width based on window size and iframe margins", () => {
-            (window as any).innerHeight = 210;
+            (window as any).innerHeight = 230;
             (document.body as any).offsetWidth = 100;
             paginator.start(0);
             const body = iframe.contentDocument.body;

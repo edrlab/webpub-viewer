@@ -3,41 +3,41 @@ import * as HTMLUtilities from "./HTMLUtilities";
 import Store from "./Store";
 
 const template = (sections: string) => `
-    <ul>
+    <ul class="settings-menu" role="menu">
         ${sections}
     </ul>
 `;
 
-const sectionTemplate = (sectionName: string, options: string) => `
-    <li>${sectionName}<ul>
+const sectionTemplate = (options: string) => `
+    <li><ul class="settings-options">
         ${options}
     </ul></li>
 `;
 
-const optionTemplate = (className: string, label: string) => `
-    <li><a href='#' class='${className}'>${label}</a></li>
+const optionTemplate = (liClassName: string, buttonClassName: string, label: string) => `
+    <li class='${liClassName}'><button class='${buttonClassName}'>${label}</button></li>
 `;
 
 const offlineTemplate = `
     <li>
         <div class='offline-status'></div>
-        <a class='enable-offline' href='#'>Download book for offline use</a>
+        <button class='enable-offline' href='#'>Read offline</button>
     </li>
 `;
 
 export enum OfflineStatus {
     Enabled,
     Disabled,
-    NoSelection    
+    NoSelection
 };
 
 export default class BookSettings {
     private readonly store: Store;
     private readonly bookViews: BookView[];
-    private viewLinks: { [key: string]: HTMLAnchorElement };
+    private viewButtons: { [key: string]: HTMLButtonElement };
     private readonly fontSizes: string[];
-    private fontSizeLinks: { [key: string]: HTMLAnchorElement };
-    private offlineLink: HTMLAnchorElement;
+    private fontSizeButtons: { [key: string]: HTMLButtonElement };
+    private offlineButton: HTMLButtonElement;
     private offlineStatusElement: HTMLElement;
 
     private viewChangeCallback: () => void = () => {};
@@ -114,39 +114,44 @@ export default class BookSettings {
 
         if (this.bookViews.length > 1) {
             const viewOptions = this.bookViews.map(bookView =>
-                optionTemplate(bookView.name, bookView.label)
+                optionTemplate("", bookView.name, bookView.label)
             );
-            sections.push(sectionTemplate("View", viewOptions.join("")));
+            sections.push(sectionTemplate(viewOptions.join("")));
         }
 
         if (this.fontSizes.length > 1) {
-            const fontSizeOptions = optionTemplate("decrease", "Decrease") + optionTemplate("increase", "Increase");
-            sections.push(sectionTemplate("Font Size", fontSizeOptions));
+            const fontSizeOptions = optionTemplate("font-setting", "decrease", "A") + optionTemplate("font-setting", "increase", "A");
+            sections.push(sectionTemplate(fontSizeOptions));
         }
 
         sections.push(offlineTemplate);
 
         element.innerHTML = template(sections.join(""));
-        this.viewLinks = {};
+        this.viewButtons = {};
         if (this.bookViews.length > 1) {
             for (const bookView of this.bookViews) {
-                this.viewLinks[bookView.name] = HTMLUtilities.findRequiredElement(element, "a[class=" + bookView.name + "]") as HTMLAnchorElement;
+                this.viewButtons[bookView.name] = HTMLUtilities.findRequiredElement(element, "button[class=" + bookView.name + "]") as HTMLButtonElement;
             }
-            this.updateViewLinks();
+            this.updateViewButtons();
         }
-        this.fontSizeLinks = {};
+        this.fontSizeButtons = {};
         if (this.fontSizes.length > 1) {
             for (const fontSizeName of ["decrease", "increase"]) {
-                this.fontSizeLinks[fontSizeName] = HTMLUtilities.findRequiredElement(element, "a[class=" + fontSizeName + "]") as HTMLAnchorElement;
+                this.fontSizeButtons[fontSizeName] = HTMLUtilities.findRequiredElement(element, "button[class=" + fontSizeName + "]") as HTMLButtonElement;
             }
-            this.updateFontSizeLinks();
+            this.updateFontSizeButtons();
         }
 
-        this.offlineLink = HTMLUtilities.findRequiredElement(element, 'a[class="enable-offline"]') as HTMLAnchorElement;
+        this.offlineButton = HTMLUtilities.findRequiredElement(element, 'button[class="enable-offline"]') as HTMLButtonElement;
         this.offlineStatusElement = HTMLUtilities.findRequiredElement(element, 'div[class="offline-status"]') as HTMLElement;
-        this.updateOfflineLink();
+        this.updateOfflineButton();
 
         this.setupEvents();
+
+        // Clicking the settings view outside the ul hides it, but clicking inside the ul keeps it up.
+        HTMLUtilities.findRequiredElement(element, "ul").addEventListener("click", (event: Event) => {
+            event.stopPropagation();
+        });
     }
 
     public onViewChange(callback: () => void) {
@@ -163,14 +168,14 @@ export default class BookSettings {
 
     private setupEvents(): void {
         for (const view of this.bookViews) {
-            const link = this.viewLinks[view.name];
-            if (link) {
-                link.addEventListener("click", (event: MouseEvent) => {
+            const button = this.viewButtons[view.name];
+            if (button) {
+                button.addEventListener("click", (event: MouseEvent) => {
                     const position = this.selectedView.getCurrentPosition();
                     this.selectedView.stop();
                     view.start(position);
                     this.selectedView = view;
-                    this.updateViewLinks();
+                    this.updateViewButtons();
                     this.storeSelectedView(view);
                     this.viewChangeCallback();
                     event.preventDefault();
@@ -179,71 +184,71 @@ export default class BookSettings {
         }
 
         if (this.fontSizes.length > 1) {
-            this.fontSizeLinks["decrease"].addEventListener("click", (event: MouseEvent) => {
+            this.fontSizeButtons["decrease"].addEventListener("click", (event: MouseEvent) => {
                 const currentFontSizeIndex = this.fontSizes.indexOf(this.selectedFontSize);
                 if (currentFontSizeIndex > 0) {
                     const newFontSize = this.fontSizes[currentFontSizeIndex - 1];
                     this.selectedFontSize = newFontSize;
                     this.fontSizeChangeCallback();
-                    this.updateFontSizeLinks();
+                    this.updateFontSizeButtons();
                     this.storeSelectedFontSize(newFontSize);
                 }
                 event.preventDefault();
             });
 
-            this.fontSizeLinks["increase"].addEventListener("click", (event: MouseEvent) => {
+            this.fontSizeButtons["increase"].addEventListener("click", (event: MouseEvent) => {
                 const currentFontSizeIndex = this.fontSizes.indexOf(this.selectedFontSize);
                 if (currentFontSizeIndex < this.fontSizes.length - 1) {
                     const newFontSize = this.fontSizes[currentFontSizeIndex + 1];
                     this.selectedFontSize = newFontSize;
                     this.fontSizeChangeCallback();
-                    this.updateFontSizeLinks();
+                    this.updateFontSizeButtons();
                     this.storeSelectedFontSize(newFontSize);
                 }
                 event.preventDefault();
             });
         }
 
-        this.offlineLink.addEventListener("click", (event: MouseEvent) => {
+        this.offlineButton.addEventListener("click", (event: MouseEvent) => {
             this.offlineStatus = OfflineStatus.Enabled;
             this.offlineEnabledCallback();
-            this.updateOfflineLink();
+            this.updateOfflineButton();
             this.storeOfflineEnabled(true);
             event.preventDefault();
         });
     }
 
-    private updateViewLinks(): void {
+    private updateViewButtons(): void {
         for (const view of this.bookViews) {
             if (view === this.selectedView) {
-                this.viewLinks[view.name].className = view.name + " active";
+                this.viewButtons[view.name].className = view.name + " active";
             } else {
-                this.viewLinks[view.name].className = view.name;
+                this.viewButtons[view.name].className = view.name;
             }
         }
     }
 
-    private updateFontSizeLinks(): void {
+    private updateFontSizeButtons(): void {
         const currentFontSizeIndex = this.fontSizes.indexOf(this.selectedFontSize);
 
         if (currentFontSizeIndex === 0) {
-            this.fontSizeLinks["decrease"].className = "decrease disabled";
+            this.fontSizeButtons["decrease"].className = "decrease disabled";
         } else {
-            this.fontSizeLinks["decrease"].className = "decrease";
+            this.fontSizeButtons["decrease"].className = "decrease";
         }
 
         if (currentFontSizeIndex === this.fontSizes.length - 1) {
-            this.fontSizeLinks["increase"].className = "increase disabled";
+            this.fontSizeButtons["increase"].className = "increase disabled";
         } else {
-            this.fontSizeLinks["increase"].className = "increase";
+            this.fontSizeButtons["increase"].className = "increase";
         }
     }
 
-    private updateOfflineLink(): void {
+    private updateOfflineButton(): void {
         if (this.getOfflineStatus() === OfflineStatus.Enabled) {
-            this.offlineLink.style.display = "none";
+            this.offlineButton.style.display = "none";
         } else {
-            this.offlineLink.style.display = "block";
+            this.offlineButton.style.display = "block";
         }
     }
 
@@ -267,7 +272,7 @@ export default class BookSettings {
         } else {
             this.offlineStatus = OfflineStatus.Disabled;
         }
-        this.updateOfflineLink();
+        this.updateOfflineButton();
         await this.storeOfflineEnabled(enable);
     }
 

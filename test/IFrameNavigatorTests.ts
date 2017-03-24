@@ -318,7 +318,7 @@ describe("IFrameNavigator", () => {
            const callback = onStatusUpdate.args[0][0];
 
            callback(CacheStatus.Uncached);
-           expect(offlineStatusElement.innerHTML).to.contain("Not available");
+           expect(offlineStatusElement.innerHTML).to.contain("");
 
            callback(CacheStatus.UpdateAvailable);
            expect(offlineStatusElement.innerHTML).to.contain("new version");
@@ -451,7 +451,7 @@ describe("IFrameNavigator", () => {
 
         it("should toggle the navigation links", async () => {
             jsdom.changeURL(window, "http://example.com");
-            const links = element.querySelector("ul[class=links]") as HTMLUListElement;
+            const links = element.querySelector("ul[class='links top']") as HTMLUListElement;
             const toggleElement = element.querySelector("div[class=links-toggle]");
             
             // Initially, the navigation links are visible.
@@ -612,15 +612,18 @@ describe("IFrameNavigator", () => {
             expect(paginatorGoToPosition.args[0][0]).to.equal(0.25);
         });
 
-        it("should set top margin on view when loading iframe", async () => {
+        it("should set margins on view when loading iframe", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            const navigation = element.querySelector("div[class=controls]") as HTMLUListElement;
-            (navigation as any).clientHeight = 10;
+            const linksTop = element.querySelector("ul[class='links top']") as HTMLUListElement;
+            const linksBottom = element.querySelector("ul[class='links bottom']") as HTMLUListElement;
+            (linksTop as any).clientHeight = 10;
+            (linksBottom as any).clientHeight = 20;
 
             iframe.src = "http://example.com/item-1.html";
             await pause();
 
             expect(iframe.style.marginTop).to.equal("15px");
+            expect(iframe.style.marginBottom).to.equal("25px");
         });
 
         it("should show loading message while iframe is loading", async () => {
@@ -662,19 +665,36 @@ describe("IFrameNavigator", () => {
             expect(link2.text).to.equal("Item 2");
         });
 
-        it("should show and hide when contents link is clicked", async () => {
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
-            expect(toc.style.display).to.equal("none");
-            expect(iframe.src).to.equal("http://example.com/start.html");
-
-            const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
-            click(contentsLink);
+        it("should show on first load if there's no last reading position yet", async () => {
+            let toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
+            let contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
             expect(toc.style.display).not.to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
+
+            getLastReadingPosition.returns("http://example.com/item-1.html");
+            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
+            toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
+            contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
+            expect(toc.style.display).to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
+        });
+
+        it("should show and hide when contents control is clicked", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement; 
+            const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
+            expect(toc.style.display).not.to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
-            click(contentsLink);
+            click(contentsControl);
             expect(toc.style.display).to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
+            expect(iframe.src).to.equal("http://example.com/start.html");
+
+            click(contentsControl);
+            expect(toc.style.display).not.to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(iframe.src).to.equal("http://example.com/start.html");
         });
 
@@ -682,26 +702,28 @@ describe("IFrameNavigator", () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             iframe.contentDocument.elementFromPoint = stub().returns(span);
             const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
-
-            const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
-            click(contentsLink);
-            expect(toc.style.display).not.to.equal("none");
+            const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
 
             iframe.src = "http://example.com/item-1.html";
             await pause();
+            expect(toc.style.display).not.to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
 
             const nextChapterLink = element.querySelector("a[rel=next]") as HTMLAnchorElement;
             click(nextChapterLink);
             await pause();
             expect(toc.style.display).to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
 
-            click(contentsLink);
+            click(contentsControl);
             expect(toc.style.display).not.to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
 
             const previousChapterLink = element.querySelector("a[rel=prev]") as HTMLAnchorElement;
             click(previousChapterLink);
             await pause();
             expect(toc.style.display).to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
         });
 
         it("should navigate to a toc item", async () => {
@@ -709,8 +731,8 @@ describe("IFrameNavigator", () => {
             const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
             expect(iframe.src).to.equal("http://example.com/start.html");
 
-            const contentsLink = element.querySelector("a[rel=contents]") as HTMLAnchorElement;
-            click(contentsLink);
+            const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
+            click(contentsControl);
 
             const links = toc.querySelectorAll("li > a");
             const link1 = links[0] as HTMLAnchorElement;
@@ -718,13 +740,16 @@ describe("IFrameNavigator", () => {
 
             click(link1);
             expect(toc.style.display).to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/item-1.html");
 
-            click(contentsLink);
+            click(contentsControl);
             expect(toc.style.display).not.to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
 
             click(link2);
             expect(toc.style.display).to.equal("none");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/item-2.html");
         });
 
@@ -752,20 +777,38 @@ describe("IFrameNavigator", () => {
     });
 
     describe("settings", () => {
-        it("should show and hide when settings link is clicked", async () => {
+        it("should show and hide when settings control is clicked", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const settings = element.querySelector("div[class='settings-view controls-view']") as HTMLDivElement;
+            const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
             expect(settings.style.display).to.equal("none");
+            expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
-            const settingsLink = element.querySelector("a[class=settings]") as HTMLAnchorElement;
-            click(settingsLink);
+            click(settingsControl);
             expect(settings.style.display).not.to.equal("none");
+            expect(settingsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
-            click(settingsLink);
+            click(settingsControl);
             expect(settings.style.display).to.equal("none");
+            expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/start.html");
+        });
+
+        it("should hide when settings view is clicked", async () => {
+            const settings = element.querySelector("div[class='settings-view controls-view']") as HTMLDivElement;
+            const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
+            expect(settings.style.display).to.equal("none");
+            expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
+
+            click(settingsControl);
+            expect(settings.style.display).not.to.equal("none");
+            expect(settingsControl.getAttribute("aria-expanded")).to.equal("true");
+
+            click(settings);
+            expect(settings.style.display).to.equal("none");
+            expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
         });
     });
 });
