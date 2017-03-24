@@ -5,8 +5,9 @@
 // Type
 @import "type";
 
-// Navigation Control
-// Temp grayscaling for ease of styling...
+//////////////////////////////
+// Global stylings          //
+//////////////////////////////
 body {
   font-family: $sans-serif-stack;
   font-size: $basefont;
@@ -37,6 +38,9 @@ a {
   text-decoration: none;
 }
 
+//////////////////////////////
+//   Navigation Control     //
+//////////////////////////////
 .controls {
   color: $nypl-blue-dark;
   //font-size: $basefont;
@@ -169,6 +173,8 @@ a {
     margin: 0 0.625rem;
   }
 }
+
+// /controls
 
 .loading {
   background-color: darken($nypl-white, 2.5%);
