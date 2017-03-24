@@ -8,8 +8,8 @@ const template = (sections: string) => `
     </ul>
 `;
 
-const sectionTemplate = (sectionName: string, options: string) => `
-    <li>${sectionName}<ul class="settings-options">
+const sectionTemplate = (options: string) => `
+    <li><ul class="settings-options">
         ${options}
     </ul></li>
 `;
@@ -116,12 +116,12 @@ export default class BookSettings {
             const viewOptions = this.bookViews.map(bookView =>
                 optionTemplate("", bookView.name, bookView.label)
             );
-            sections.push(sectionTemplate("", viewOptions.join("")));
+            sections.push(sectionTemplate(viewOptions.join("")));
         }
 
         if (this.fontSizes.length > 1) {
             const fontSizeOptions = optionTemplate("font-setting", "decrease", "A") + optionTemplate("font-setting", "increase", "A");
-            sections.push(sectionTemplate("", fontSizeOptions));
+            sections.push(sectionTemplate(fontSizeOptions));
         }
 
         sections.push(offlineTemplate);
