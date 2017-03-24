@@ -45,6 +45,18 @@ describe("ColumnsPaginatedBookView", () => {
             expect(body.style.columnGap).to.equal("22px");
         });
 
+        it("should set max width and height on image in iframe", () => {
+            (window as any).innerHeight = 230;
+            (document.body as any).offsetWidth = 100;
+            const body = iframe.contentDocument.body;
+            const image  = window.document.createElement("img");
+            body.appendChild(image);
+
+            paginator.start(0);
+            expect(image.style.maxWidth).to.equal("78px");
+            expect(image.style.maxHeight).to.equal("200px");
+        });
+
         it("should set initial position to first or last page", () => {
             // Set read-only properties.
             (iframe.contentDocument.body as any).offsetWidth = 100;
