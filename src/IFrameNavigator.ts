@@ -474,11 +474,32 @@ export default class IFrameNavigator implements Navigator {
             this.scroller.sideMargin = sideMargin;
         }
 
+        // If the links are hidden, show them temporarily
+        // to determine the margins.
+
+        const linksHidden = (this.links.style.display === "none");
+        if (linksHidden) {
+          this.toggleDisplay(this.links);
+        }
+
         const topMargin = this.links.clientHeight + 5;
         this.iframe.style.marginTop = topMargin + "px";
 
+        if (linksHidden) {
+          this.toggleDisplay(this.links);
+        }
+
+        const linksBottomHidden = (this.linksBottom.style.display === "none");
+        if (linksBottomHidden) {
+          this.toggleDisplay(this.linksBottom);
+        }
+
         const bottomMargin = this.linksBottom.clientHeight + 5;
         this.iframe.style.marginBottom = bottomMargin + "px";
+
+        if (linksBottomHidden) {
+          this.toggleDisplay(this.linksBottom);
+        }
 
         selectedView.goToPosition(oldPosition);
     }
