@@ -234,7 +234,7 @@ export default class IFrameNavigator implements Navigator {
 
         let statusMessage = "";
         if (status === CacheStatus.Uncached) {
-            statusMessage = "Download";
+            statusMessage = "";
         } else if (status === CacheStatus.UpdateAvailable) {
             statusMessage = "A new version is available. Refresh to update.";
         } else if (status === CacheStatus.CheckingForUpdate) {

@@ -318,7 +318,7 @@ describe("IFrameNavigator", () => {
            const callback = onStatusUpdate.args[0][0];
 
            callback(CacheStatus.Uncached);
-           expect(offlineStatusElement.innerHTML).to.contain("Not available");
+           expect(offlineStatusElement.innerHTML).to.contain("");
 
            callback(CacheStatus.UpdateAvailable);
            expect(offlineStatusElement.innerHTML).to.contain("new version");
