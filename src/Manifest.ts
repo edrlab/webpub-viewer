@@ -78,6 +78,14 @@ export default class Manifest {
         return null;
     }
 
+    public getSpineItem(href: string): Link | null {
+        const index = this.getSpineIndex(href);
+        if (index !== null) {
+            return this.spine[index];
+        }
+        return null;
+    }
+
     private getSpineIndex(href: string): number | null {
         for (let index = 0; index < this.spine.length; index++) {
             const item = this.spine[index];

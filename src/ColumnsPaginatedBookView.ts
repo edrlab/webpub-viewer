@@ -6,6 +6,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
 
     public bookElement: HTMLIFrameElement;
     public sideMargin: number = 0;
+    public height: number = 0;
 
     public start(position: number): void {
         // any is necessary because CSSStyleDeclaration type does not include
@@ -34,10 +35,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         // any is necessary because CSSStyleDeclaration type does not include
         // all the vendor-prefixed attributes.
         const body = this.bookElement.contentDocument.body as any;
-        const marginTop = parseInt((this.bookElement.style.marginTop || "0px").slice(0, -2));
-        const marginBottom = parseInt((this.bookElement.style.marginBottom || "0px").slice(0, -2));
 
-        const height = (window.innerHeight - marginTop - marginBottom) + "px";
         const width = (document.body.offsetWidth - this.sideMargin * 2) + "px"
         body.style.columnWidth = width;
         body.style.WebkitColumnWidth = width;
@@ -45,17 +43,17 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         body.style.columnGap = this.sideMargin * 2 + "px";
         body.style.WebkitColumnGap = this.sideMargin * 2 + "px";
         body.style.MozColumnGap = this.sideMargin * 2 + "px";
-        body.style.height = height;
+        body.style.height = this.height + "px";
         body.style.width = width;
         body.style.marginLeft = this.sideMargin + "px";
         body.style.marginRight = this.sideMargin + "px";
-        this.bookElement.style.height = height;
+        this.bookElement.style.height = this.height + "px";
         this.bookElement.style.width = document.body.offsetWidth + "px";
 
         const images = body.querySelectorAll("img");
         for (const image of images) {
             image.style.maxWidth = width;
-            image.style.maxHeight = height;
+            image.style.maxHeight = this.height + "px";
         }
     }
 
@@ -125,6 +123,20 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         const totalWidth = leftWidth + width + rightWidth;
 
         return leftWidth / totalWidth;
+    }
+
+    /** Returns the current 1-indexed page number. */
+    public getCurrentPage(): number {
+        return this.getCurrentPosition() * this.getPageCount() + 1;
+    }
+
+    /** Returns the total number of pages. */
+    public getPageCount(): number {
+        const width = this.getColumnWidth();
+        const leftWidth = this.getLeftColumnsWidth();
+        const rightWidth = this.getRightColumnsWidth();
+        const totalWidth = leftWidth + width + rightWidth;
+        return totalWidth / width;
     }
 
     public onFirstPage(): boolean {

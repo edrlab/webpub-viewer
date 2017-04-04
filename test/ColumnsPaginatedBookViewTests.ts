@@ -4,8 +4,7 @@ import ColumnsPaginatedBookView from "../src/ColumnsPaginatedBookView";
 
 describe("ColumnsPaginatedBookView", () => {
     let iframe: HTMLIFrameElement;
-    let topMargin: number = 10;
-    let bottomMargin: number = 20;
+    let height: number = 200;
     let sideMargin: number = 11;
     let paginator: ColumnsPaginatedBookView;
 
@@ -17,8 +16,7 @@ describe("ColumnsPaginatedBookView", () => {
         paginator = new ColumnsPaginatedBookView();
         paginator.bookElement = iframe;
         paginator.sideMargin = sideMargin;
-        iframe.style.marginTop = topMargin + "px";
-        iframe.style.marginBottom = bottomMargin + "px";
+        paginator.height = height;
     });
 
     describe("#start", () => {
@@ -32,8 +30,7 @@ describe("ColumnsPaginatedBookView", () => {
             expect(body.style.position).to.equal("relative");
         });
 
-        it("should set iframe and iframe body width and height and column width based on window size and iframe margins", () => {
-            (window as any).innerHeight = 230;
+        it("should set iframe and iframe body width and height and column width based on window width and set height", () => {
             (document.body as any).offsetWidth = 100;
             paginator.start(0);
             const body = iframe.contentDocument.body;
@@ -46,7 +43,6 @@ describe("ColumnsPaginatedBookView", () => {
         });
 
         it("should set max width and height on image in iframe", () => {
-            (window as any).innerHeight = 230;
             (document.body as any).offsetWidth = 100;
             const body = iframe.contentDocument.body;
             const image  = window.document.createElement("img");
@@ -119,6 +115,74 @@ describe("ColumnsPaginatedBookView", () => {
             (iframe.contentDocument.body as any).scrollWidth = 111;
 
             expect(paginator.getCurrentPosition()).to.equal(0.75);
+        });
+    });
+
+    describe("#getCurrentPage", () => {
+        it("should get first page", () => {
+            paginator.start(0);
+
+            iframe.contentDocument.body.style.left = "0px";
+            (iframe.contentDocument.body as any).offsetWidth = 100;
+            (iframe.contentDocument.body as any).scrollWidth = 477;
+
+            expect(paginator.getCurrentPage()).to.equal(1);
+        });
+
+        it("should get middle page", () => {
+            paginator.start(0);
+
+            iframe.contentDocument.body.style.left = "-122px";
+            (iframe.contentDocument.body as any).offsetWidth = 100;
+            (iframe.contentDocument.body as any).scrollWidth = 355;
+
+            expect(paginator.getCurrentPage()).to.equal(2);
+
+            iframe.contentDocument.body.style.left = "-244px";
+            (iframe.contentDocument.body as any).scrollWidth = 233;
+            expect(paginator.getCurrentPage()).to.equal(3);
+        });
+
+        it("should get last page", () => {
+            paginator.start(0);
+
+            iframe.contentDocument.body.style.left = "-366px";
+            (iframe.contentDocument.body as any).offsetWidth = 100;
+            (iframe.contentDocument.body as any).scrollWidth = 111;
+
+            expect(paginator.getCurrentPage()).to.equal(4);
+        });
+    });
+
+    describe("#getPageCount", () => {
+        it("should work on first page", () => {
+            paginator.start(0);
+
+            iframe.contentDocument.body.style.left = "0px";
+            (iframe.contentDocument.body as any).offsetWidth = 100;
+            (iframe.contentDocument.body as any).scrollWidth = 477;
+
+            expect(paginator.getPageCount()).to.equal(4);
+        });
+
+        it("should work on middle page", () => {
+            paginator.start(0);
+
+            iframe.contentDocument.body.style.left = "-122px";
+            (iframe.contentDocument.body as any).offsetWidth = 100;
+            (iframe.contentDocument.body as any).scrollWidth = 355;
+
+            expect(paginator.getPageCount()).to.equal(4);
+        });
+
+        it("should work on last page", () => {
+            paginator.start(0);
+
+            iframe.contentDocument.body.style.left = "-366px";
+            (iframe.contentDocument.body as any).offsetWidth = 100;
+            (iframe.contentDocument.body as any).scrollWidth = 111;
+
+            expect(paginator.getPageCount()).to.equal(4);
         });
     });
 

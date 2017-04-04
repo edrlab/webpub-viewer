@@ -82,7 +82,14 @@ const template = `
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
+    <div class="info top">
+      <span class="book-title"></span>
+    </div>
     <iframe style="border:0; overflow: hidden;"></iframe>
+    <div class="info bottom">
+      <span class="chapter-position"></span>
+      <span class="chapter-title"></span>
+    </div>
   </main>
 `;
 
@@ -116,6 +123,11 @@ export default class IFrameNavigator implements Navigator {
     private linksToggle: Element;
     private previousPageLink: Element;
     private nextPageLink: Element;
+    private infoTop: HTMLDivElement;
+    private infoBottom: HTMLDivElement;
+    private bookTitle: HTMLSpanElement;
+    private chapterTitle: HTMLSpanElement;
+    private chapterPosition: HTMLSpanElement;
     private newPosition: ReadingPosition | null;
     private isLoading: boolean;
     private firstLoad: boolean;
@@ -155,6 +167,11 @@ export default class IFrameNavigator implements Navigator {
             this.linksToggle = HTMLUtilities.findRequiredElement(element, "div[class=links-toggle]");
             this.previousPageLink = HTMLUtilities.findRequiredElement(element, "div[class=previous-page]");
             this.nextPageLink = HTMLUtilities.findRequiredElement(element, "div[class=next-page]");
+            this.infoTop = HTMLUtilities.findRequiredElement(element, "div[class='info top']") as HTMLDivElement;
+            this.infoBottom = HTMLUtilities.findRequiredElement(element, "div[class='info bottom']") as HTMLDivElement;
+            this.bookTitle = HTMLUtilities.findRequiredElement(this.infoTop, "span[class=book-title]") as HTMLSpanElement;
+            this.chapterTitle = HTMLUtilities.findRequiredElement(this.infoBottom, "span[class=chapter-title]") as HTMLSpanElement;
+            this.chapterPosition = HTMLUtilities.findRequiredElement(this.infoBottom, "span[class=chapter-position]") as HTMLSpanElement;
             this.newPosition = null;
             this.isLoading = true;
             this.firstLoad = false;
@@ -219,6 +236,7 @@ export default class IFrameNavigator implements Navigator {
             document.body.onscroll = this.saveCurrentReadingPosition.bind(this);
             document.body.style.overflow = "auto";
         }
+        this.updatePositionInfo();
     }
 
     private updateFontSize(): void {
@@ -322,6 +340,7 @@ export default class IFrameNavigator implements Navigator {
         this.updateBookView();
         this.updateFontSize();
         this.settings.getSelectedView().start(bookViewPosition);
+        this.updatePositionInfo();
         this.newPosition = null;
 
         const manifest = await Manifest.getManifest(this.manifestUrl, this.store);
@@ -350,6 +369,19 @@ export default class IFrameNavigator implements Navigator {
 
         this.setActiveTOCItem(currentLocation);
 
+        if (manifest.metadata.title) {
+            this.bookTitle.innerHTML = manifest.metadata.title;
+        }
+
+        const spineItem = manifest.getSpineItem(currentLocation);
+        if (spineItem !== null) {
+            if (spineItem.title) {
+                this.chapterTitle.innerHTML = "(" + spineItem.title + ")";
+            } else {
+                this.chapterTitle.innerHTML = "(Chapter)";
+            }
+        }
+
         if (this.annotator) {
             await this.saveCurrentReadingPosition();
         }
@@ -364,11 +396,11 @@ export default class IFrameNavigator implements Navigator {
 
     private checkForIFrameLink = (event: MouseEvent): boolean => {
         const x = event.clientX;
-        let marginTop = 0;
-        if (this.iframe.style.marginTop) {
-            marginTop = parseInt(this.iframe.style.marginTop.slice(0, -2), 10);
+        let topHeight = 0;
+        if (this.infoTop.style.height) {
+            topHeight = parseInt(this.infoTop.style.height.slice(0, -2), 10);
         }
-        const y = event.clientY - marginTop;
+        const y = event.clientY - topHeight;
         const iframeElement = this.iframe.contentDocument.elementFromPoint(x, y);
         let foundLink: Element | null = null;
         let nextElement: Element | null = iframeElement;
@@ -435,6 +467,7 @@ export default class IFrameNavigator implements Navigator {
                 }
             } else {
                 this.paginator.goToPreviousPage();
+                this.updatePositionInfo();
                 this.saveCurrentReadingPosition();
             }
         }
@@ -453,6 +486,7 @@ export default class IFrameNavigator implements Navigator {
                 }
             } else {
                 this.paginator.goToNextPage();
+                this.updatePositionInfo();
                 this.saveCurrentReadingPosition();
             }
         }
@@ -475,33 +509,49 @@ export default class IFrameNavigator implements Navigator {
         }
 
         // If the links are hidden, show them temporarily
-        // to determine the margins.
+        // to determine the top and bottom heights.
 
         const linksHidden = (this.links.style.display === "none");
         if (linksHidden) {
-          this.toggleDisplay(this.links);
+            this.toggleDisplay(this.links);
         }
 
-        const topMargin = this.links.clientHeight + 5;
-        this.iframe.style.marginTop = topMargin + "px";
+        const topHeight = this.links.clientHeight;
+        this.infoTop.style.height = topHeight + "px";
 
         if (linksHidden) {
-          this.toggleDisplay(this.links);
+            this.toggleDisplay(this.links);
         }
 
         const linksBottomHidden = (this.linksBottom.style.display === "none");
         if (linksBottomHidden) {
-          this.toggleDisplay(this.linksBottom);
+            this.toggleDisplay(this.linksBottom);
         }
 
-        const bottomMargin = this.linksBottom.clientHeight + 5;
-        this.iframe.style.marginBottom = bottomMargin + "px";
+        const bottomHeight = this.linksBottom.clientHeight;
+        this.infoBottom.style.height = bottomHeight + "px";
 
         if (linksBottomHidden) {
-          this.toggleDisplay(this.linksBottom);
+            this.toggleDisplay(this.linksBottom);
+        }
+
+        if (this.paginator) {
+            this.paginator.height = (window.innerHeight - topHeight - bottomHeight - 10);
+        }
+        if (this.scroller) {
+            this.scroller.height = (window.innerHeight - topHeight - bottomHeight - 10);
         }
 
         selectedView.goToPosition(oldPosition);
+        this.updatePositionInfo();
+    }
+
+    private updatePositionInfo() {
+        if (this.settings.getSelectedView() === this.paginator) {
+            const currentPage = this.paginator.getCurrentPage();
+            const pageCount = this.paginator.getPageCount();
+            this.chapterPosition.innerHTML = "Page " + currentPage + " of " + pageCount;
+        }
     }
 
     private handlePreviousChapterClick(event: MouseEvent): void {

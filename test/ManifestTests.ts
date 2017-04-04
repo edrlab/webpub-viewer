@@ -171,5 +171,22 @@ describe("Manifest", () => {
             expect(next).to.be.null;
         });
     });
+
+    describe("#getSpineItem", () => {
+        it("should return correct spine item", () => {
+            let item = manifest.getSpineItem("http://example.com/spine-item-1.html") as Link;
+            expect(item).not.to.be.null;
+            expect(item.href).to.equal("spine-item-1.html");
+
+            item = manifest.getSpineItem("http://example.com/spine-item-2.html") as Link;
+            expect(item).not.to.be.null;
+            expect(item.href).to.equal("spine-item-2.html");
+        });
+
+        it("should return null for item not in the spine", () => {
+            const item = manifest.getSpineItem("http://example.com/toc.html");
+            expect(item).to.be.null;
+        });
+    });
 });
 

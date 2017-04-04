@@ -27,6 +27,7 @@ describe("IFrameNavigator", () => {
     let goToPreviousPage: Sinon.SinonStub;
     let goToNextPage: Sinon.SinonStub;
     let paginatorGoToPosition: Sinon.SinonStub;
+    let paginatorCurrentPage: number;
     let paginator: PaginatedBookView;
 
     let scrollerStart: Sinon.SinonStub;
@@ -70,6 +71,7 @@ describe("IFrameNavigator", () => {
         public label = "mock";
         public bookElement: Element;
         public sideMargin: number;
+        public height: number;
         public start(position: number) {
             paginatorStart(position);
         }
@@ -91,6 +93,12 @@ describe("IFrameNavigator", () => {
         }
         public goToPosition(position: number) {
             paginatorGoToPosition(position);
+        }
+        public getCurrentPage() {
+            return paginatorCurrentPage;
+        }
+        public getPageCount() {
+            return 8;
         }
     }
 
@@ -148,9 +156,12 @@ describe("IFrameNavigator", () => {
     }
 
     const manifest = new Manifest({
+        metadata: {
+            title: "Title"
+        },
         spine: [
-            { href: "start.html" },
-            { href: "item-1.html" },
+            { href: "start.html", title: "Start" },
+            { href: "item-1.html", title: "Item 1" },
             { href: "item-2.html" }
         ],
         toc: [
@@ -182,6 +193,7 @@ describe("IFrameNavigator", () => {
         goToPreviousPage = stub();
         goToNextPage = stub();
         paginatorGoToPosition = stub();
+        paginatorCurrentPage = 2;
         paginator = new MockPaginator();
 
         scrollerStart = stub();
@@ -256,17 +268,47 @@ describe("IFrameNavigator", () => {
             expect(renderControls.args[0][0]).to.equal(settingsView);
         });
 
+        it("should render the book title", async () => {
+            const bookTitle = element.querySelector(".book-title") as HTMLSpanElement;
+            await pause();
+            expect(bookTitle.innerHTML).to.equal("Title");
+        });
+
+        it("should render the chapter title", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const chapterTitle = element.querySelector(".chapter-title") as HTMLSpanElement;
+            await pause();
+            expect(chapterTitle.innerHTML).to.equal("(Start)");
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+            expect(chapterTitle.innerHTML).to.equal("(Item 1)");
+
+            iframe.src = "http://example.com/item-2.html";
+            await pause();
+            expect(chapterTitle.innerHTML).to.equal("(Chapter)");
+        });
+
+        it("should render the chapter position", async () => {
+            const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
+            await pause();
+            expect(chapterPosition.innerHTML).to.equal("Page 2 of 8");
+        });
+
         it("should give the settings a function to update the book view when a new view is selected", async () => {
             expect(onViewChange.callCount).to.equal(1);
             let paginationControls = element.querySelector("div[class=pagination-controls]") as HTMLDivElement;
+            let chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
 
             await pause();
             expect(saveLastReadingPosition.callCount).to.equal(1);
 
+            paginatorCurrentPage = 4;
             const updateBookView = onViewChange.args[0][0];
             updateBookView();
             expect(paginationControls.style.display).not.to.equal("none");
             expect(document.body.style.overflow).to.equal("hidden");
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
             // A scroll event does nothing when the paginator is selected.
             document.body.onscroll(new UIEvent("scroll"));
@@ -490,8 +532,10 @@ describe("IFrameNavigator", () => {
         it("should go to previous page", async () => {
             jsdom.changeURL(window, "http://example.com");
             const previousPageElement = element.querySelector("div[class=previous-page]");
+            const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
             
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            paginatorCurrentPage = 4;
 
             // If you click a link in the iframe, it doesn't change the page.
             iframe.contentDocument.elementFromPoint = stub().returns(link);
@@ -499,6 +543,7 @@ describe("IFrameNavigator", () => {
             expect(linkClicked.callCount).to.equal(1);
             expect(onFirstPage.callCount).to.equal(0);
             expect(goToPreviousPage.callCount).to.equal(0);
+            expect(chapterPosition.innerHTML).to.equal("Page 2 of 8");
 
             iframe.contentDocument.elementFromPoint = stub().returns(span);
 
@@ -506,6 +551,7 @@ describe("IFrameNavigator", () => {
             click(previousPageElement);
             expect(onFirstPage.callCount).to.equal(1);
             expect(goToPreviousPage.callCount).to.equal(1);
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
             await pause();
             expect(saveLastReadingPosition.callCount).to.equal(2);
@@ -516,10 +562,13 @@ describe("IFrameNavigator", () => {
 
             // If you're on the first page of the first spine item, it does nothing.
             onFirstPage.returns(true);
+            paginatorCurrentPage = 3;
+
             click(previousPageElement);
             expect(onFirstPage.callCount).to.equal(2);
             expect(goToPreviousPage.callCount).to.equal(1);
             expect(iframe.src).to.equal("http://example.com/start.html");
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
             // If you're on the first page of a later spine item, it goes to the
             // last page of the previous spine item.
@@ -547,8 +596,10 @@ describe("IFrameNavigator", () => {
         it("should go to next page", async () => {
             jsdom.changeURL(window, "http://example.com");
             const nextPageElement = element.querySelector("div[class=next-page]");
+            const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
             
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            paginatorCurrentPage = 4;
 
             // If you click a link in the iframe, it doesn't change the page.
             iframe.contentDocument.elementFromPoint = stub().returns(link);
@@ -556,6 +607,7 @@ describe("IFrameNavigator", () => {
             expect(linkClicked.callCount).to.equal(1);
             expect(onLastPage.callCount).to.equal(0);
             expect(goToNextPage.callCount).to.equal(0);
+            expect(chapterPosition.innerHTML).to.equal("Page 2 of 8");
 
             iframe.contentDocument.elementFromPoint = stub().returns(span);
 
@@ -563,6 +615,7 @@ describe("IFrameNavigator", () => {
             click(nextPageElement);
             expect(onLastPage.callCount).to.equal(1);
             expect(goToNextPage.callCount).to.equal(1);
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
             await pause();
             expect(saveLastReadingPosition.callCount).to.equal(2);
@@ -576,11 +629,13 @@ describe("IFrameNavigator", () => {
             await pause();
             iframe.contentDocument.elementFromPoint = stub().returns(span);
             onLastPage.returns(true);
+            paginatorCurrentPage = 3;
 
             click(nextPageElement);
             expect(onLastPage.callCount).to.equal(2);
             expect(goToNextPage.callCount).to.equal(1);
             expect(iframe.src).to.equal("http://example.com/item-2.html");
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
             // If you're on the last page of an earlier spine item, it goes to the
             // first page of the next spine item.
@@ -612,18 +667,30 @@ describe("IFrameNavigator", () => {
             expect(paginatorGoToPosition.args[0][0]).to.equal(0.25);
         });
 
-        it("should set margins on view when loading iframe", async () => {
+        it("should update chapter position info when window is resized", async () => {
+            const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
+            paginatorCurrentPage = 3;
+            window.dispatchEvent(new Event('resize'));
+            expect(chapterPosition.innerHTML).to.equal("Page 3 of 8");
+        });
+
+        it("should set heights on view and top and bottom info when loading iframe", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const linksTop = element.querySelector("ul[class='links top']") as HTMLUListElement;
             const linksBottom = element.querySelector("ul[class='links bottom']") as HTMLUListElement;
+            const infoTop = element.querySelector("div[class='info top']") as HTMLDivElement;
+            const infoBottom = element.querySelector("div[class='info bottom']") as HTMLDivElement;
             (linksTop as any).clientHeight = 10;
             (linksBottom as any).clientHeight = 20;
+            (window as any).innerHeight = 100;
 
             iframe.src = "http://example.com/item-1.html";
             await pause();
 
-            expect(iframe.style.marginTop).to.equal("15px");
-            expect(iframe.style.marginBottom).to.equal("25px");
+            expect(paginator.height).to.equal(60);
+            expect(scroller.height).to.equal(60);
+            expect(infoTop.style.height).to.equal("10px");
+            expect(infoBottom.style.height).to.equal("20px");
         });
 
         it("should show loading message while iframe is loading", async () => {

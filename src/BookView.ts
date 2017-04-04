@@ -4,6 +4,7 @@ interface BookView {
 
     bookElement: Element;
     sideMargin: number;
+    height: number;
 
     /** Load this view in its book element, at the specified position. */
     start(position: number): void;
