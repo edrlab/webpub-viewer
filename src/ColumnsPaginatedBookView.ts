@@ -1,8 +1,8 @@
 import PaginatedBookView from "./PaginatedBookView";
 
 export default class ColumnsPaginatedBookView implements PaginatedBookView {
-    public readonly name = "columns-paginated-view"
-    public readonly label = "Paginated"
+    public readonly name = "columns-paginated-view";
+    public readonly label = "Paginated";
 
     public bookElement: HTMLIFrameElement;
     public sideMargin: number = 0;
@@ -51,6 +51,12 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         body.style.marginRight = this.sideMargin + "px";
         this.bookElement.style.height = height;
         this.bookElement.style.width = document.body.offsetWidth + "px";
+
+        const images = body.querySelectorAll("img");
+        for (const image of images) {
+            image.style.maxWidth = width;
+            image.style.maxHeight = height;
+        }
     }
 
     public stop(): void {
