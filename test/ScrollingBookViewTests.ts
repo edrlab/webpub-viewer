@@ -31,9 +31,7 @@ describe("ScrollingBookView", () => {
 
         it("should set iframe size", () => {
             scroller.sideMargin = 11;
-            (window as any).innerHeight = 100;
-            iframe.style.marginTop = "10px";
-            iframe.style.marginBottom = "20px";
+            scroller.height = 70;
             (iframe.contentDocument.body as any).scrollHeight = 200;
             (document.body as any).offsetWidth = 50;
 
@@ -57,7 +55,7 @@ describe("ScrollingBookView", () => {
 
     describe("#stop", () => {
         it("should remove styling from iframe", () => {
-            (window as any).innerHeight = 100;
+            scroller.height = 100;
             (iframe.contentDocument.body as any).scrollHeight = 200;
             scroller.start(0);
 

@@ -18,6 +18,7 @@ describe("BookSettings", () => {
         public label: string;
         public bookElement: Element;
         public sideMargin: number;
+        public height: number;
         public constructor(id: number, name: string, label: string) {
             this.id = id;
             this.name = name;

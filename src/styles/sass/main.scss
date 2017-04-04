@@ -208,5 +208,21 @@ a {
   }
 // /controls-view
 
+// /info
+.info {
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: $nypl-blue-dark;
+  margin: 0 1.5rem;
+  &.top {
+    line-height: 3rem;
+  }
+  &.bottom {
+    line-height: 2rem;
+  }
+}
+
 @import "toc";
 @import "settings";
