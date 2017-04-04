@@ -125,7 +125,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         return leftWidth / totalWidth;
     }
 
-    /** Returns the current 0-indexed page number. */
+    /** Returns the current 1-indexed page number. */
     public getCurrentPage(): number {
         return this.getCurrentPosition() * this.getPageCount() + 1;
     }
