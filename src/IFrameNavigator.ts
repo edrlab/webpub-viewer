@@ -524,7 +524,13 @@ export default class IFrameNavigator implements Navigator {
         this.iframe.contentDocument.body.style.fontSize = fontSize;
         this.iframe.contentDocument.body.style.lineHeight = "1.5";
 
-        const sideMargin = parseInt(fontSize.slice(0, -2)) * 2;
+        const fontSizeNumber = parseInt(fontSize.slice(0, -2));
+        let sideMargin = fontSizeNumber * 2;
+
+        if (window.innerWidth > fontSizeNumber * 45) {
+            const extraMargin = Math.floor((window.innerWidth - fontSizeNumber * 40) / 2);
+            sideMargin = sideMargin + extraMargin;
+        }
         if (this.paginator) {
             this.paginator.sideMargin = sideMargin;
         }
