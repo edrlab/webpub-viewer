@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { stub } from "sinon";
 
 import ColumnsPaginatedBookView from "../src/ColumnsPaginatedBookView";
 
@@ -305,6 +306,64 @@ describe("ColumnsPaginatedBookView", () => {
 
             paginator.goToPosition(0.3);
             expect(iframe.contentDocument.body.style.left).to.equal("-122px");
+        });
+    });
+
+    describe("#goToElement", () => {
+        it("should do nothing if element doesn't exist", () => {
+            paginator.start(0);
+            iframe.contentDocument.body.style.left = "-20px";
+            paginator.goToElement("not-an-element");
+            expect(iframe.contentDocument.body.style.left).to.equal("-20px");
+        });
+
+        it("should go to element on first page", () => {
+            paginator.start(0);
+
+            const element = document.createElement("a");
+            element.id = "element";
+            element.getBoundingClientRect = stub().returns({ left: 5 });
+            iframe.contentDocument.body.appendChild(element);
+            iframe.contentDocument.body.style.left = "-122px";
+            (iframe.contentDocument.body as any).offsetWidth = 100;
+            (iframe.contentDocument.body as any).scrollWidth = 355;
+
+            paginator.goToElement("element");
+            expect(iframe.contentDocument.body.style.left).to.equal("0px");
+        });
+
+        it("should go to element on middle page", () => {
+            paginator.start(0);
+
+            const element = document.createElement("a");
+            element.id = "element";
+            element.getBoundingClientRect = stub().returns({ left: 150 });
+            iframe.contentDocument.body.appendChild(element);
+            iframe.contentDocument.body.style.left = "0px";
+            (iframe.contentDocument.body as any).offsetWidth = 100;
+            (iframe.contentDocument.body as any).scrollWidth = 477;
+
+            paginator.goToElement("element");
+            expect(iframe.contentDocument.body.style.left).to.equal("-122px");
+
+            element.getBoundingClientRect = stub().returns({ left: 250 });
+            paginator.goToElement("element");
+            expect(iframe.contentDocument.body.style.left).to.equal("-244px");
+        });
+
+        it("should go to element on last page", () => {
+            paginator.start(0);
+
+            const element = document.createElement("a");
+            element.id = "element";
+            element.getBoundingClientRect = stub().returns({ left: 450 });
+            iframe.contentDocument.body.appendChild(element);
+            iframe.contentDocument.body.style.left = "0px";
+            (iframe.contentDocument.body as any).offsetWidth = 100;
+            (iframe.contentDocument.body as any).scrollWidth = 477;
+
+            paginator.goToElement("element");
+            expect(iframe.contentDocument.body.style.left).to.equal("-366px");
         });
     });
 });

@@ -192,4 +192,17 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         }
         this.setLeftColumnsWidth(roundedLeftWidth);
     }
+
+    public goToElement(elementId: string) {
+        const element = this.bookElement.contentDocument.getElementById(elementId);
+        if (element) {
+            // Get the element's position in the iframe, and
+            // round that to figure out the column it's in.
+
+            const left = element.getBoundingClientRect().left;
+            const width = this.getColumnWidth();
+            const roundedLeftWidth = Math.floor(left / width) * width;
+            this.setLeftColumnsWidth(roundedLeftWidth);
+        }
+    }
 }

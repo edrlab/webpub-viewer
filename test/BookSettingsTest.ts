@@ -36,6 +36,7 @@ describe("BookSettings", () => {
         public goToPosition(position: number) {
             goToPosition(this.id, position);
         }
+        public goToElement() {}
     }
 
     let view1: MockBookView;

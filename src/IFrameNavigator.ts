@@ -129,6 +129,7 @@ export default class IFrameNavigator implements Navigator {
     private chapterTitle: HTMLSpanElement;
     private chapterPosition: HTMLSpanElement;
     private newPosition: ReadingPosition | null;
+    private newElementId: string | null;
     private isLoading: boolean;
     private firstLoad: boolean;
 
@@ -173,6 +174,7 @@ export default class IFrameNavigator implements Navigator {
             this.chapterTitle = HTMLUtilities.findRequiredElement(this.infoBottom, "span[class=chapter-title]") as HTMLSpanElement;
             this.chapterPosition = HTMLUtilities.findRequiredElement(this.infoBottom, "span[class=chapter-position]") as HTMLSpanElement;
             this.newPosition = null;
+            this.newElementId = null;
             this.isLoading = true;
             this.firstLoad = false;
             this.setupEvents();
@@ -336,19 +338,41 @@ export default class IFrameNavigator implements Navigator {
         let bookViewPosition = 0;
         if (this.newPosition) {
             bookViewPosition = this.newPosition.position;
+            this.newPosition = null;
         }
         this.updateBookView();
         this.updateFontSize();
         this.settings.getSelectedView().start(bookViewPosition);
-        this.updatePositionInfo();
-        this.newPosition = null;
 
-        const manifest = await Manifest.getManifest(this.manifestUrl, this.store);
+        if (this.newElementId) {
+            this.settings.getSelectedView().goToElement(this.newElementId);
+            this.newElementId = null;
+        }
+
         let currentLocation = this.iframe.src;
         if (this.iframe.contentDocument && this.iframe.contentDocument.location && this.iframe.contentDocument.location.href) {
             currentLocation = this.iframe.contentDocument.location.href;
         }
 
+        if (currentLocation.indexOf("#") !== -1) {
+            // Letting the iframe load the anchor itself doesn't always work.
+            // For example, with CSS column-based pagination, you can end up
+            // between two columns, and we can't reset the position in some
+            // browsers. Instead, we grab the element id and reload the iframe
+            // without it, then let the view figure out how to go to that element
+            // on the next load event.
+
+            const elementId = currentLocation.slice(currentLocation.indexOf("#") + 1);
+            // Set the element to go to the next time the iframe loads.
+            this.newElementId = elementId;
+            // Reload the iframe without the anchor.
+            this.iframe.src = currentLocation.slice(0, currentLocation.indexOf("#"));
+            return new Promise<void>(resolve => resolve());
+        }
+
+        this.updatePositionInfo();
+
+        const manifest = await Manifest.getManifest(this.manifestUrl, this.store);
         const previous = manifest.getPreviousSpineItem(currentLocation);
         if (previous && previous.href) {
             this.previousChapterLink.href = new URL(previous.href, this.manifestUrl.href).href;

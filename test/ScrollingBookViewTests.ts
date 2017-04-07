@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { stub } from "sinon";
 
 import ScrollingBookView from "../src/ScrollingBookView";
 
@@ -134,6 +135,63 @@ describe("ScrollingBookView", () => {
 
             scroller.goToPosition(1);
             expect(document.body.scrollTop).to.equal(200);
+        });
+    });
+
+    describe("#goToElement", () => {
+        it("should do nothing if element doesn't exist", () => {
+            scroller.start(0);
+            document.body.scrollTop = 100;
+            scroller.goToElement("not-an-element");
+            expect(document.body.scrollTop).to.equal(100);
+        });
+
+        it("should go to element at the top", () => {
+            scroller.height = 50;
+            scroller.start(0);
+            const element = document.createElement("a");
+            element.scrollIntoView = stub();
+            element.id = "element";
+            iframe.contentDocument.body.appendChild(element);
+            
+            document.body.scrollTop = 0;
+            (document.body as any).scrollHeight = 200;
+            (element as any).offsetTop = 100;
+
+            scroller.goToElement("element");
+            expect(document.body.scrollTop).to.equal(0);
+        });
+
+        it("should go to element in the middle", () => {
+            scroller.height = 75;
+            scroller.start(0);
+            const element = document.createElement("a");
+            element.scrollIntoView = stub();
+            element.id = "element";
+            iframe.contentDocument.body.appendChild(element);
+            
+            document.body.scrollTop = 50;
+            (document.body as any).scrollHeight = 200;
+            (element as any).offsetTop = 100;
+
+            scroller.goToElement("element");
+            expect(document.body.scrollTop).to.equal(25);
+        });
+
+        it("should go to element at the bottom", () => {
+            scroller.height = 50;
+            scroller.start(0);
+            const element = document.createElement("a");
+            element.scrollIntoView = stub();
+            element.id = "element";
+            iframe.contentDocument.body.appendChild(element);
+            
+            document.body.scrollTop = 150;
+            (document.body as any).scrollHeight = 200;
+            (element as any).offsetTop = 175;
+
+            scroller.goToElement("element");
+            expect(document.body.scrollTop).to.equal(150);
         });
     });
 });
