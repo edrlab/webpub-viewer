@@ -40,4 +40,18 @@ export default class ScrollingBookView implements BookView {
         this.setIFrameSize();
         document.body.scrollTop = document.body.scrollHeight * position;
     }
+
+    public goToElement(elementId: string) {
+        const element = this.bookElement.contentDocument.getElementById(elementId);
+        if (element) {
+            // Put the element as close to the top as possible.
+            element.scrollIntoView();
+
+            // Unless we're already at the bottom, scroll up so the element is
+            // in the middle, and not covered by the top nav.
+            if ((document.body.scrollHeight - element.offsetTop) >= this.height) {
+                document.body.scrollTop = Math.max(0, document.body.scrollTop - this.height / 3);
+            }
+        }
+    }
 }

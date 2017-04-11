@@ -27,6 +27,7 @@ describe("IFrameNavigator", () => {
     let goToPreviousPage: Sinon.SinonStub;
     let goToNextPage: Sinon.SinonStub;
     let paginatorGoToPosition: Sinon.SinonStub;
+    let paginatorGoToElement: Sinon.SinonStub;
     let paginatorCurrentPage: number;
     let paginator: PaginatedBookView;
 
@@ -79,6 +80,12 @@ describe("IFrameNavigator", () => {
         public getCurrentPosition() {
             return 0.25;
         }
+        public getCurrentPage() {
+            return paginatorCurrentPage;
+        }
+        public getPageCount() {
+            return 8;
+        }
         public onFirstPage() {
             return onFirstPage();
         }
@@ -94,11 +101,8 @@ describe("IFrameNavigator", () => {
         public goToPosition(position: number) {
             paginatorGoToPosition(position);
         }
-        public getCurrentPage() {
-            return paginatorCurrentPage;
-        }
-        public getPageCount() {
-            return 8;
+        public goToElement(elementId: string) {
+            paginatorGoToElement(elementId);
         }
     }
 
@@ -193,6 +197,7 @@ describe("IFrameNavigator", () => {
         goToPreviousPage = stub();
         goToNextPage = stub();
         paginatorGoToPosition = stub();
+        paginatorGoToElement = stub();
         paginatorCurrentPage = 2;
         paginator = new MockPaginator();
 
@@ -326,13 +331,17 @@ describe("IFrameNavigator", () => {
         });
 
         it("should give the settings a function to call when the font size changes", async () => {
+            // If the window is wide enough, the view gets a large margin.
+            // This is what jsdom sets the window width to by default.
+            expect(window.innerWidth).to.equal(1024);
+
             expect(onFontSizeChange.callCount).to.equal(1);
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
 
             await pause();
             expect(iframe.contentDocument.body.style.fontSize).to.equal("14px");
             expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(28);
+            expect(paginator.sideMargin).to.equal(260);
 
             const updateFontSize = onFontSizeChange.args[0][0];
 
@@ -341,8 +350,25 @@ describe("IFrameNavigator", () => {
 
             expect(iframe.contentDocument.body.style.fontSize).to.equal("16px");
             expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(32);
+            expect(paginator.sideMargin).to.equal(224);
             expect(paginatorGoToPosition.callCount).to.equal(2);
+
+            // If the window is small, the view gets a smaller margin, but still based
+            // on the font size.
+            (window as any).innerWidth = 100;
+
+            getSelectedFontSize.returns("14px");
+            updateFontSize();
+            expect(iframe.contentDocument.body.style.fontSize).to.equal("14px");
+            expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(28);
+
+            getSelectedFontSize.returns("16px");
+            updateFontSize();
+
+            expect(iframe.contentDocument.body.style.fontSize).to.equal("16px");
+            expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(32);
         });
 
         it("should give the settings a function to call when offline is enabled", () => {
@@ -413,6 +439,22 @@ describe("IFrameNavigator", () => {
             expect(saveLastReadingPosition.callCount).to.equal(1);
             expect(saveLastReadingPosition.args[0][0]).to.deep.equal({
                 resource: "http://example.com/start.html",
+                position: 0.25
+            });
+        });
+
+        it("should navigate to an element from the iframe src", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            iframe.src = "http://example.com/item-1.html#element";
+
+            await pause();
+            expect(iframe.src).to.equal("http://example.com/item-1.html");
+            expect(paginatorGoToElement.callCount).to.equal(1);
+            expect(paginatorGoToElement.args[0][0]).to.equal("element");
+
+            expect(saveLastReadingPosition.callCount).to.equal(2);
+            expect(saveLastReadingPosition.args[1][0]).to.deep.equal({
+                resource: "http://example.com/item-1.html",
                 position: 0.25
             });
         });

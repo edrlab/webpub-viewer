@@ -14,5 +14,6 @@ interface BookView {
 
     getCurrentPosition(): number;
     goToPosition(position: number): void;
+    goToElement(elementId: string): void;
 }
 export default BookView;
