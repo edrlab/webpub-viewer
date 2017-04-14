@@ -13,6 +13,7 @@ import Manifest from "../src/Manifest";
 import BookSettings from "../src/BookSettings";
 import { OfflineStatus } from "../src/BookSettings";
 import MemoryStore from "../src/MemoryStore";
+import EventHandler from "../src/EventHandler";
 
 describe("IFrameNavigator", () => {
     let store: Store;
@@ -50,13 +51,11 @@ describe("IFrameNavigator", () => {
     let askUserToEnableOfflineUse: Sinon.SinonStub;
     let settings: BookSettings;
 
+    let setupEvents: Sinon.SinonStub;
+    let eventHandler: EventHandler;
+
     let element: HTMLElement;
     let navigator: IFrameNavigator;
-    let span: HTMLElement;
-    let link: HTMLAnchorElement;
-    let linkClicked: Sinon.SinonStub;
-    let parentLink: HTMLAnchorElement;
-    let parentLinkClicked: Sinon.SinonStub;
 
     class MockCacher implements Cacher {
         public enable() {
@@ -159,6 +158,12 @@ describe("IFrameNavigator", () => {
         }
     }
 
+    class MockEventHandler extends EventHandler {
+        public setupEvents(iframe: HTMLIFrameElement) {
+            return setupEvents(iframe);
+        }
+    }
+
     const manifest = new Manifest({
         metadata: {
             title: "Title"
@@ -220,6 +225,9 @@ describe("IFrameNavigator", () => {
         askUserToEnableOfflineUse = stub();
         settings = await MockSettings.create(store, [paginator, scroller], [14, 16]);
 
+        setupEvents = stub();
+        eventHandler = new MockEventHandler();
+
         const window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
             virtualConsole: jsdom.createVirtualConsole().sendTo(console),
@@ -236,35 +244,13 @@ describe("IFrameNavigator", () => {
 
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
-        navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
-
-        span = window.document.createElement("span");
-        link = window.document.createElement("a");
-        link.href = "http://example.com";
-        link.protocol = "http";
-        link.port = "";
-        link.hostname = "example.com";
-        linkClicked = stub();
-        link.addEventListener("click", linkClicked);
-
-        parentLink = window.document.createElement("a");
-        parentLink.href = "http://example.com";
-        parentLink.protocol = "http";
-        parentLink.port = "";
-        parentLink.hostname = "example.com";
-        parentLinkClicked = stub();
-        parentLink.addEventListener("click", parentLinkClicked);
-        const child = window.document.createElement("span");
-        parentLink.appendChild(child);
+        navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
     });
 
     describe("#start", () => {
         it("should set element's HTML", async () => {
             expect(element.innerHTML).to.contain("iframe");
             expect(element.innerHTML).to.contain("controls");
-            expect(element.innerHTML).to.contain("previous-page");
-            expect(element.innerHTML).to.contain("next-page");
-            expect(element.innerHTML).to.contain("links-toggle");
         });
 
         it("should render the settings controls", async () => {
@@ -302,7 +288,7 @@ describe("IFrameNavigator", () => {
 
         it("should give the settings a function to update the book view when a new view is selected", async () => {
             expect(onViewChange.callCount).to.equal(1);
-            let paginationControls = element.querySelector("div[class=pagination-controls]") as HTMLDivElement;
+            let chapterTitle = element.querySelector(".chapter-title") as HTMLSpanElement;
             let chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
 
             await pause();
@@ -311,7 +297,8 @@ describe("IFrameNavigator", () => {
             paginatorCurrentPage = 4;
             const updateBookView = onViewChange.args[0][0];
             updateBookView();
-            expect(paginationControls.style.display).not.to.equal("none");
+            expect(chapterTitle.style.display).not.to.equal("none");
+            expect(chapterPosition.style.display).not.to.equal("none");
             expect(document.body.style.overflow).to.equal("hidden");
             expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
@@ -322,8 +309,9 @@ describe("IFrameNavigator", () => {
             getSelectedView.returns(scroller);
 
             updateBookView();
-            expect(paginationControls.style.display).to.equal("none");
-            expect(document.body.style.overflow).to.equal("auto");
+            expect(chapterTitle.style.display).to.equal("none");
+            expect(chapterPosition.style.display).to.equal("none");
+            expect(document.body.style.overflow).to.equal("scroll");
 
             // Now a scroll event saves the new reading position.
             await document.body.onscroll(new UIEvent("scroll"));
@@ -426,8 +414,20 @@ describe("IFrameNavigator", () => {
             expect(paginatorStart.callCount).to.equal(1);
             expect(paginatorStart.args[0][0]).to.equal(0);
 
-            const paginationControls = element.querySelector("div[class=pagination-controls]") as HTMLDivElement;
-            expect(paginationControls.style.display).not.to.equal("none");
+            expect(document.body.style.overflow).to.equal("hidden");
+        });
+
+        it("should set up the event handler on iframe load", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+
+            await pause();
+            expect(setupEvents.callCount).to.equal(1);
+            expect(setupEvents.args[0][0]).to.equal(iframe.contentDocument);
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+            expect(setupEvents.callCount).to.equal(2);
+            expect(setupEvents.args[1][0]).to.equal(iframe.contentDocument);
         });
 
         it("should load first spine item in the iframe", async () => {
@@ -533,64 +533,56 @@ describe("IFrameNavigator", () => {
             expect(iframe.src).to.equal("http://example.com/toc.html");
         });
 
-        it("should toggle the navigation links", async () => {
-            jsdom.changeURL(window, "http://example.com");
+        it("should toggle the navigation links in paginated view", async () => {
             const links = element.querySelector("ul[class='links top']") as HTMLUListElement;
-            const toggleElement = element.querySelector("div[class=links-toggle]");
             
             // Initially, the navigation links are visible.
             expect(links.style.display).not.to.equal("none");
 
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-
-            // If you click a link in the iframe, it doesn't toggle the links.
-            iframe.contentDocument.elementFromPoint = stub().returns(link);
-            click(toggleElement);
-            expect(linkClicked.callCount).to.equal(1);
-            expect(links.style.display).not.to.equal("none");
-
-            // If the link is on a different origin, it opens in a new window.
-            const openStub = stub(window, "open");
-            link.hostname = "anotherexample.com";
-            click(toggleElement);
-            expect(linkClicked.callCount).to.equal(1);
-            expect(openStub.callCount).to.equal(1);
-            openStub.restore();
-
-            // If you click an element inside a link, it still doesn't toggle.
-            iframe.contentDocument.elementFromPoint = stub().returns(parentLink);
-            click(toggleElement);
-            expect(parentLinkClicked.callCount).to.equal(1);
-            expect(links.style.display).not.to.equal("none");
-
-            // But if you click somewhere else, it toggles.
-            iframe.contentDocument.elementFromPoint = stub().returns(span);
-            click(toggleElement);
+            eventHandler.onMiddleTap(new UIEvent("mouseup"));
             expect(links.style.display).to.equal("none");
-            click(toggleElement);
+
+            eventHandler.onMiddleTap(new UIEvent("mouseup"));
             expect(links.style.display).not.to.equal("none");
+
+            // Left and right taps don't affect the navigation links.
+            eventHandler.onLeftTap(new UIEvent("mouseup"));
+            expect(links.style.display).not.to.equal("none");
+
+            eventHandler.onRightTap(new UIEvent("mouseup"));
+            expect(links.style.display).not.to.equal("none");
+        });
+
+        it("should toggle the navigation links in scrolling view", async () => {
+            const links = element.querySelector("ul[class='links top']") as HTMLUListElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            
+            getSelectedView.returns(scroller);
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+            
+            // Initially, the navigation links are visible.
+            expect(links.style.display).not.to.equal("none");
+
+            eventHandler.onMiddleTap(new UIEvent("mouseup"));
+            expect(links.style.display).to.equal("none");
+
+            eventHandler.onLeftTap(new UIEvent("mouseup"));
+            expect(links.style.display).not.to.equal("none");
+
+            eventHandler.onRightTap(new UIEvent("mouseup"));
+            expect(links.style.display).to.equal("none");
         });
 
         it("should go to previous page", async () => {
             jsdom.changeURL(window, "http://example.com");
-            const previousPageElement = element.querySelector("div[class=previous-page]");
             const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
             
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             paginatorCurrentPage = 4;
 
-            // If you click a link in the iframe, it doesn't change the page.
-            iframe.contentDocument.elementFromPoint = stub().returns(link);
-            click(previousPageElement);
-            expect(linkClicked.callCount).to.equal(1);
-            expect(onFirstPage.callCount).to.equal(0);
-            expect(goToPreviousPage.callCount).to.equal(0);
-            expect(chapterPosition.innerHTML).to.equal("Page 2 of 8");
-
-            iframe.contentDocument.elementFromPoint = stub().returns(span);
-
             // If you're not on the first page, it goes to the previous page.
-            click(previousPageElement);
+            eventHandler.onLeftTap(new UIEvent("mouseup"));
             expect(onFirstPage.callCount).to.equal(1);
             expect(goToPreviousPage.callCount).to.equal(1);
             expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
@@ -602,13 +594,25 @@ describe("IFrameNavigator", () => {
                 position: 0.25
             });
 
+            eventHandler.onBackwardSwipe(new UIEvent("mouseup"));
+            expect(onFirstPage.callCount).to.equal(2);
+            expect(goToPreviousPage.callCount).to.equal(2);
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(3);
+            expect(saveLastReadingPosition.args[2][0]).to.deep.equal({
+                resource: "http://example.com/start.html",
+                position: 0.25
+            });
+
             // If you're on the first page of the first spine item, it does nothing.
             onFirstPage.returns(true);
             paginatorCurrentPage = 3;
 
-            click(previousPageElement);
-            expect(onFirstPage.callCount).to.equal(2);
-            expect(goToPreviousPage.callCount).to.equal(1);
+            eventHandler.onLeftTap(new UIEvent("mouseup"));
+            expect(onFirstPage.callCount).to.equal(3);
+            expect(goToPreviousPage.callCount).to.equal(2);
             expect(iframe.src).to.equal("http://example.com/start.html");
             expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
@@ -616,20 +620,19 @@ describe("IFrameNavigator", () => {
             // last page of the previous spine item.
             iframe.src = "http://example.com/item-2.html";
             await pause();
-            iframe.contentDocument.elementFromPoint = stub().returns(span);
             expect(paginatorStart.callCount).to.equal(2);
 
-            click(previousPageElement);
-            expect(onFirstPage.callCount).to.equal(3);
-            expect(goToPreviousPage.callCount).to.equal(1);
+            eventHandler.onLeftTap(new UIEvent("mouseup"));
+            expect(onFirstPage.callCount).to.equal(4);
+            expect(goToPreviousPage.callCount).to.equal(2);
             expect(iframe.src).to.equal("http://example.com/item-1.html");
 
             await pause();
             expect(paginatorStart.callCount).to.equal(3);
             expect(paginatorStart.args[2][0]).to.equal(1);
 
-            expect(saveLastReadingPosition.callCount).to.equal(4);
-            expect(saveLastReadingPosition.args[3][0]).to.deep.equal({
+            expect(saveLastReadingPosition.callCount).to.equal(5);
+            expect(saveLastReadingPosition.args[4][0]).to.deep.equal({
                 resource: "http://example.com/item-1.html",
                 position: 0.25
             });
@@ -637,24 +640,13 @@ describe("IFrameNavigator", () => {
 
         it("should go to next page", async () => {
             jsdom.changeURL(window, "http://example.com");
-            const nextPageElement = element.querySelector("div[class=next-page]");
             const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
             
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             paginatorCurrentPage = 4;
 
-            // If you click a link in the iframe, it doesn't change the page.
-            iframe.contentDocument.elementFromPoint = stub().returns(link);
-            click(nextPageElement);
-            expect(linkClicked.callCount).to.equal(1);
-            expect(onLastPage.callCount).to.equal(0);
-            expect(goToNextPage.callCount).to.equal(0);
-            expect(chapterPosition.innerHTML).to.equal("Page 2 of 8");
-
-            iframe.contentDocument.elementFromPoint = stub().returns(span);
-
             // If you're not on the last page, it goes to the next page.
-            click(nextPageElement);
+            eventHandler.onRightTap(new UIEvent("mouseup"));
             expect(onLastPage.callCount).to.equal(1);
             expect(goToNextPage.callCount).to.equal(1);
             expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
@@ -666,16 +658,27 @@ describe("IFrameNavigator", () => {
                 position: 0.25
             });
 
+            eventHandler.onForwardSwipe(new UIEvent("mouseup"));
+            expect(onLastPage.callCount).to.equal(2);
+            expect(goToNextPage.callCount).to.equal(2);
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(3);
+            expect(saveLastReadingPosition.args[1][0]).to.deep.equal({
+                resource: "http://example.com/start.html",
+                position: 0.25
+            });
+
             // If you're on the last page of the last spine item, it does nothing.
             iframe.src = "http://example.com/item-2.html";
             await pause();
-            iframe.contentDocument.elementFromPoint = stub().returns(span);
             onLastPage.returns(true);
             paginatorCurrentPage = 3;
 
-            click(nextPageElement);
-            expect(onLastPage.callCount).to.equal(2);
-            expect(goToNextPage.callCount).to.equal(1);
+            eventHandler.onRightTap(new UIEvent("mouseup"));
+            expect(onLastPage.callCount).to.equal(3);
+            expect(goToNextPage.callCount).to.equal(2);
             expect(iframe.src).to.equal("http://example.com/item-2.html");
             expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
@@ -683,23 +686,53 @@ describe("IFrameNavigator", () => {
             // first page of the next spine item.
             iframe.src = "http://example.com/item-1.html";
             await pause();
-            iframe.contentDocument.elementFromPoint = stub().returns(span);
             expect(paginatorStart.callCount).to.equal(3);
 
-            click(nextPageElement);
-            expect(onLastPage.callCount).to.equal(3);
-            expect(goToNextPage.callCount).to.equal(1);
+            eventHandler.onRightTap(new UIEvent("mouseup"));
+            expect(onLastPage.callCount).to.equal(4);
+            expect(goToNextPage.callCount).to.equal(2);
             expect(iframe.src).to.equal("http://example.com/item-2.html");
 
             await pause();
             expect(paginatorStart.callCount).to.equal(4);
             expect(paginatorStart.args[3][0]).to.equal(0);
 
-            expect(saveLastReadingPosition.callCount).to.equal(5);
-            expect(saveLastReadingPosition.args[4][0]).to.deep.equal({
+            expect(saveLastReadingPosition.callCount).to.equal(6);
+            expect(saveLastReadingPosition.args[5][0]).to.deep.equal({
                 resource: "http://example.com/item-2.html",
                 position: 0.25
             });
+        });
+
+        it("should set iframe classes on hover", async () => {
+            await pause();
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+
+            expect(iframe.className).to.equal("");
+
+            eventHandler.onLeftHover();
+            expect(iframe.className).to.equal("left-hover");
+
+            eventHandler.onRightHover();
+            expect(iframe.className).to.equal("right-hover");
+
+            eventHandler.onRemoveHover();
+            expect(iframe.className).to.equal("");
+
+            // In scrolling view, hover does nothing;
+            getSelectedView.returns(scroller);
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+
+            eventHandler.onLeftHover();
+            expect(iframe.className).to.equal("");
+
+            eventHandler.onRightHover();
+            expect(iframe.className).to.equal("");
+
+            eventHandler.onRemoveHover();
+            expect(iframe.className).to.equal("");
         });
 
         it("should maintain paginator position when window is resized", async () => {
@@ -809,7 +842,6 @@ describe("IFrameNavigator", () => {
 
         it("should hide when other navigation links are clicked", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            iframe.contentDocument.elementFromPoint = stub().returns(span);
             const toc = element.querySelector("div[class='contents-view controls-view']") as HTMLDivElement;
             const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
 

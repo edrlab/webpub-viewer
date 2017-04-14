@@ -38,9 +38,10 @@ describe("ScrollingBookView", () => {
 
             scroller.start(0);
             expect(iframe.style.height).to.equal("200px");
-            expect(iframe.style.width).to.equal("28px");
-            expect(iframe.style.marginLeft).to.equal("11px");
-            expect(iframe.style.marginRight).to.equal("11px");
+            expect(iframe.style.width).to.equal("50px");
+            expect(iframe.contentDocument.body.style.width).to.equal("28px");
+            expect(iframe.contentDocument.body.style.marginLeft).to.equal("11px");
+            expect(iframe.contentDocument.body.style.marginRight).to.equal("11px");
 
             // If the content doesn't fill the page, the iframe height is
             // based on the window.
@@ -48,9 +49,10 @@ describe("ScrollingBookView", () => {
 
             scroller.start(0);
             expect(iframe.style.height).to.equal("70px");
-            expect(iframe.style.width).to.equal("28px");
-            expect(iframe.style.marginLeft).to.equal("11px");
-            expect(iframe.style.marginRight).to.equal("11px");
+            expect(iframe.style.width).to.equal("50px");
+            expect(iframe.contentDocument.body.style.width).to.equal("28px");
+            expect(iframe.contentDocument.body.style.marginLeft).to.equal("11px");
+            expect(iframe.contentDocument.body.style.marginRight).to.equal("11px");
         });
     });
 
@@ -62,11 +64,13 @@ describe("ScrollingBookView", () => {
 
             expect(iframe.style.height).not.to.equal("");
             expect(iframe.style.width).not.to.equal("");
+            expect(iframe.contentDocument.body.style.width).not.to.equal("");
 
             scroller.stop();
 
             expect(iframe.style.height).to.equal("");
             expect(iframe.style.width).to.equal("");
+            expect(iframe.contentDocument.body.style.width).to.equal("");
         });
     });
 
