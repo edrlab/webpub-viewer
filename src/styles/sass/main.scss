@@ -212,11 +212,13 @@ a {
   overflow: hidden;
   color: $nypl-blue-dark;
   margin: 0 1.5rem;
+
   &.top {
-    line-height: 3rem;
+    line-height: 3;
   }
+
   &.bottom {
-    line-height: 2rem;
+    line-height: 2;
   }
 }
 
