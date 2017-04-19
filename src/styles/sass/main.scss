@@ -87,7 +87,14 @@ a {
       height: 2.9rem;
 
       li:nth-child(1) {
-        display: none;
+        background-color: $nypl-white;
+        border: 0.0625rem solid $nypl-blue-dark;
+        border-radius: 0.3125rem;
+
+        .icon {
+          height: 1.25rem;
+          width: 1.25rem;
+        }
       }
 
       li:nth-child(3) {

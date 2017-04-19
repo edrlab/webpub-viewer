@@ -15,12 +15,10 @@ const template = `
     <div class="controls">
       <ul class="links top" style="z-index: 2000;">
         <li>
-          <a rel="start" class="disabled" role="button" aria-label="Book Home">
-            <svg viewBox="0 0 100 125" class="icon" role="img" preserveAspectRatio="xMidYMid meet">
-              <title id="home-button">Home Button</title>
-              <g transform="translate(0,-952.36218)">
-                <path style="text-indent:0;text-transform:none;direction:ltr;block-progression:tb;baseline-shift:baseline;color:#000000;enable-background:accumulate;" d="M 48.18752,956.9572 8.1875204,986.95679 c -0.7389,0.5602 -1.1923,1.4789 -1.1875,2.4062 l 0,55.99921 c 2e-4,1.5708 1.4292,2.9998 2.9999996,3 l 27,0 c 1.5708,-2e-4 2.9998,-1.4292 3,-3 l 0,-34.9995 20,0 0,34.9995 c 2e-4,1.5708 1.4292,2.9998 3,3 l 26.999997,0 c 1.5708,-2e-4 2.9998,-1.4292 3,-3 l 0,-55.99921 c 0,-0.9273 -0.4486,-1.846 -1.1875,-2.4062 L 51.81252,956.9572 c -1.3099,-0.8318 -2.4519,-0.75401 -3.625,0 z m 1.8125,6.15616 36.999997,27.74963 0,51.49931 -20.999997,0 0,-34.9996 c -2e-4,-1.5707 -1.4292,-2.9998 -3,-2.9999 l -26,0 c -1.5708,10e-5 -2.9998,1.4292 -3,2.9999 l 0,34.9996 -21,0 0,-51.49931 z"/>
-              </g>
+          <a rel="start" class="disabled" aria-label="Book Home">
+            <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 20 18">
+              <title>arrowLeft3</title>
+              <polygon points="10.937 15.772 5.001 9.756 20.007 9.756 20.007 7.756 5.007 7.756 10.981 2.095 9.081 0.245 -0.007 8.782 9.081 17.755 10.937 15.772" />
             </svg>
             <span class="setting-text home">Start</span>
           </a>
