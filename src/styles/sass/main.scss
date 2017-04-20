@@ -87,14 +87,43 @@ a {
       height: 2.9rem;
 
       li:nth-child(1) {
-        background-color: $nypl-white;
-        border: 0.0625rem solid $nypl-blue-dark;
-        border-radius: 0.3125rem;
+        display: none;
 
-        .icon {
-          height: 1.25rem;
-          width: 1.25rem;
+        a[rel="start"],
+        .icon,
+        span, {
+          display: none;
         }
+      }
+
+      @media (min-width: 30rem) {
+        li:nth-child(1) {
+          background-color: $nypl-white;
+          border: 0.0625rem solid $nypl-blue-dark;
+          border-radius: 0.3125rem;
+          display: inline-block;
+          margin: 0.175rem 0 0 0.625rem;
+          padding: 0.5rem 0.35rem 0.3rem;
+
+          a[rel="start"] {
+            display: inline-block;
+          }
+
+          .icon {
+            display: inline-block;
+            height: 1.25rem;
+            width: 1.25rem;
+        }
+
+          span {
+            display: inline-block;
+            top: -0.3rem;
+        }
+      }
+    }
+
+      li:nth-child(2) {
+        margin: 0;
       }
 
       li:nth-child(3) {
