@@ -1,8 +1,8 @@
 export default class EventHandler {
-    private pendingMouseEventStart: MouseEvent | null;
-    private pendingMouseEventEnd: MouseEvent | null;
-    private pendingTouchEventStart: TouchEvent | null;
-    private pendingTouchEventEnd: TouchEvent | null;
+    private pendingMouseEventStart: MouseEvent | null = null;
+    private pendingMouseEventEnd: MouseEvent | null = null;
+    private pendingTouchEventStart: TouchEvent | null = null;
+    private pendingTouchEventEnd: TouchEvent | null = null;
 
     public onLeftTap: (event: UIEvent) => void = () => {};
     public onMiddleTap: (event: UIEvent) => void = () => {};
@@ -14,12 +14,12 @@ export default class EventHandler {
     public onRightHover: () => void = () => {};
     public onRemoveHover: () => void = () => {};
 
-    public constructor() {
-        this.pendingMouseEventStart = null;
-        this.pendingMouseEventEnd = null;
-        this.pendingTouchEventStart = null;
-        this.pendingTouchEventEnd = null;
-    }
+    private static readonly CLICK_PIXEL_TOLERANCE = 10;
+    private static readonly TAP_PIXEL_TOLERANCE = 10;
+    private static readonly DOUBLE_CLICK_MS = 200;
+    private static readonly LONG_PRESS_MS = 500;
+    private static readonly DOUBLE_TAP_MS = 200;
+    private static readonly SLOW_SWIPE_MS = 500;
 
     public setupEvents(element: HTMLElement | Document) {
         if (this.isTouchDevice()) {
@@ -57,14 +57,13 @@ export default class EventHandler {
             return;
         }
 
-        const width = window.innerWidth;
-        const height = window.innerHeight;
+        const devicePixelRatio = window.devicePixelRatio;
 
-        const relativeXDistance = (this.pendingMouseEventStart.clientX - event.clientX) / width;
-        const relativeYDistance = (this.pendingMouseEventStart.clientY - event.clientY) / height;
+        const xDevicePixels = (this.pendingMouseEventStart.clientX - event.clientX) / devicePixelRatio;
+        const yDevicePixels = (this.pendingMouseEventStart.clientY - event.clientY) / devicePixelRatio;
 
         // Is the end event in the same place as the start event?
-        if (Math.abs(relativeXDistance) < 0.1 && Math.abs(relativeYDistance) < 0.1) {
+        if (Math.abs(xDevicePixels) < EventHandler.CLICK_PIXEL_TOLERANCE && Math.abs(yDevicePixels) < EventHandler.CLICK_PIXEL_TOLERANCE) {
             if (this.pendingMouseEventEnd) {
                 // This was a double click. Let the browser handle it.
                 this.pendingMouseEventStart = null;
@@ -75,7 +74,7 @@ export default class EventHandler {
             // This was a single click.
             this.pendingMouseEventStart = null;
             this.pendingMouseEventEnd = event;
-            setTimeout(this.handleClick, 200);
+            setTimeout(this.handleClick, EventHandler.DOUBLE_CLICK_MS);
             return;
         }
 
@@ -97,9 +96,6 @@ export default class EventHandler {
             return;
         }
 
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-
         const startTouch = this.pendingTouchEventStart.changedTouches[0];
         const endTouch = event.changedTouches[0];
 
@@ -108,11 +104,13 @@ export default class EventHandler {
             return;
         }
 
-        const relativeXDistance = (startTouch.clientX - endTouch.clientX) / width;
-        const relativeYDistance = (startTouch.clientY - endTouch.clientY) / height;
+        const devicePixelRatio = window.devicePixelRatio;
+
+        const xDevicePixels = (startTouch.clientX - endTouch.clientX) / devicePixelRatio;
+        const yDevicePixels = (startTouch.clientY - endTouch.clientY) / devicePixelRatio;
 
         // Is the end event in the same place as the start event?
-        if (Math.abs(relativeXDistance) < 0.1 && Math.abs(relativeYDistance) < 0.1) {
+        if (Math.abs(xDevicePixels) < EventHandler.TAP_PIXEL_TOLERANCE && Math.abs(yDevicePixels) < EventHandler.TAP_PIXEL_TOLERANCE) {
             if (this.pendingTouchEventEnd) {
                 // This was a double tap. Let the browser handle it.
                 this.pendingTouchEventStart = null;
@@ -121,7 +119,7 @@ export default class EventHandler {
             }
 
             // This was a single tap or long press.
-            if (event.timeStamp - this.pendingTouchEventStart.timeStamp > 500) {
+            if (event.timeStamp - this.pendingTouchEventStart.timeStamp > EventHandler.LONG_PRESS_MS) {
                 // This was a long press. Let the browser handle it.
                 this.pendingTouchEventStart = null;
                 this.pendingTouchEventEnd = null;
@@ -131,13 +129,13 @@ export default class EventHandler {
             // This was a single tap.
             this.pendingTouchEventStart = null;
             this.pendingTouchEventEnd = event;
-            setTimeout(this.handleTap, 200);
+            setTimeout(this.handleTap, EventHandler.DOUBLE_TAP_MS);
             return;
         }
 
         this.pendingTouchEventEnd = null;
 
-        if (event.timeStamp - this.pendingTouchEventStart.timeStamp > 500) {
+        if (event.timeStamp - this.pendingTouchEventStart.timeStamp > EventHandler.SLOW_SWIPE_MS) {
             // This is a slow swipe / highlight. Let the browser handle it.
             this.pendingTouchEventStart = null;
             return;
@@ -152,7 +150,7 @@ export default class EventHandler {
         }
 
         // This was a horizontal swipe.
-        if (relativeXDistance < 0) {
+        if (xDevicePixels < 0) {
             this.onBackwardSwipe(event);
         } else {
             this.onForwardSwipe(event);
@@ -219,12 +217,15 @@ export default class EventHandler {
     }
 
     private checkForLink = (event: MouseEvent | TouchEvent): boolean => {
-        let nextElement = event.target as Element;
-        while (nextElement && nextElement.tagName.toLowerCase() !== "body") {
-            if (nextElement.tagName.toLowerCase() === "a") {
-                return true;
-            } else {
-                nextElement = nextElement.parentElement;
+        const target = event.target;
+        if (target instanceof Element) {
+            let nextElement = event.target as Element;
+            while (nextElement && nextElement.tagName.toLowerCase() !== "body") {
+                if (nextElement.tagName.toLowerCase() === "a") {
+                    return true;
+                } else {
+                    nextElement = nextElement.parentElement;
+                }
             }
         }
         return false;

@@ -103,7 +103,7 @@ export default class IFrameNavigator implements Navigator {
     private scroller: ScrollingBookView | null;
     private annotator: Annotator | null;
     private settings: BookSettings;
-    private eventHandler: EventHandler | null;
+    private eventHandler: EventHandler;
     private iframe: HTMLIFrameElement;
     private nextChapterLink: HTMLAnchorElement;
     private previousChapterLink: HTMLAnchorElement;
@@ -304,6 +304,7 @@ export default class IFrameNavigator implements Navigator {
                 linkElement.text = link.title || "";
                 linkElement.addEventListener("click", (event: Event) => {
                     event.preventDefault();
+                    event.stopPropagation();
                     this.navigate({
                         resource: linkElement.href,
                         position: 0
@@ -458,6 +459,7 @@ export default class IFrameNavigator implements Navigator {
         this.toggleDisplay(this.links);
         this.toggleDisplay(this.linksBottom);
         event.preventDefault();
+        event.stopPropagation();
     }
 
     private handlePreviousPageClick(event: MouseEvent | TouchEvent): void {
@@ -476,6 +478,7 @@ export default class IFrameNavigator implements Navigator {
                 this.saveCurrentReadingPosition();
             }
             event.preventDefault();
+            event.stopPropagation();
         }
     }
 
@@ -495,6 +498,7 @@ export default class IFrameNavigator implements Navigator {
                 this.saveCurrentReadingPosition();
             }
             event.preventDefault();
+            event.stopPropagation();
         }
     }
 
@@ -589,6 +593,7 @@ export default class IFrameNavigator implements Navigator {
             this.navigate(position);
         }
         event.preventDefault();
+        event.stopPropagation();
     }
 
     private handleNextChapterClick(event: MouseEvent): void {
@@ -600,6 +605,7 @@ export default class IFrameNavigator implements Navigator {
             this.navigate(position);
         }
         event.preventDefault();
+        event.stopPropagation();
     }
 
     private handleStartClick(event: MouseEvent): void {
@@ -611,12 +617,14 @@ export default class IFrameNavigator implements Navigator {
             this.navigate(position);
         }
         event.preventDefault();
+        event.stopPropagation();
     }
 
     private handleContentsClick(event: MouseEvent): void {
         this.hideSettings();
         this.toggleDisplay(this.tocView, this.contentsControl);
         event.preventDefault();
+        event.stopPropagation();
     }
 
     private hideTOC(): void {
@@ -639,6 +647,7 @@ export default class IFrameNavigator implements Navigator {
         this.hideTOC();
         this.toggleDisplay(this.settingsView, this.settingsControl);
         event.preventDefault();
+        event.stopPropagation();
     }
 
     private hideSettings(): void {

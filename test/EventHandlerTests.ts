@@ -89,6 +89,8 @@ describe("EventHandler", () => {
         const child = window.document.createElement("span");
         parentLink.appendChild(child);
         element.appendChild(parentLink);
+
+        (window as any).devicePixelRatio = 2;
     });
 
     describe("#setupEvents", () => {
