@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { stub } from "sinon";
+import * as jsdom from "jsdom";
 
 import EventHandler from "../src/EventHandler";
 
@@ -390,6 +391,38 @@ describe("EventHandler", () => {
 
                 expect(onForwardSwipe.callCount).to.equal(1);
                 expect(onRightTap.callCount).to.equal(0);
+            });
+        });
+
+        describe("click events", () => {
+            let openStub: Sinon.SinonStub;
+
+            beforeEach(() => {
+                openStub = stub(window, "open");
+
+                eventHandler.setupEvents(element);
+            });
+
+            afterEach(() => {
+                openStub.restore();
+            });
+
+            it("should open external link in a new tab", async () => {
+                event("click", 10, 0, link);
+
+                await pause(250);
+
+                expect(openStub.callCount).to.equal(1);
+                expect(openStub.args[0][0]).to.equal(link.href);
+            });
+
+            it("should do nothing on a single click on an internal link", async () => {
+                jsdom.changeURL(window, "http://example.com");
+                event("click", 10, 0, link);
+
+                await pause(250);
+
+                expect(openStub.callCount).to.equal(0);
             });
         });
     });

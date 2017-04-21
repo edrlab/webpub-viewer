@@ -32,6 +32,11 @@ export default class EventHandler {
             element.addEventListener("mousemove", this.handleMouseMove.bind(this));
             element.addEventListener("mouseleave", this.handleMouseLeave.bind(this));
         }
+
+        // Most click handling is done in the touchend and mouseup event handlers,
+        // but if there's a click on an external link we need to cancel the click
+        // event to prevent it from opening in the iframe.
+        element.addEventListener("click", this.handleExternalLinks.bind(this));
     }
 
     private isTouchDevice() {
@@ -216,16 +221,16 @@ export default class EventHandler {
         return;
     }
 
-    private checkForLink = (event: MouseEvent | TouchEvent): boolean => {
+    private checkForLink = (event: MouseEvent | TouchEvent): HTMLAnchorElement | null => {
         let nextElement = event.target as Element;
         while (nextElement && nextElement.tagName.toLowerCase() !== "body") {
             if (nextElement.tagName.toLowerCase() === "a") {
-                return true;
+                return (nextElement as HTMLAnchorElement);
             } else {
                 nextElement = nextElement.parentElement;
             }
         }
-        return false;
+        return null;
     }
 
     private handleMouseMove = (event: MouseEvent): void => {
@@ -242,5 +247,22 @@ export default class EventHandler {
 
     private handleMouseLeave = (): void => {
         this.onRemoveHover();
+    }
+
+    private handleExternalLinks = (event: MouseEvent | TouchEvent) : void => {
+        const link = this.checkForLink(event);
+        if (link) {
+            // Open external links in new tabs.
+            const isSameOrigin = (
+                window.location.protocol === link.protocol &&
+                window.location.port === link.port &&
+                window.location.hostname === link.hostname
+            );
+            if (!isSameOrigin) {
+                window.open(link.href, "_blank");
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }
     }
 }
