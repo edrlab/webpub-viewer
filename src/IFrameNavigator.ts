@@ -576,8 +576,8 @@ export default class IFrameNavigator implements Navigator {
 
     private updatePositionInfo() {
         if (this.settings.getSelectedView() === this.paginator) {
-            const currentPage = this.paginator.getCurrentPage();
-            const pageCount = this.paginator.getPageCount();
+            const currentPage = Math.round(this.paginator.getCurrentPage());
+            const pageCount = Math.round(this.paginator.getPageCount());
             this.chapterPosition.innerHTML = "Page " + currentPage + " of " + pageCount;
         } else {
             this.chapterPosition.innerHTML = "";
