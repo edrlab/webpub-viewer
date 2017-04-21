@@ -217,15 +217,12 @@ export default class EventHandler {
     }
 
     private checkForLink = (event: MouseEvent | TouchEvent): boolean => {
-        const target = event.target;
-        if (target instanceof Element) {
-            let nextElement = event.target as Element;
-            while (nextElement && nextElement.tagName.toLowerCase() !== "body") {
-                if (nextElement.tagName.toLowerCase() === "a") {
-                    return true;
-                } else {
-                    nextElement = nextElement.parentElement;
-                }
+        let nextElement = event.target as Element;
+        while (nextElement && nextElement.tagName.toLowerCase() !== "body") {
+            if (nextElement.tagName.toLowerCase() === "a") {
+                return true;
+            } else {
+                nextElement = nextElement.parentElement;
             }
         }
         return false;
