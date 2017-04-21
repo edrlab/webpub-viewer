@@ -299,7 +299,6 @@ describe("IFrameNavigator", () => {
             updateBookView();
             expect(chapterTitle.style.display).not.to.equal("none");
             expect(chapterPosition.style.display).not.to.equal("none");
-            expect(document.body.style.overflow).to.equal("hidden");
             expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
             // A scroll event does nothing when the paginator is selected.
@@ -311,7 +310,6 @@ describe("IFrameNavigator", () => {
             updateBookView();
             expect(chapterTitle.style.display).to.equal("none");
             expect(chapterPosition.style.display).to.equal("none");
-            expect(document.body.style.overflow).to.equal("scroll");
 
             // Now a scroll event saves the new reading position.
             await document.body.onscroll(new UIEvent("scroll"));

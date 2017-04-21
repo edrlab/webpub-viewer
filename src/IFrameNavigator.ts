@@ -213,13 +213,6 @@ export default class IFrameNavigator implements Navigator {
         const doNothing = () => {};
         if (this.settings.getSelectedView() === this.paginator) {
             document.body.onscroll = () => {};
-            document.body.style.overflow = "hidden";
-            // This prevents overscroll/bouncing on iOS.
-            document.body.style.position = "fixed";
-            document.body.style.left = "0";
-            document.body.style.right = "0";
-            document.body.style.top = "0";
-            document.body.style.bottom = "0";
             this.chapterTitle.style.display = "inline";
             this.chapterPosition.style.display = "inline";
             if (this.eventHandler) {
@@ -234,12 +227,6 @@ export default class IFrameNavigator implements Navigator {
             }
         } else if (this.settings.getSelectedView() === this.scroller) {
             document.body.onscroll = this.saveCurrentReadingPosition.bind(this);
-            document.body.style.overflow = "scroll";
-            document.body.style.position = "static";
-            document.body.style.left = "";
-            document.body.style.right = "";
-            document.body.style.top = "";
-            document.body.style.bottom = "";
             this.chapterTitle.style.display = "none";
             this.chapterPosition.style.display = "none";
             if (this.eventHandler) {
