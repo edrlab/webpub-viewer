@@ -11,11 +11,11 @@
     width: 90%;
 
     &:hover {
-      background: $nypl-blue-dark;
+      background: $mta-green-shade;
     }
 
     a {
-      color: $nypl-blue-dark;
+      color: $mta-green-shade;
       display: block;
       padding: 1rem;
       text-decoration: none;
@@ -26,14 +26,14 @@
       }
 
       &.active {
-        background: lighten($nypl-blue, 30%);
+        background: lighten($mta-green, 30%);
         color: $nypl-black;
         width: initial;
       }
 
       &.active:hover {
         background: $nypl-black;
-        color: lighten($nypl-blue, 30%);
+        color: lighten($mta-green, 30%);
       }
     }
   }
