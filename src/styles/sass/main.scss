@@ -21,16 +21,16 @@ ul li {
 
 button {
   background: $nypl-white;
-  border: 0.0625rem solid $nypl-blue-dark;
+  border: 0.0625rem solid $mta-green;
   border-radius: 0.3125rem;
-  color: $nypl-blue-dark;
+  color: $mta-green;
   font-size: 1rem;
   padding: 0.35rem 0.35rem 0.2rem;
   -webkit-appearance: none;
 }
 
 a {
-  color: $nypl-blue-dark;
+  color: $mta-green;
   text-decoration: none;
 }
 
@@ -38,7 +38,7 @@ a {
 //   Navigation Control     //
 //////////////////////////////
 .controls {
-  color: $nypl-blue-dark;
+  color: $mta-green;
   //font-size: $basefont;
   position: fixed;
   right: 0;
@@ -55,8 +55,8 @@ a {
     text-align: center;
 
     .icon {
-      color: $nypl-blue-dark;
-      fill: $nypl-blue-dark;
+      color: $mta-green;
+      fill: $mta-green;
       height: 1.5rem;
       width: 1.5rem;
     }
@@ -83,7 +83,7 @@ a {
 
     &.top {
       background-color: $nypl-white;
-      border-bottom: 1px solid $nypl-blue-dark;
+      border-bottom: 1px solid $mta-green;
       height: 2.9rem;
 
       li:nth-child(1) {
@@ -99,7 +99,7 @@ a {
       @media (min-width: 30rem) {
         li:nth-child(1) {
           background-color: $nypl-white;
-          border: 0.0625rem solid $nypl-blue-dark;
+          border: 0.0625rem solid $mta-green;
           border-radius: 0.3125rem;
           display: inline-block;
           margin: 0.175rem 0 0 0.625rem;
@@ -134,7 +134,7 @@ a {
     // the, fixed bar and the arrows.
     &.bottom {
       background-color: darken($nypl-white, 2.5%);
-      border-top: 0.16rem solid $nypl-blue-dark;
+      border-top: 0.16rem solid $mta-green;
       bottom: 0;
       display: block;
       height: 2.2rem;
@@ -175,7 +175,7 @@ a {
         }
 
       @media (min-width: 30rem) {
-        //background: lighten($nypl-blue-dark, 50%);
+        //background: lighten($mta-green, 50%);
         }
 
       .icon {
@@ -210,9 +210,9 @@ a {
 
 .loading {
   background-color: darken($nypl-white, 2.5%);
-  border: 1px solid $nypl-blue;
+  border: 1px solid $mta-green;
   border-radius: 0.3125rem;
-  color: $nypl-blue;
+  color: $mta-green;
   font-family: $sans-serif-stack;
   height: 2.5rem;
   left: calc(50% - 6.25rem);
@@ -235,7 +235,7 @@ a {
   -webkit-overflow-scrolling: touch;
 
   .disabled {
-    background-color: darken($nypl-blue, 20%);
+    background-color: darken($mta-green, 20%);
     }
   }
 // /controls-view
@@ -246,7 +246,7 @@ a {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
-  color: $nypl-blue-dark;
+  color: $mta-green;
   margin: 0 1.5rem;
 
   &.top {
