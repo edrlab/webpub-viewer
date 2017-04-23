@@ -4,12 +4,14 @@
 .settings-view {
 
   > .settings-menu {
-    background-color: transparentize($nypl-lighter-gray, 0.05);
-    border-bottom: 1px solid $mta-green-shade;
+    background-color: $mta-white;
+    border: 0.0625rem solid $mta-gray-tint;
+    border-radius: 0.1875rem;
     left: 0;
-    margin: 0.25rem 0 0;
+    margin: 0.25rem 0 0 2%;
     padding: 0 1rem;
     position: relative;
+    width: 85%;
 
     @media (min-width: 60rem) {
       border-bottom: 0.625rem solid $nypl-gray;
@@ -104,6 +106,7 @@
       button.decrease {
         background-color: $mta-white;
         border: 0;
+        padding: 0;
       }
     } // / settings-options
   }
