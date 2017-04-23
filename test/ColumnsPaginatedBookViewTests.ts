@@ -21,6 +21,12 @@ describe("ColumnsPaginatedBookView", () => {
     });
 
     describe("#start", () => {
+        it("should set up document body to prevent overscroll on ios", () => {
+            paginator.start(0);
+            expect(document.body.style.overflow).to.equal("hidden");
+            expect(document.body.style.position).to.equal("fixed");
+        });
+
         it("should set up columns on the iframe body", () => {
             paginator.start(0);
             const body = iframe.contentDocument.body as any;
@@ -73,11 +79,13 @@ describe("ColumnsPaginatedBookView", () => {
         it("should remove styling from iframe and iframe body", () => {
             paginator.start(0);
 
+            expect(document.body.style.overflow).not.to.equal("scroll");
             expect(iframe.style.height).not.to.equal("");
             expect(iframe.contentDocument.body.style.columnWidth).not.to.equal("");
 
             paginator.stop();
 
+            expect(document.body.style.overflow).to.equal("scroll");
             expect(iframe.style.height).to.equal("");
             expect(iframe.contentDocument.body.style.columnWidth).to.equal("");
         });

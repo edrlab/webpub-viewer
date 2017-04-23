@@ -11,13 +11,16 @@ export default class ScrollingBookView implements BookView {
     private setIFrameSize(): void {
         // Remove previous iframe height so body scroll height will be accurate.
         this.bookElement.style.height = "";
+        this.bookElement.style.width = document.body.offsetWidth + "px";
 
-        this.bookElement.style.width = (document.body.offsetWidth - this.sideMargin * 2) + "px";
-        this.bookElement.style.marginLeft = this.sideMargin + "px";
-        this.bookElement.style.marginRight = this.sideMargin + "px";
+        const body = this.bookElement.contentDocument.body;
+
+        body.style.width = (document.body.offsetWidth - this.sideMargin * 2) + "px";
+        body.style.marginLeft = this.sideMargin + "px";
+        body.style.marginRight = this.sideMargin + "px";
 
         const minHeight = this.height;
-        const bodyHeight = this.bookElement.contentDocument.body.scrollHeight;
+        const bodyHeight = body.scrollHeight;
         this.bookElement.style.height = Math.max(minHeight, bodyHeight) + "px";
     }
 
@@ -28,8 +31,11 @@ export default class ScrollingBookView implements BookView {
     public stop(): void {
         this.bookElement.style.height = "";
         this.bookElement.style.width = "";
-        this.bookElement.style.marginLeft = "";
-        this.bookElement.style.marginRight = "";
+
+        const body = this.bookElement.contentDocument.body;
+        body.style.width = "";
+        body.style.marginLeft = "";
+        body.style.marginRight = "";
     }
 
     public getCurrentPosition(): number {
