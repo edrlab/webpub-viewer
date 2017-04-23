@@ -136,7 +136,7 @@ a {
       background-color: darken($nypl-white, 2.5%);
       border-top: 0.16rem solid $mta-green;
       bottom: 0;
-      display: block;
+      display: none;
       height: 2.2rem;
       padding-top: 0.625rem;
       position: fixed;
@@ -240,14 +240,14 @@ a {
   }
 // /controls-view
 
-// /info
+
 .info {
-  text-align: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
   color: $mta-green;
   margin: 0 1.5rem;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &.top {
     line-height: 3;
@@ -257,6 +257,7 @@ a {
     line-height: 2;
   }
 }
+// /info
 
 @import "toc";
 @import "settings";
