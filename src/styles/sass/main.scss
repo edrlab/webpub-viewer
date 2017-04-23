@@ -8,11 +8,11 @@
 //////////////////////////////
 // Global styles           //
 //////////////////////////////
+
 body {
   font-family: $sans-serif-stack;
   font-size: $basefont;
   margin: 0 auto;
-  overflow: hidden;
 }
 
 ul li {
@@ -217,6 +217,18 @@ a {
   }
   &.bottom {
     line-height: 2rem;
+  }
+}
+
+$transparent-nypl-gray: rgba($nypl-gray, 0.1);
+
+iframe {
+  &.left-hover {
+    background: linear-gradient(to right, $transparent-nypl-gray, $transparent-nypl-gray 28%, white 30%, white);
+  }
+
+  &.right-hover {
+    background: linear-gradient(to left, $transparent-nypl-gray, $transparent-nypl-gray 28%, white 30%, white);
   }
 }
 
