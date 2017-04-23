@@ -25,6 +25,18 @@ const offlineTemplate = `
     </li>
 `;
 
+const decreaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid" role="img" aria-labelledby="decrease-font" class="icon">
+  <title id="decrease-font">Decrease Font Size</title>
+    <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-35V28h35Z"/>
+</svg>
+`;
+
+const increaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid" role="img" aria-labelledby="increase-font-size" class="icon">
+  <title id="increase-font-size">Increase Font Size</title>
+    <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-15.5V47.49841h-4V32h-15.5V28h15.5V12.49841h4V28h15.5Z"/>
+</svg>
+`;
+
 export enum OfflineStatus {
     Enabled,
     Disabled,
@@ -120,7 +132,7 @@ export default class BookSettings {
         }
 
         if (this.fontSizes.length > 1) {
-            const fontSizeOptions = optionTemplate("font-setting", "decrease", "&mdash;") + optionTemplate("font-setting", "increase", "+");
+            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg) + optionTemplate("font-setting", "increase", increaseSvg);
             sections.push(sectionTemplate(fontSizeOptions));
         }
 
