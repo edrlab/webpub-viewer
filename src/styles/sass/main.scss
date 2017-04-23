@@ -22,7 +22,7 @@ ul li {
 button {
   background: $nypl-white;
   border: 0.0625rem solid $mta-green;
-  border-radius: 0.3125rem;
+  //border-radius: 0.3125rem;
   color: $mta-green;
   font-size: 1rem;
   padding: 0.35rem 0.35rem 0.2rem;
@@ -44,6 +44,13 @@ a {
   right: 0;
   top: 0;
   width: 100%;
+
+  ul li {
+    display: inline-block;
+    //float: right;
+    //padding: 0.2rem 0.65rem 0;
+    //margin: 0 0.625rem;
+  }
 
   .links {
     background-color: $nypl-white;
@@ -85,14 +92,15 @@ a {
       background-color: $nypl-white;
       border-bottom: 1px solid $mta-green;
       height: 2.9rem;
+      padding: 0.5rem 0 0;
 
       li:nth-child(1) {
-        display: none;
+        margin-right: 12rem;
 
         a[rel="start"],
         .icon,
         span, {
-          display: none;
+          //display: none;
         }
       }
 
@@ -127,16 +135,16 @@ a {
       }
 
       li:nth-child(3) {
-        float: right;
+        //float: right;
       }
-    }
+    } // / .top
+
     // Bottom Controls
     // the, fixed bar and the arrows.
     &.bottom {
       background-color: darken($nypl-white, 2.5%);
       border-top: 0.16rem solid $mta-green;
       bottom: 0;
-      display: none;
       height: 2.2rem;
       padding-top: 0.625rem;
       position: fixed;
@@ -153,7 +161,7 @@ a {
 
         @media (min-width: 30rem) {
           &:nth-child(1) {
-            float: left;
+            float: right;
           }
 
           &:nth-child(3) {
@@ -175,7 +183,7 @@ a {
         }
 
       @media (min-width: 30rem) {
-        //background: lighten($mta-green, 50%);
+        background: lighten($mta-green, 50%);
         }
 
       .icon {
@@ -195,18 +203,9 @@ a {
           display: inline-block;
           }
         }
-      }
-    }
-
-  ul li {
-    display: inline-block;
-    float: left;
-    padding: 0.2rem 0.65rem 0;
-    margin: 0 0.625rem;
-  }
-}
-
-// /controls
+     } // /.bottom
+  } // /.links
+} // /.controls
 
 .loading {
   background-color: darken($nypl-white, 2.5%);
