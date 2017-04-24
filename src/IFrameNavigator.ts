@@ -11,19 +11,20 @@ import { OfflineStatus } from "./BookSettings";
 import EventHandler from "./EventHandler";
 import * as HTMLUtilities from "./HTMLUtilities";
 
+const upLinkTemplate = (href: string, label: string) => `
+  <a rel="up" href='${href}' aria-label="${label}">
+    <svg width="16" height="25" viewBox="0 0 16 25" aria-labelledby="back-to-book" preserveAspectRatio="xMidYMid" role="img" class="icon">
+      <title id="up-label">${label}</title>
+      <polygon points="16 1.741 13.9 0 0 12.5 13.9 25 16 23.258 4.036 12.499 16 1.741" />
+    </svg>
+    <span class="setting-text up">${label}</span>
+  </a>
+`;
+
 const template = `
   <nav class="publication">
     <div class="controls">
       <ul class="links top" style="z-index: 2000;">
-        <li>
-          <a rel="start" class="disabled" aria-label="Book Home">
-            <svg width="16" height="25" viewBox="0 0 16 25" aria-labelledby="back-to-book" preserveAspectRatio="xMidYMid" role="img" class="icon">
-            <title id="back-to-book">Back to Book</title>
-            <polygon points="16 1.741 13.9 0 0 12.5 13.9 25 16 23.258 4.036 12.499 16 1.741" />
-            </svg>
-            <span class="setting-text home">Start</span>
-          </a>
-        </li>
         <li>
           <button class="contents disabled" aria-labelledby="contents" aria-haspopup="true" aria-expanded="false">
             <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 20 27">
@@ -102,10 +103,11 @@ export default class IFrameNavigator implements Navigator {
     private annotator: Annotator | null;
     private settings: BookSettings;
     private eventHandler: EventHandler;
+    private upUrl: URL | null;
+    private upLabel: string | null;
     private iframe: HTMLIFrameElement;
     private nextChapterLink: HTMLAnchorElement;
     private previousChapterLink: HTMLAnchorElement;
-    private startLink: HTMLAnchorElement;
     private contentsControl: HTMLButtonElement;
     private settingsControl: HTMLButtonElement;
     public navigation: Element;
@@ -123,13 +125,43 @@ export default class IFrameNavigator implements Navigator {
     private newElementId: string | null;
     private isLoading: boolean;
     private firstLoad: boolean;
-    public static async create(element: HTMLElement, manifestUrl: URL, store: Store, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null, eventHandler: EventHandler | null = null) {
-        const navigator = new this(store, cacher, settings, annotator, paginator, scroller, eventHandler);
+
+    public static async create(
+        element: HTMLElement,
+        manifestUrl: URL,
+        store: Store,
+        cacher: Cacher,
+        settings: BookSettings,
+        annotator: Annotator | null = null,
+        paginator: PaginatedBookView | null = null,
+        scroller: ScrollingBookView | null = null,
+        eventHandler: EventHandler | null = null,
+        upUrl: URL | null = null,
+        upLabel: string | null = "Back"
+        ) {
+
+        const navigator = new this(
+            store, cacher, settings, annotator,
+            paginator, scroller, eventHandler,
+            upUrl, upLabel
+        );
+
         await navigator.start(element, manifestUrl);
         return navigator;
     }
 
-    protected constructor(store: Store, cacher: Cacher, settings: BookSettings, annotator: Annotator | null = null, paginator: PaginatedBookView | null = null, scroller: ScrollingBookView | null = null, eventHandler: EventHandler | null) {
+    protected constructor(
+        store: Store,
+        cacher: Cacher,
+        settings: BookSettings,
+        annotator: Annotator | null = null,
+        paginator: PaginatedBookView | null = null,
+        scroller: ScrollingBookView | null = null,
+        eventHandler: EventHandler | null = null,
+        upUrl: URL | null = null,
+        upLabel: string | null = null
+        ) {
+
         this.store = store;
         this.cacher = cacher;
         this.paginator = paginator;
@@ -137,6 +169,8 @@ export default class IFrameNavigator implements Navigator {
         this.annotator = annotator;
         this.settings = settings;
         this.eventHandler = eventHandler || new EventHandler();
+        this.upUrl = upUrl;
+        this.upLabel = upLabel;
     }
 
     protected async start(element: HTMLElement, manifestUrl: URL): Promise<void> {
@@ -146,7 +180,6 @@ export default class IFrameNavigator implements Navigator {
             this.iframe = HTMLUtilities.findRequiredElement(element, "iframe") as HTMLIFrameElement;
             this.nextChapterLink = HTMLUtilities.findRequiredElement(element, "a[rel=next]") as HTMLAnchorElement;
             this.previousChapterLink = HTMLUtilities.findRequiredElement(element, "a[rel=prev]") as HTMLAnchorElement;
-            this.startLink = HTMLUtilities.findRequiredElement(element, "a[rel=start]") as HTMLAnchorElement;
             this.contentsControl = HTMLUtilities.findRequiredElement(element, "button.contents") as HTMLButtonElement;
             this.settingsControl = HTMLUtilities.findRequiredElement(element, "button.settings") as HTMLButtonElement;
             this.navigation = HTMLUtilities.findRequiredElement(element, "div[class=controls]");
@@ -197,8 +230,6 @@ export default class IFrameNavigator implements Navigator {
         this.previousChapterLink.addEventListener("click", this.handlePreviousChapterClick.bind(this));
 
         this.nextChapterLink.addEventListener("click", this.handleNextChapterClick.bind(this));
-
-        this.startLink.addEventListener("click", this.handleStartClick.bind(this));
 
         this.contentsControl.addEventListener("click", this.handleContentsClick.bind(this));
 
@@ -301,17 +332,22 @@ export default class IFrameNavigator implements Navigator {
             this.tocView.appendChild(listElement);
         }
 
-        let startUrl: string | null = null;
-        const startLink = manifest.getStartLink();
-        if (startLink && startLink.href) {
-            startUrl = new URL(startLink.href, this.manifestUrl.href).href;
-            this.startLink.href = startUrl;
-            this.startLink.className = "";
+        if (this.upUrl) {
+            const upHTML = upLinkTemplate(this.upUrl.href, this.upLabel || "");
+            const upParent : HTMLLIElement = document.createElement("li");
+            upParent.innerHTML = upHTML;
+            this.links.insertBefore(upParent, this.links.firstChild);
         }
 
         let lastReadingPosition: ReadingPosition | null = null;
         if (this.annotator) {
             lastReadingPosition = await this.annotator.getLastReadingPosition() as ReadingPosition | null;
+        }
+
+        const startLink = manifest.getStartLink();
+        let startUrl: string | null = null;
+        if (startLink && startLink.href) {
+            startUrl = new URL(startLink.href, this.manifestUrl.href).href;
         }
 
         if (lastReadingPosition) {
@@ -585,18 +621,6 @@ export default class IFrameNavigator implements Navigator {
         if (this.nextChapterLink.hasAttribute("href")) {
             const position = {
                 resource: this.nextChapterLink.href,
-                position: 0
-            };
-            this.navigate(position);
-        }
-        event.preventDefault();
-        event.stopPropagation();
-    }
-
-    private handleStartClick(event: MouseEvent): void {
-        if (this.startLink.hasAttribute("href")) {
-            const position = {
-                resource: this.startLink.href,
                 position: 0
             };
             this.navigate(position);

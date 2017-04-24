@@ -12,4 +12,5 @@ export * from "./LocalAnnotator";
 export * from "./PaginatedBookView";
 export * from "./ColumnsPaginatedBookView";
 export * from "./ScrollingBookView";
+export * from "./EventHandler";
 export * from "./IFrameNavigator";
