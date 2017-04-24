@@ -50,7 +50,7 @@ const template = `
       </ul>
       <ul class="links bottom" style="z-index: 2000;">
         <li>
-          <a rel="prev" class="disabled" role="button" aria-labelleby="left-arrow-icon">
+          <a rel="prev" class="disabled" role="button" aria-labelledby="left-arrow-icon">
           <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 13.43359 24.06299">
             <title id="left-arrow-icon">Previous Chapter</title>
               <polygon points="11.995 24.063 0 12.019 12.02 0 13.434 1.414 2.825 12.022 13.413 22.651 11.995 24.063"/>
