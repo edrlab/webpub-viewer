@@ -16,9 +16,9 @@ const template = `
       <ul class="links top" style="z-index: 2000;">
         <li>
           <a rel="start" class="disabled" aria-label="Book Home">
-            <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 20 18">
-              <title>arrowLeft3</title>
-              <polygon points="10.937 15.772 5.001 9.756 20.007 9.756 20.007 7.756 5.007 7.756 10.981 2.095 9.081 0.245 -0.007 8.782 9.081 17.755 10.937 15.772" />
+            <svg width="16" height="25" viewBox="0 0 16 25" aria-labelledby="back-to-book" preserveAspectRatio="xMidYMid" role="img" class="icon">
+            <title id="back-to-book">Back to Book</title>
+            <polygon points="16 1.741 13.9 0 0 12.5 13.9 25 16 23.258 4.036 12.499 16 1.741" />
             </svg>
             <span class="setting-text home">Start</span>
           </a>
