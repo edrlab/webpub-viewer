@@ -49,6 +49,7 @@ export default class BookSettings {
     private viewButtons: { [key: string]: HTMLButtonElement };
     private readonly fontSizes: string[];
     private fontSizeButtons: { [key: string]: HTMLButtonElement };
+    private fontSizeLabel: HTMLLIElement;
     private offlineButton: HTMLButtonElement;
     private offlineStatusElement: HTMLElement;
 
@@ -132,10 +133,10 @@ export default class BookSettings {
         }
 
         if (this.fontSizes.length > 1) {
-            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg) + optionTemplate("font-setting", "increase", increaseSvg);
+            const fontSizeLabel = "<li class='font-size-label'>A</li>";
+            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg) + fontSizeLabel + optionTemplate("font-setting", "increase", increaseSvg);
             sections.push(sectionTemplate(fontSizeOptions));
         }
-
         sections.push(offlineTemplate);
 
         element.innerHTML = template(sections.join(""));
@@ -151,6 +152,7 @@ export default class BookSettings {
             for (const fontSizeName of ["decrease", "increase"]) {
                 this.fontSizeButtons[fontSizeName] = HTMLUtilities.findRequiredElement(element, "button[class=" + fontSizeName + "]") as HTMLButtonElement;
             }
+            this.fontSizeLabel = HTMLUtilities.findRequiredElement(element, 'li[class="font-size-label"]') as HTMLLIElement;
             this.updateFontSizeButtons();
         }
 
@@ -254,6 +256,8 @@ export default class BookSettings {
         } else {
             this.fontSizeButtons["increase"].className = "increase";
         }
+
+        this.fontSizeLabel.style.fontSize = this.selectedFontSize;
     }
 
     private updateOfflineButton(): void {
