@@ -14,8 +14,8 @@ const sectionTemplate = (options: string) => `
     </ul></li>
 `;
 
-const optionTemplate = (liClassName: string, buttonClassName: string, label: string) => `
-    <li class='${liClassName}'><button class='${buttonClassName}'>${label}</button></li>
+const optionTemplate = (liClassName: string, buttonClassName: string, label: string, role: string) => `
+    <li class='${liClassName}'><button class='${buttonClassName}' role='${role}'>${label}</button></li>
 `;
 
 const offlineTemplate = `
@@ -127,14 +127,14 @@ export default class BookSettings {
 
         if (this.bookViews.length > 1) {
             const viewOptions = this.bookViews.map(bookView =>
-                optionTemplate("", bookView.name, bookView.label)
+                optionTemplate("", bookView.name, bookView.label, "menuitem")
             );
             sections.push(sectionTemplate(viewOptions.join("")));
         }
 
         if (this.fontSizes.length > 1) {
             const fontSizeLabel = "<li class='font-size-label'>A</li>";
-            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg) + fontSizeLabel + optionTemplate("font-setting", "increase", increaseSvg);
+            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg, "menuitem") + fontSizeLabel + optionTemplate("font-setting", "increase", increaseSvg, "menuitem");
             sections.push(sectionTemplate(fontSizeOptions));
         }
         sections.push(offlineTemplate);
