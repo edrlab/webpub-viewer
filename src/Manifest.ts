@@ -13,6 +13,7 @@ export interface Link {
     href?: string;
     type?: string;
     title?: string;
+    children?: Array<Link>;
 }
 
 export default class Manifest {

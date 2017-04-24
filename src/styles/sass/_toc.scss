@@ -1,34 +1,30 @@
 //////////////////////////////
-// Table of Contents Sytles //
+// Table of Contents Styles //
 //////////////////////////////
 .contents-view {
   background-color: $nypl-white;
   top: 3.2rem;
 
   ul li {
-    border-bottom: 1px solid darken($nypl-white, 20%);
     margin-top: 0;
-    width: 90%;
-
-    &:hover {
-      background: $nypl-blue-dark;
-    }
+    width: 88%;
 
     a {
       color: $nypl-blue-dark;
+      border-bottom: 1px solid darken($nypl-white, 20%);
       display: block;
       padding: 1rem;
       text-decoration: none;
-      width: 90%;
+      width: 100%;
 
       &:hover {
+        background: $nypl-blue-dark;
         color: $nypl-white;
       }
 
       &.active {
         background: lighten($nypl-blue, 30%);
         color: $nypl-black;
-        width: initial;
       }
 
       &.active:hover {
