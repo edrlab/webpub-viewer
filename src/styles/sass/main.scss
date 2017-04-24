@@ -1,5 +1,7 @@
 // Variables & Mixins etc.
 
+// TODO: create a better button mixin
+//       use viewport units where applicable
 // Colors
 @import "colors";
 // Type
@@ -21,10 +23,10 @@ ul li {
 
 button {
   background: $nypl-white;
-  border: 0.0625rem solid $mta-green;
+  border: 0;
   //border-radius: 0.3125rem;
   color: $mta-green;
-  font-size: 1rem;
+  font-size: 4vw;
   padding: 0.35rem 0.35rem 0.2rem;
   -webkit-appearance: none;
 }
@@ -95,8 +97,10 @@ a {
       height: 2.9rem;
       padding: 0.5rem 0 0;
 
-      li:nth-child(1) {
-        margin-right: 12rem;
+      li:nth-child(1) { // this is the back arrow
+        position: relative;
+        text-align: left;
+        right: 33vw;
 
         a[rel="start"],
         .icon,
