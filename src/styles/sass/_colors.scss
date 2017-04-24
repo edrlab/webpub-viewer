@@ -3,13 +3,14 @@
 @warn "TODO: change all the variable names to MTA?! piece of cake";
 
 // MTA Subway-Reads (name subject to change)
-$mta-green: #7ac11e;
+$green: #61a60e;
+$mta-green: darken($green, 5%);
 
 $mta-green-shade: darken($mta-green, 20%);
-  // compiles to: #426910
+  // compiles to:
 
 $mta-green-tint: lighten($mta-green, 20%);
-  // compiles to: #abe65f
+  // compiles to:
 
 $mta-gray: #9d9d9d;
 

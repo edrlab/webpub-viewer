@@ -71,6 +71,7 @@ a {
     .setting-text {
       display: none;
       position: relative;
+      text-transform: uppercase;
       top: -0.4rem;
 
       @media (min-width: 30rem) {
@@ -107,8 +108,6 @@ a {
       @media (min-width: 30rem) {
         li:nth-child(1) {
           background-color: $nypl-white;
-          border: 0.0625rem solid $mta-green;
-          border-radius: 0.3125rem;
           display: inline-block;
           margin: 0.175rem 0 0 0.625rem;
           padding: 0.5rem 0.35rem 0.3rem;
