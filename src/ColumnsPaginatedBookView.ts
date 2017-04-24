@@ -9,6 +9,14 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
     public height: number = 0;
 
     public start(position: number): void {
+        document.body.style.overflow = "hidden";
+        // This prevents overscroll/bouncing on iOS.
+        document.body.style.position = "fixed";
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.top = "0";
+        document.body.style.bottom = "0";
+
         // any is necessary because CSSStyleDeclaration type does not include
         // all the vendor-prefixed attributes.
         const body = this.bookElement.contentDocument.body as any;
@@ -58,6 +66,13 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
     }
 
     public stop(): void {
+        document.body.style.overflow = "scroll";
+        document.body.style.position = "static";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.top = "";
+        document.body.style.bottom = "";
+
         const body = this.bookElement.contentDocument.body as any;
         body.style.columnCount = "";
         body.style.WebkitColumnCount = "";
