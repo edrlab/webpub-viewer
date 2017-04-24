@@ -5,14 +5,13 @@
 
   > .settings-menu {
     background-color: $mta-white;
-    border: 0.0625rem solid $mta-gray-tint;
-    border-radius: 0.1875rem;
-    height: 9.2vh;
+    border-bottom: 0.0625rem solid $mta-gray-tint;
+    box-shadow: 0px 0px 4px 1px transparentize($mta-gray-tint, 0.5);
     left: 0;
-    margin: 0.25rem 0 0 2%;
+    margin: 0.25rem 0 0;
     padding: 0 1rem;
     position: relative;
-    width: 85%;
+    width: 100%;
 
     @media (min-width: 60rem) {
       width: 100%;
@@ -30,12 +29,12 @@
       text-transform: uppercase;
 
       @media (min-width: 30rem) {
-        font-size: 3vw;
+        font-size: 5vw;
       }
 
       @media (min-width: 60rem) {
         width: auto;
-        font-size: 1.5vw;
+        font-size: 1vw;
       }
 
       // reverse the active state
@@ -94,7 +93,7 @@
         margin-left: -0.3125rem; // there might be a better way to accomplish this...
       }
 
-      button > .icon {
+      .icon {
         //background-color: $mta-green;
         //border: 0;
         //border-radius: 3rem;
