@@ -100,7 +100,7 @@ a {
       li:nth-child(1) { // this is the back arrow
         position: relative;
         text-align: left;
-        right: 33vw;
+        right: 0;
 
         a[rel="start"],
         .icon,
@@ -133,8 +133,8 @@ a {
       }
     }
 
-      li:nth-child(2) {
-        margin: 0;
+      li:nth-child(2) { // contents button
+        margin: 0 0 0 65vw;
       }
 
       li:nth-child(3) {
@@ -186,7 +186,7 @@ a {
         }
 
       @media (min-width: 30rem) {
-        background: lighten($mta-green, 50%);
+        background: $mta-white;
         }
 
       .icon {
