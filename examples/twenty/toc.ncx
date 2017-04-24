@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="en-US">
+	<head>
+		<meta content="url:https://standardebooks.org/ebooks/jules-verne/twenty-thousand-leagues-under-the-seas/f-p-walter" name="dtb:uid"/>
+	</head>
+	<docTitle>
+		<text>Table of Contents</text>
+	</docTitle>
+	<navMap id="navmap">
+		<navPoint id="idm46165725937408" playOrder="1">
+			<navLabel>
+				<text>Title Page</text>
+			</navLabel>
+			<content src="text/titlepage.xhtml"/>
+		</navPoint>
+		<navPoint id="idm46165725790080" playOrder="2">
+			<navLabel>
+				<text>Imprint</text>
+			</navLabel>
+			<content src="text/imprint.xhtml"/>
+		</navPoint>
+		<navPoint id="idm46165725789072" playOrder="3">
+			<navLabel>
+				<text>Verne’s Title</text>
+			</navLabel>
+			<content src="text/note.xhtml"/>
+		</navPoint>
+		<navPoint id="idm46165725788064" playOrder="4">
+			<navLabel>
+				<text>Introduction</text>
+			</navLabel>
+			<content src="text/introduction.xhtml"/>
+		</navPoint>
+		<navPoint id="idm46165725787056" playOrder="5">
+			<navLabel>
+				<text>Units of Measure</text>
+			</navLabel>
+			<content src="text/units-of-measure.xhtml"/>
+		</navPoint>
+		<navPoint id="idm46165725786048" playOrder="6">
+			<navLabel>
+				<text>Twenty Thousand Leagues Under the Seas: An Underwater Tour of the World</text>
+			</navLabel>
+			<content src="text/halftitle.xhtml"/>
+			<navPoint id="idm46165725784912" playOrder="7">
+				<navLabel>
+					<text>Part I</text>
+				</navLabel>
+				<content src="text/part-1.xhtml"/>
+				<navPoint id="idm46165725783280" playOrder="8">
+					<navLabel>
+						<text>I: A Runaway Reef</text>
+					</navLabel>
+					<content src="text/chapter-1-1.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725781424" playOrder="9">
+					<navLabel>
+						<text>II: The Pros and Cons</text>
+					</navLabel>
+					<content src="text/chapter-1-2.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725779920" playOrder="10">
+					<navLabel>
+						<text>III: As Master Wishes</text>
+					</navLabel>
+					<content src="text/chapter-1-3.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725778416" playOrder="11">
+					<navLabel>
+						<text>IV: Ned Land</text>
+					</navLabel>
+					<content src="text/chapter-1-4.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725776912" playOrder="12">
+					<navLabel>
+						<text>V: At Random!</text>
+					</navLabel>
+					<content src="text/chapter-1-5.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725775408" playOrder="13">
+					<navLabel>
+						<text>VI: At Full Steam</text>
+					</navLabel>
+					<content src="text/chapter-1-6.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725773904" playOrder="14">
+					<navLabel>
+						<text>VII: A Whale of Unknown Species</text>
+					</navLabel>
+					<content src="text/chapter-1-7.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725772400" playOrder="15">
+					<navLabel>
+						<text>VIII: Mobilis in Mobili</text>
+					</navLabel>
+					<content src="text/chapter-1-8.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725770160" playOrder="16">
+					<navLabel>
+						<text>IX: The Tantrums of Ned Land</text>
+					</navLabel>
+					<content src="text/chapter-1-9.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725768608" playOrder="17">
+					<navLabel>
+						<text>X: The Man of the Waters</text>
+					</navLabel>
+					<content src="text/chapter-1-10.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725767040" playOrder="18">
+					<navLabel>
+						<text>XI: The Nautilus</text>
+					</navLabel>
+					<content src="text/chapter-1-11.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725764784" playOrder="19">
+					<navLabel>
+						<text>XII: Everything through Electricity</text>
+					</navLabel>
+					<content src="text/chapter-1-12.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725763168" playOrder="20">
+					<navLabel>
+						<text>XIII: Some Figures</text>
+					</navLabel>
+					<content src="text/chapter-1-13.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725761536" playOrder="21">
+					<navLabel>
+						<text>XIV: The Black Current</text>
+					</navLabel>
+					<content src="text/chapter-1-14.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725759888" playOrder="22">
+					<navLabel>
+						<text>XV: An Invitation in Writing</text>
+					</navLabel>
+					<content src="text/chapter-1-15.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725758272" playOrder="23">
+					<navLabel>
+						<text>XVI: Strolling the Plains</text>
+					</navLabel>
+					<content src="text/chapter-1-16.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725756624" playOrder="24">
+					<navLabel>
+						<text>XVII: An Underwater Forest</text>
+					</navLabel>
+					<content src="text/chapter-1-17.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725754992" playOrder="25">
+					<navLabel>
+						<text>XVIII: Four Thousand Leagues Under the Pacific</text>
+					</navLabel>
+					<content src="text/chapter-1-18.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725753328" playOrder="26">
+					<navLabel>
+						<text>XIX: Vanikoro</text>
+					</navLabel>
+					<content src="text/chapter-1-19.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725751728" playOrder="27">
+					<navLabel>
+						<text>XX: The Torres Strait</text>
+					</navLabel>
+					<content src="text/chapter-1-20.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725750128" playOrder="28">
+					<navLabel>
+						<text>XXI: Some Days Ashore</text>
+					</navLabel>
+					<content src="text/chapter-1-21.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725748480" playOrder="29">
+					<navLabel>
+						<text>XXII: The Lightning Bolts of Captain Nemo</text>
+					</navLabel>
+					<content src="text/chapter-1-22.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725746832" playOrder="30">
+					<navLabel>
+						<text>XXIII: Aegri Somnia</text>
+					</navLabel>
+					<content src="text/chapter-1-23.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725744464" playOrder="31">
+					<navLabel>
+						<text>XXIV: The Coral Realm</text>
+					</navLabel>
+					<content src="text/chapter-1-24.xhtml"/>
+				</navPoint>
+			</navPoint>
+			<navPoint id="idm46165725742576" playOrder="32">
+				<navLabel>
+					<text>Part II</text>
+				</navLabel>
+				<content src="text/part-2.xhtml"/>
+				<navPoint id="idm46165725740848" playOrder="33">
+					<navLabel>
+						<text>I: The Indian Ocean</text>
+					</navLabel>
+					<content src="text/chapter-2-1.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725739248" playOrder="34">
+					<navLabel>
+						<text>II: A New Proposition from Captain Nemo</text>
+					</navLabel>
+					<content src="text/chapter-2-2.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725737632" playOrder="35">
+					<navLabel>
+						<text>III: A Pearl Worth Ten Million</text>
+					</navLabel>
+					<content src="text/chapter-2-3.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725736016" playOrder="36">
+					<navLabel>
+						<text>IV: The Red Sea</text>
+					</navLabel>
+					<content src="text/chapter-2-4.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725734416" playOrder="37">
+					<navLabel>
+						<text>V: Arabian Tunnel</text>
+					</navLabel>
+					<content src="text/chapter-2-5.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725732816" playOrder="38">
+					<navLabel>
+						<text>VI: The Greek Islands</text>
+					</navLabel>
+					<content src="text/chapter-2-6.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725731216" playOrder="39">
+					<navLabel>
+						<text>VII: The Mediterranean in Forty-Eight Hours</text>
+					</navLabel>
+					<content src="text/chapter-2-7.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725729584" playOrder="40">
+					<navLabel>
+						<text>VIII: The Bay of Vigo</text>
+					</navLabel>
+					<content src="text/chapter-2-8.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725727952" playOrder="41">
+					<navLabel>
+						<text>IX: A Lost Continent</text>
+					</navLabel>
+					<content src="text/chapter-2-9.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725726352" playOrder="42">
+					<navLabel>
+						<text>X: The Underwater Coalfields</text>
+					</navLabel>
+					<content src="text/chapter-2-10.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725724736" playOrder="43">
+					<navLabel>
+						<text>XI: The Sargasso Sea</text>
+					</navLabel>
+					<content src="text/chapter-2-11.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725723136" playOrder="44">
+					<navLabel>
+						<text>XII: Sperm Whales and Baleen Whales</text>
+					</navLabel>
+					<content src="text/chapter-2-12.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725721520" playOrder="45">
+					<navLabel>
+						<text>XIII: The Ice Bank</text>
+					</navLabel>
+					<content src="text/chapter-2-13.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725719888" playOrder="46">
+					<navLabel>
+						<text>XIV: The South Pole</text>
+					</navLabel>
+					<content src="text/chapter-2-14.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725718288" playOrder="47">
+					<navLabel>
+						<text>XV: Accident or Incident?</text>
+					</navLabel>
+					<content src="text/chapter-2-15.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725716688" playOrder="48">
+					<navLabel>
+						<text>XVI: Shortage of Air</text>
+					</navLabel>
+					<content src="text/chapter-2-16.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725715088" playOrder="49">
+					<navLabel>
+						<text>XVII: From Cape Horn to the Amazon</text>
+					</navLabel>
+					<content src="text/chapter-2-17.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725713440" playOrder="50">
+					<navLabel>
+						<text>XVIII: The Devilfish</text>
+					</navLabel>
+					<content src="text/chapter-2-18.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725711808" playOrder="51">
+					<navLabel>
+						<text>XIX: The Gulf Stream</text>
+					</navLabel>
+					<content src="text/chapter-2-19.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725710208" playOrder="52">
+					<navLabel>
+						<text>XX: In Latitude 47° 24′ and Longitude 17° 28′</text>
+					</navLabel>
+					<content src="text/chapter-2-20.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725708528" playOrder="53">
+					<navLabel>
+						<text>XXI: A Mass Execution</text>
+					</navLabel>
+					<content src="text/chapter-2-21.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725706928" playOrder="54">
+					<navLabel>
+						<text>XXII: The Last Words of Captain Nemo</text>
+					</navLabel>
+					<content src="text/chapter-2-22.xhtml"/>
+				</navPoint>
+				<navPoint id="idm46165725705280" playOrder="55">
+					<navLabel>
+						<text>XXIII: Conclusion</text>
+					</navLabel>
+					<content src="text/chapter-2-23.xhtml"/>
+				</navPoint>
+			</navPoint>
+		</navPoint>
+		<navPoint id="idm46165725703136" playOrder="56">
+			<navLabel>
+				<text>Endnotes</text>
+			</navLabel>
+			<content src="text/endnotes.xhtml"/>
+		</navPoint>
+		<navPoint id="idm46165725702064" playOrder="57">
+			<navLabel>
+				<text>Colophon</text>
+			</navLabel>
+			<content src="text/colophon.xhtml"/>
+		</navPoint>
+		<navPoint id="idm46165725700992" playOrder="58">
+			<navLabel>
+				<text>Uncopyright</text>
+			</navLabel>
+			<content src="text/uncopyright.xhtml"/>
+		</navPoint>
+	</navMap>
+</ncx>
