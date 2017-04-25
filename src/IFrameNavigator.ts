@@ -255,6 +255,9 @@ export default class IFrameNavigator implements Navigator {
                 this.eventHandler.onRightHover = this.handleRightHover.bind(this);
                 this.eventHandler.onRemoveHover = this.handleRemoveHover.bind(this);
             }
+            if (this.linksBottom.style.display !== "none") {
+                this.toggleDisplay(this.linksBottom);
+            }
         } else if (this.settings.getSelectedView() === this.scroller) {
             document.body.onscroll = this.saveCurrentReadingPosition.bind(this);
             this.chapterTitle.style.display = "none";
@@ -269,6 +272,9 @@ export default class IFrameNavigator implements Navigator {
                 this.eventHandler.onRightHover = doNothing;
                 this.eventHandler.onRemoveHover = doNothing;
                 this.handleRemoveHover();
+            }
+            if (this.links.style.display !== "none" && this.linksBottom.style.display === "none") {
+                this.toggleDisplay(this.linksBottom);
             }
         }
         this.updatePositionInfo();
@@ -492,7 +498,9 @@ export default class IFrameNavigator implements Navigator {
     private handleToggleLinksClick(event: MouseEvent | TouchEvent): void {
         this.hideTOC();
         this.toggleDisplay(this.links);
-        this.toggleDisplay(this.linksBottom);
+        if (this.settings.getSelectedView() !== this.paginator) {
+            this.toggleDisplay(this.linksBottom);
+        }
         event.preventDefault();
         event.stopPropagation();
     }

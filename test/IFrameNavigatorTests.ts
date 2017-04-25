@@ -297,6 +297,7 @@ describe("IFrameNavigator", () => {
             expect(onViewChange.callCount).to.equal(1);
             let chapterTitle = element.querySelector(".chapter-title") as HTMLSpanElement;
             let chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
+            let linksBottom = element.querySelector("ul.links.bottom") as HTMLUListElement;
 
             await pause();
             expect(saveLastReadingPosition.callCount).to.equal(1);
@@ -307,6 +308,7 @@ describe("IFrameNavigator", () => {
             expect(chapterTitle.style.display).not.to.equal("none");
             expect(chapterPosition.style.display).not.to.equal("none");
             expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
+            expect(linksBottom.style.display).to.equal("none");
 
             // A scroll event does nothing when the paginator is selected.
             document.body.onscroll(new UIEvent("scroll"));
@@ -317,6 +319,7 @@ describe("IFrameNavigator", () => {
             updateBookView();
             expect(chapterTitle.style.display).to.equal("none");
             expect(chapterPosition.style.display).to.equal("none");
+            expect(linksBottom.style.display).not.to.equal("none");
 
             // Now a scroll event saves the new reading position.
             await document.body.onscroll(new UIEvent("scroll"));
@@ -543,36 +546,54 @@ describe("IFrameNavigator", () => {
 
         it("should toggle the navigation links in paginated view", async () => {
             const links = element.querySelector("ul.links.top") as HTMLUListElement;
+            const linksBottom = element.querySelector("ul.links.bottom") as HTMLUListElement;
             
-            // Initially, the navigation links are visible.
+            // Initially, the top navigation links are visible.
+            // The bottom links are always hidden in paginated view.
             expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(linksBottom.style.display).to.equal("none");
+            expect(linksBottom.className).to.contain(" inactive");
+            expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onMiddleTap(new UIEvent("mouseup"));
             expect(links.style.display).to.equal("none");
             expect(links.className).to.contain(" inactive");
             expect(links.className).not.to.contain(" active");
+            expect(linksBottom.style.display).to.equal("none");
+            expect(linksBottom.className).to.contain(" inactive");
+            expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onMiddleTap(new UIEvent("mouseup"));
             expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(linksBottom.style.display).to.equal("none");
+            expect(linksBottom.className).to.contain(" inactive");
+            expect(linksBottom.className).not.to.contain(" active");
 
             // Left and right taps don't affect the navigation links.
             eventHandler.onLeftTap(new UIEvent("mouseup"));
             expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(linksBottom.style.display).to.equal("none");
+            expect(linksBottom.className).to.contain(" inactive");
+            expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onRightTap(new UIEvent("mouseup"));
             expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(linksBottom.style.display).to.equal("none");
+            expect(linksBottom.className).to.contain(" inactive");
+            expect(linksBottom.className).not.to.contain(" active");
         });
 
         it("should toggle the navigation links in scrolling view", async () => {
             const links = element.querySelector("ul.links.top") as HTMLUListElement;
+            const linksBottom = element.querySelector("ul.links.bottom") as HTMLUListElement;
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             
             getSelectedView.returns(scroller);
@@ -583,21 +604,33 @@ describe("IFrameNavigator", () => {
             expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(linksBottom.style.display).not.to.equal("none");
+            expect(linksBottom.className).to.contain(" active");
+            expect(linksBottom.className).not.to.contain(" inactive");
 
             eventHandler.onMiddleTap(new UIEvent("mouseup"));
             expect(links.style.display).to.equal("none");
             expect(links.className).to.contain(" inactive");
             expect(links.className).not.to.contain(" active");
+            expect(linksBottom.style.display).to.equal("none");
+            expect(linksBottom.className).to.contain(" inactive");
+            expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onLeftTap(new UIEvent("mouseup"));
             expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(linksBottom.style.display).not.to.equal("none");
+            expect(linksBottom.className).to.contain(" active");
+            expect(linksBottom.className).not.to.contain(" inactive");
 
             eventHandler.onRightTap(new UIEvent("mouseup"));
             expect(links.style.display).to.equal("none");
             expect(links.className).to.contain(" inactive");
             expect(links.className).not.to.contain(" active");
+            expect(linksBottom.style.display).to.equal("none");
+            expect(linksBottom.className).to.contain(" inactive");
+            expect(linksBottom.className).not.to.contain(" active");
         });
 
         it("should go to previous page", async () => {
