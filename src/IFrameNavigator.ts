@@ -6,6 +6,7 @@ import PaginatedBookView from "./PaginatedBookView";
 import ScrollingBookView from "./ScrollingBookView";
 import Annotator from "./Annotator";
 import Manifest from "./Manifest";
+import { Link } from "./Manifest";
 import BookSettings from "./BookSettings";
 import { OfflineStatus } from "./BookSettings";
 import EventHandler from "./EventHandler";
@@ -308,28 +309,37 @@ export default class IFrameNavigator implements Navigator {
         const toc = manifest.toc;
         if (toc.length) {
             this.contentsControl.className = "contents";
-            const listElement: HTMLUListElement = document.createElement("ul");
-            for (const link of toc) {
-                const listItemElement : HTMLLIElement = document.createElement("li");
-                const linkElement: HTMLAnchorElement = document.createElement("a");
-                let href = "";
-                if (link.href) {
-                    href = new URL(link.href, this.manifestUrl.href).href;
-                }
-                linkElement.href = href;
-                linkElement.text = link.title || "";
-                linkElement.addEventListener("click", (event: Event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    this.navigate({
-                        resource: linkElement.href,
-                        position: 0
+
+            const createTOC = (parentElement: Element, links: Array<Link>) => {
+                const listElement: HTMLUListElement = document.createElement("ul");
+                for (const link of links) {
+                    const listItemElement : HTMLLIElement = document.createElement("li");
+                    const linkElement: HTMLAnchorElement = document.createElement("a");
+                    let href = "";
+                    if (link.href) {
+                        href = new URL(link.href, this.manifestUrl.href).href;
+                    }
+                    linkElement.href = href;
+                    linkElement.text = link.title || "";
+                    linkElement.addEventListener("click", (event: Event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        this.navigate({
+                            resource: linkElement.href,
+                            position: 0
+                        });
                     });
-                });
-                listItemElement.appendChild(linkElement);
-                listElement.appendChild(listItemElement);
+                    listItemElement.appendChild(linkElement);
+
+                    if (link.children && link.children.length > 0) {
+                        createTOC(listItemElement, link.children);
+                    }
+
+                    listElement.appendChild(listItemElement);
+                }
+                parentElement.appendChild(listElement);
             }
-            this.tocView.appendChild(listElement);
+            createTOC(this.tocView, toc);
         }
 
         if (this.upUrl) {

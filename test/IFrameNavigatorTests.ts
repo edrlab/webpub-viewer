@@ -174,7 +174,14 @@ describe("IFrameNavigator", () => {
             { href: "item-2.html" }
         ],
         toc: [
-            { href: "item-1.html", "title": "Item 1" },
+            {
+                href: "item-1.html",
+                title: "Item 1",
+                children: [
+                    { href: "subitem-1.html", title: "Subitem 1" },
+                    { href: "subitem-2.html", title: "Subitem 2" }
+                ]
+            },
             { href: "item-2.html", "title": "Item 2" }
         ]
     }, new URL("http://example.com/manifest.json"));
@@ -816,14 +823,26 @@ describe("IFrameNavigator", () => {
             expect(list.tagName.toLowerCase()).to.equal("ul");
 
             const links = list.querySelectorAll("li > a");
-            expect(links.length).to.equal(2);
+            expect(links.length).to.equal(4);
 
             const link1 = links[0] as HTMLAnchorElement;
             const link2 = links[1] as HTMLAnchorElement;
+            const link3 = links[2] as HTMLAnchorElement;
+            const link4 = links[3] as HTMLAnchorElement;
             expect(link1.href).to.equal("http://example.com/item-1.html");
             expect(link1.text).to.equal("Item 1");
-            expect(link2.href).to.equal("http://example.com/item-2.html");
-            expect(link2.text).to.equal("Item 2");
+            expect(link2.href).to.equal("http://example.com/subitem-1.html");
+            expect(link2.text).to.equal("Subitem 1");
+            expect(link3.href).to.equal("http://example.com/subitem-2.html");
+            expect(link3.text).to.equal("Subitem 2");
+            expect(link4.href).to.equal("http://example.com/item-2.html");
+            expect(link4.text).to.equal("Item 2");
+
+            const sublinks = link1.parentElement.querySelectorAll("ul > li > a");
+            expect(sublinks.length).to.equal(2);
+
+            expect(sublinks[0]).to.equal(link2);
+            expect(sublinks[1]).to.equal(link3);
         });
 
         it("should show on first load if there's no last reading position yet", async () => {
@@ -930,7 +949,7 @@ describe("IFrameNavigator", () => {
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
-            expect(iframe.src).to.equal("http://example.com/item-2.html");
+            expect(iframe.src).to.equal("http://example.com/subitem-1.html");
         });
 
         it("should set class on the active toc item", async () => {
@@ -949,7 +968,7 @@ describe("IFrameNavigator", () => {
             expect(link1.className).to.equal("active");
             expect(link2.className).to.equal("");
 
-            iframe.src = "http://example.com/item-2.html";
+            iframe.src = "http://example.com/subitem-1.html";
             await pause();
             expect(link1.className).to.equal("");
             expect(link2.className).to.equal("active");
