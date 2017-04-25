@@ -24,7 +24,7 @@ const upLinkTemplate = (href: string, label: string) => `
 const template = `
   <nav class="publication">
     <div class="controls">
-      <ul class="links top" style="z-index: 2000;">
+      <ul class="links top active" style="z-index: 2000;">
         <li>
           <button class="contents disabled" aria-labelledby="contents" aria-haspopup="true" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275 180" aria-labelledby="table-of-contents" preserveAspectRatio="xMidYMid" role="img" class="icon">
@@ -49,7 +49,7 @@ const template = `
           </button>
         </li>
       </ul>
-      <ul class="links bottom" style="z-index: 2000;">
+      <ul class="links bottom active" style="z-index: 2000;">
         <li>
           <a rel="prev" class="disabled" role="button" aria-labelledby="left-arrow-icon">
           <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 13.43359 24.06299">
@@ -72,8 +72,8 @@ const template = `
       </ul>
     </div>
     <!-- /controls -->
-    <div class="contents-view controls-view" style="display: none; z-index: 3000;"></div>
-    <div class="settings-view controls-view" style="display: none; z-index: 3000;"></div>
+    <div class="contents-view controls-view inactive" style="display: none; z-index: 3000;"></div>
+    <div class="settings-view controls-view inactive" style="display: none; z-index: 3000;"></div>
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
@@ -183,10 +183,10 @@ export default class IFrameNavigator implements Navigator {
             this.contentsControl = HTMLUtilities.findRequiredElement(element, "button.contents") as HTMLButtonElement;
             this.settingsControl = HTMLUtilities.findRequiredElement(element, "button.settings") as HTMLButtonElement;
             this.navigation = HTMLUtilities.findRequiredElement(element, "div[class=controls]");
-            this.links = HTMLUtilities.findRequiredElement(element, "ul[class='links top']") as HTMLUListElement;
-            this.linksBottom = HTMLUtilities.findRequiredElement(element, "ul[class='links bottom']") as HTMLUListElement;
-            this.tocView = HTMLUtilities.findRequiredElement(element, "div[class='contents-view controls-view']") as HTMLDivElement;
-            this.settingsView = HTMLUtilities.findRequiredElement(element, "div[class='settings-view controls-view']") as HTMLDivElement;
+            this.links = HTMLUtilities.findRequiredElement(element, "ul.links.top") as HTMLUListElement;
+            this.linksBottom = HTMLUtilities.findRequiredElement(element, "ul.links.bottom") as HTMLUListElement;
+            this.tocView = HTMLUtilities.findRequiredElement(element, ".contents-view") as HTMLDivElement;
+            this.settingsView = HTMLUtilities.findRequiredElement(element, ".settings-view") as HTMLDivElement;
             this.loadingMessage = HTMLUtilities.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
             this.infoTop = HTMLUtilities.findRequiredElement(element, "div[class='info top']") as HTMLDivElement;
             this.infoBottom = HTMLUtilities.findRequiredElement(element, "div[class='info bottom']") as HTMLDivElement;
@@ -464,11 +464,15 @@ export default class IFrameNavigator implements Navigator {
         const display: string | null = element.style.display;
         if (display === "none") {
             element.style.display = "block";
+            element.className = element.className.replace(" inactive", "");
+            element.className += " active";
             if (control) {
                 control.setAttribute("aria-expanded", "true");
             }
         } else {
             element.style.display = "none";
+            element.className = element.className.replace(" active", "");
+            element.className += " inactive";
             if (control) {
                 control.setAttribute("aria-expanded", "false");
             }
@@ -639,6 +643,10 @@ export default class IFrameNavigator implements Navigator {
     private hideTOC(): void {
         this.tocView.style.display = "none";
         this.contentsControl.setAttribute("aria-expanded", "false");
+        this.tocView.className = this.tocView.className.replace(" active", "");
+        if (this.tocView.className.indexOf(" inactive") === -1) {
+            this.tocView.className += " inactive";
+        }
     }
 
     private setActiveTOCItem(resource: string): void {
@@ -662,6 +670,10 @@ export default class IFrameNavigator implements Navigator {
     private hideSettings(): void {
         this.settingsView.style.display = "none";
         this.settingsControl.setAttribute("aria-expanded", "false");
+        this.settingsView.className = this.settingsView.className.replace(" active", "");
+        if (this.settingsView.className.indexOf(" inactive") === -1) {
+            this.settingsView.className += " inactive";
+        }
     }
 
     private navigate(readingPosition: ReadingPosition): void {
