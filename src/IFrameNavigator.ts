@@ -6,7 +6,6 @@ import PaginatedBookView from "./PaginatedBookView";
 import ScrollingBookView from "./ScrollingBookView";
 import Annotator from "./Annotator";
 import Manifest from "./Manifest";
-import { Link } from "./Manifest";
 import BookSettings from "./BookSettings";
 import { OfflineStatus } from "./BookSettings";
 import EventHandler from "./EventHandler";
@@ -14,7 +13,7 @@ import * as HTMLUtilities from "./HTMLUtilities";
 
 const upLinkTemplate = (href: string, label: string) => `
   <a rel="up" href='${href}' aria-label="${label}">
-    <svg width="16" height="25" viewBox="0 0 16 25" aria-labelledby="back-to-book" preserveAspectRatio="xMidYMid" role="img" class="icon">
+    <svg width="16" height="25" viewBox="0 0 16 25" aria-labelledby="back-to-book" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
       <title id="up-label">${label}</title>
       <polygon points="16 1.741 13.9 0 0 12.5 13.9 25 16 23.258 4.036 12.499 16 1.741" />
     </svg>
@@ -25,10 +24,10 @@ const upLinkTemplate = (href: string, label: string) => `
 const template = `
   <nav class="publication">
     <div class="controls">
-      <ul class="links top active" style="z-index: 2000;">
+      <ul class="links top" style="z-index: 2000;">
         <li>
           <button class="contents disabled" aria-labelledby="contents" aria-haspopup="true" aria-expanded="false">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275 180" aria-labelledby="table-of-contents" preserveAspectRatio="xMidYMid" role="img" class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275 180" aria-labelledby="table-of-contents" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
             <title id="table-of-contents">table of contents</title>
               <rect x="66" y="152" width="209" height="28"/>
               <rect x="66" y="76" width="209" height="28"/>
@@ -41,8 +40,8 @@ const template = `
           </button>
         </li>
         <li>
-          <button class="settings" aria-labelledby="settings-menu" aria-expanded="false" aria-haspopup="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 186.47158 186.4716" aria-labelledby="settings" preserveAspectRatio="xMidYMid" role="img" class="icon">
+          <button class="settings " aria-labelledby="settings-menu" aria-expanded="false" aria-haspopup="true">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 186.47158 186.4716" aria-labelledby="settings" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
               <title id="settings">Settings</title>
               <path d="M183.29465,117.36676l3.17693-24.131-23.52051-9.17834-4.75089-17.73081,15.78033-19.70844L159.1637,27.30789,136.04194,37.44974,120.145,28.2714,117.36676,3.17693,93.2358,0,84.05746,23.52051,66.32665,28.2714,46.61759,12.49107,27.30789,27.30789,37.44974,50.42966l-9.17834,15.897L3.17693,69.10484,0,93.2358l23.52051,9.17834L28.2714,120.145,12.49107,139.854l14.81682,19.3097,23.12177-10.14185,15.897,9.17834,2.77819,25.09447,24.131,3.17693,9.17834-23.52051L120.145,158.2002l19.70844,15.78033,19.31031-14.81682-10.14185-23.12177,9.17834-15.897ZM93.2358,129.84856A36.61276,36.61276,0,1,1,129.84856,93.2358,36.61267,36.61267,0,0,1,93.2358,129.84856Z"/>
               </svg>
@@ -50,7 +49,7 @@ const template = `
           </button>
         </li>
       </ul>
-      <ul class="links bottom active" style="z-index: 2000;">
+      <ul class="links bottom" style="z-index: 2000;">
         <li>
           <a rel="prev" class="disabled" role="button" aria-labelledby="left-arrow-icon">
           <svg class="icon" role="img" preserveAspectRatio="xMidYMid meet" viewBox="0 0 13.43359 24.06299">
@@ -73,8 +72,8 @@ const template = `
       </ul>
     </div>
     <!-- /controls -->
-    <div class="contents-view controls-view inactive" style="display: none; z-index: 3000;"></div>
-    <div class="settings-view controls-view inactive" style="display: none; z-index: 3000;"></div>
+    <div class="contents-view controls-view" style="display: none; z-index: 3000;"></div>
+    <div class="settings-view controls-view" style="display: none; z-index: 3000;"></div>
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
@@ -184,10 +183,10 @@ export default class IFrameNavigator implements Navigator {
             this.contentsControl = HTMLUtilities.findRequiredElement(element, "button.contents") as HTMLButtonElement;
             this.settingsControl = HTMLUtilities.findRequiredElement(element, "button.settings") as HTMLButtonElement;
             this.navigation = HTMLUtilities.findRequiredElement(element, "div[class=controls]");
-            this.links = HTMLUtilities.findRequiredElement(element, "ul.links.top") as HTMLUListElement;
-            this.linksBottom = HTMLUtilities.findRequiredElement(element, "ul.links.bottom") as HTMLUListElement;
-            this.tocView = HTMLUtilities.findRequiredElement(element, ".contents-view") as HTMLDivElement;
-            this.settingsView = HTMLUtilities.findRequiredElement(element, ".settings-view") as HTMLDivElement;
+            this.links = HTMLUtilities.findRequiredElement(element, "ul[class='links top']") as HTMLUListElement;
+            this.linksBottom = HTMLUtilities.findRequiredElement(element, "ul[class='links bottom']") as HTMLUListElement;
+            this.tocView = HTMLUtilities.findRequiredElement(element, "div[class='contents-view controls-view']") as HTMLDivElement;
+            this.settingsView = HTMLUtilities.findRequiredElement(element, "div[class='settings-view controls-view']") as HTMLDivElement;
             this.loadingMessage = HTMLUtilities.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
             this.infoTop = HTMLUtilities.findRequiredElement(element, "div[class='info top']") as HTMLDivElement;
             this.infoBottom = HTMLUtilities.findRequiredElement(element, "div[class='info bottom']") as HTMLDivElement;
@@ -309,37 +308,28 @@ export default class IFrameNavigator implements Navigator {
         const toc = manifest.toc;
         if (toc.length) {
             this.contentsControl.className = "contents";
-
-            const createTOC = (parentElement: Element, links: Array<Link>) => {
-                const listElement: HTMLUListElement = document.createElement("ul");
-                for (const link of links) {
-                    const listItemElement : HTMLLIElement = document.createElement("li");
-                    const linkElement: HTMLAnchorElement = document.createElement("a");
-                    let href = "";
-                    if (link.href) {
-                        href = new URL(link.href, this.manifestUrl.href).href;
-                    }
-                    linkElement.href = href;
-                    linkElement.text = link.title || "";
-                    linkElement.addEventListener("click", (event: Event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        this.navigate({
-                            resource: linkElement.href,
-                            position: 0
-                        });
-                    });
-                    listItemElement.appendChild(linkElement);
-
-                    if (link.children && link.children.length > 0) {
-                        createTOC(listItemElement, link.children);
-                    }
-
-                    listElement.appendChild(listItemElement);
+            const listElement: HTMLUListElement = document.createElement("ul");
+            for (const link of toc) {
+                const listItemElement : HTMLLIElement = document.createElement("li");
+                const linkElement: HTMLAnchorElement = document.createElement("a");
+                let href = "";
+                if (link.href) {
+                    href = new URL(link.href, this.manifestUrl.href).href;
                 }
-                parentElement.appendChild(listElement);
+                linkElement.href = href;
+                linkElement.text = link.title || "";
+                linkElement.addEventListener("click", (event: Event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    this.navigate({
+                        resource: linkElement.href,
+                        position: 0
+                    });
+                });
+                listItemElement.appendChild(linkElement);
+                listElement.appendChild(listItemElement);
             }
-            createTOC(this.tocView, toc);
+            this.tocView.appendChild(listElement);
         }
 
         if (this.upUrl) {
@@ -474,15 +464,11 @@ export default class IFrameNavigator implements Navigator {
         const display: string | null = element.style.display;
         if (display === "none") {
             element.style.display = "block";
-            element.className = element.className.replace(" inactive", "");
-            element.className += " active";
             if (control) {
                 control.setAttribute("aria-expanded", "true");
             }
         } else {
             element.style.display = "none";
-            element.className = element.className.replace(" active", "");
-            element.className += " inactive";
             if (control) {
                 control.setAttribute("aria-expanded", "false");
             }
@@ -653,10 +639,6 @@ export default class IFrameNavigator implements Navigator {
     private hideTOC(): void {
         this.tocView.style.display = "none";
         this.contentsControl.setAttribute("aria-expanded", "false");
-        this.tocView.className = this.tocView.className.replace(" active", "");
-        if (this.tocView.className.indexOf(" inactive") === -1) {
-            this.tocView.className += " inactive";
-        }
     }
 
     private setActiveTOCItem(resource: string): void {
@@ -680,10 +662,6 @@ export default class IFrameNavigator implements Navigator {
     private hideSettings(): void {
         this.settingsView.style.display = "none";
         this.settingsControl.setAttribute("aria-expanded", "false");
-        this.settingsView.className = this.settingsView.className.replace(" active", "");
-        if (this.settingsView.className.indexOf(" inactive") === -1) {
-            this.settingsView.className += " inactive";
-        }
     }
 
     private navigate(readingPosition: ReadingPosition): void {
