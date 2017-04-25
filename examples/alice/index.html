@@ -13,8 +13,8 @@
   <script src="fetch.js"></script>
   <script src="webpub-viewer.js"></script>
   <script>
-    require(["LocalStorageStore", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginatedBookView", "ScrollingBookView", "LocalAnnotator", "BookSettings"],
-            function (LocalStorageStore, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginatedBookView, ScrollingBookView, LocalAnnotator, BookSettings) {
+    require(["LocalStorageStore", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginatedBookView", "ScrollingBookView", "LocalAnnotator", "BookSettings", "EventHandler"],
+            function (LocalStorageStore, ServiceWorkerCacher, IFrameNavigator, ColumnsPaginatedBookView, ScrollingBookView, LocalAnnotator, BookSettings, EventHandler) {
       var element = document.getElementById("viewer");
       var webpubManifestUrl = new URL("manifest.json", window.location.href);
       var bookCacheUrl = new URL("appcache.html", window.location.href);
@@ -25,10 +25,11 @@
       var paginator = new ColumnsPaginatedBookView.default();
       var scroller = new ScrollingBookView.default();
       var annotator = new LocalAnnotator.default(store);
+      var eventHandler = new EventHandler.default();
       var fontSizes = [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32 ];
       var defaultFontSize = 16;
       BookSettings.default.create(store, [paginator, scroller], fontSizes, defaultFontSize).then(function (settings) {
-        IFrameNavigator.default.create(element, webpubManifestUrl, store, cacher, settings, annotator, paginator, scroller);
+        IFrameNavigator.default.create(element, webpubManifestUrl, store, cacher, settings, annotator, paginator, scroller, eventHandler, new URL("http://example.com"), "Back");
       });
     });
   </script>

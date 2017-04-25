@@ -457,14 +457,17 @@ describe("IFrameNavigator", () => {
             });
         });
 
-        it("should navigate to the first spine item", async () => {
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-            iframe.src = "http://example.com/some-other-page.html";
+        it("should show the up link", async () => {
+            const noUpLink = element.querySelector("a[rel=up]");
+            // The up link isn't shown if it's not configured.
+            expect(noUpLink).not.to.be.ok;
 
-            const startLink = element.querySelector("a[rel=start]") as HTMLAnchorElement;
-            expect(startLink.href).to.equal("http://example.com/start.html");
-            click(startLink);
-            expect(iframe.src).to.equal("http://example.com/start.html");
+            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler, new URL("http://up.com"), "Up Text");
+            
+            const upLink = element.querySelector("a[rel=up]") as HTMLAnchorElement;
+            expect(upLink).to.be.ok;
+            expect(upLink.href).to.equal("http://up.com/");
+            expect(upLink.innerHTML).to.contain("Up Text");
         });
 
         it("should navigate to the previous spine item", async () => {
