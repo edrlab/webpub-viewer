@@ -73,8 +73,8 @@ const template = `
       </ul>
     </div>
     <!-- /controls -->
-    <div class="contents-view controls-view inactive" style="display: none; z-index: 3000;"></div>
-    <div class="settings-view controls-view inactive" style="display: none; z-index: 3000;"></div>
+    <div class="contents-view controls-view inactive" style="z-index: 3000;"></div>
+    <div class="settings-view controls-view inactive" style="z-index: 3000;"></div>
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
@@ -255,7 +255,7 @@ export default class IFrameNavigator implements Navigator {
                 this.eventHandler.onRightHover = this.handleRightHover.bind(this);
                 this.eventHandler.onRemoveHover = this.handleRemoveHover.bind(this);
             }
-            if (this.linksBottom.style.display !== "none") {
+            if (this.isDisplayed(this.linksBottom)) {
                 this.toggleDisplay(this.linksBottom);
             }
         } else if (this.settings.getSelectedView() === this.scroller) {
@@ -264,13 +264,13 @@ export default class IFrameNavigator implements Navigator {
                 if (this.scroller && this.scroller.atBottom()) {
                     // Bring up the bottom nav when you get to the bottom,
                     // if it wasn't already displayed.
-                    if (this.linksBottom.style.display === "none") {
+                    if (!this.isDisplayed(this.linksBottom)) {
                         this.toggleDisplay(this.linksBottom);
                     }
                 } else {
                     // Remove the bottom nav when you scroll back up,
                     // if it was displayed because you were at the bottom.
-                    if (this.linksBottom.style.display !== "none" && this.links.style.display === "none") {
+                    if (this.isDisplayed(this.linksBottom) && !this.isDisplayed(this.links)) {
                         this.toggleDisplay(this.linksBottom);
                     }
                 }
@@ -288,7 +288,7 @@ export default class IFrameNavigator implements Navigator {
                 this.eventHandler.onRemoveHover = doNothing;
                 this.handleRemoveHover();
             }
-            if (this.links.style.display !== "none" && this.linksBottom.style.display === "none") {
+            if (this.isDisplayed(this.links) && !this.isDisplayed(this.linksBottom)) {
                 this.toggleDisplay(this.linksBottom);
             }
         }
@@ -491,17 +491,18 @@ export default class IFrameNavigator implements Navigator {
         return new Promise<void>(resolve => resolve());
     }
 
+    private isDisplayed(element: HTMLDivElement | HTMLUListElement) {
+        return element.className.indexOf(" active") !== -1;
+    }
+
     private toggleDisplay(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement): void {
-        const display: string | null = element.style.display;
-        if (display === "none") {
-            element.style.display = "block";
+        if (!this.isDisplayed(element)) {
             element.className = element.className.replace(" inactive", "");
             element.className += " active";
             if (control) {
                 control.setAttribute("aria-expanded", "true");
             }
         } else {
-            element.style.display = "none";
             element.className = element.className.replace(" active", "");
             element.className += " inactive";
             if (control) {
@@ -599,7 +600,8 @@ export default class IFrameNavigator implements Navigator {
         // If the links are hidden, show them temporarily
         // to determine the top and bottom heights.
 
-        const linksHidden = (this.links.style.display === "none");
+        const linksHidden = !this.isDisplayed(this.links);
+
         if (linksHidden) {
             this.toggleDisplay(this.links);
         }
@@ -611,7 +613,7 @@ export default class IFrameNavigator implements Navigator {
             this.toggleDisplay(this.links);
         }
 
-        const linksBottomHidden = (this.linksBottom.style.display === "none");
+        const linksBottomHidden = !this.isDisplayed(this.linksBottom);
         if (linksBottomHidden) {
             this.toggleDisplay(this.linksBottom);
         }
@@ -676,7 +678,6 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private hideTOC(): void {
-        this.tocView.style.display = "none";
         this.contentsControl.setAttribute("aria-expanded", "false");
         this.tocView.className = this.tocView.className.replace(" active", "");
         if (this.tocView.className.indexOf(" inactive") === -1) {
@@ -703,7 +704,6 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private hideSettings(): void {
-        this.settingsView.style.display = "none";
         this.settingsControl.setAttribute("aria-expanded", "false");
         this.settingsView.className = this.settingsView.className.replace(" active", "");
         if (this.settingsView.className.indexOf(" inactive") === -1) {
