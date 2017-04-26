@@ -666,6 +666,18 @@ describe("IFrameNavigator", () => {
             expect(linksBottom.style.display).to.equal("none");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
+
+            // If you're at the bottom, tapping should only toggle the top links.
+            scrollerAtBottom.returns(true);
+            linksBottom.style.display = "block";
+
+            eventHandler.onMiddleTap(new UIEvent("mouseup"));
+            expect(links.style.display).not.to.equal("none");
+            expect(linksBottom.style.display).not.to.equal("none");
+
+            eventHandler.onLeftTap(new UIEvent("mouseup"));
+            expect(links.style.display).to.equal("none");
+            expect(linksBottom.style.display).not.to.equal("none");
         });
 
         it("should go to previous page", async () => {

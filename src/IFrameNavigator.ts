@@ -513,8 +513,10 @@ export default class IFrameNavigator implements Navigator {
     private handleToggleLinksClick(event: MouseEvent | TouchEvent): void {
         this.hideTOC();
         this.toggleDisplay(this.links);
-        if (this.settings.getSelectedView() !== this.paginator) {
-            this.toggleDisplay(this.linksBottom);
+        if (this.settings.getSelectedView() === this.scroller) {
+            if (!this.scroller.atBottom()) {
+                this.toggleDisplay(this.linksBottom);
+            }
         }
         event.preventDefault();
         event.stopPropagation();
