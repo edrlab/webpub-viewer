@@ -32,16 +32,20 @@ export default class ApplicationCacheCacher implements Cacher {
         this.updateStatus();
 
         this.bookCacheElement.addEventListener("load", () => {
-            this.updateStatus();
+            try {
+                this.updateStatus();
 
-            const bookCache = this.bookCacheElement.contentWindow.applicationCache;
+                const bookCache = this.bookCacheElement.contentWindow.applicationCache;
 
-            bookCache.oncached = this.updateStatus.bind(this);
-            bookCache.onchecking = this.updateStatus.bind(this);
-            bookCache.ondownloading = this.updateStatus.bind(this);
-            bookCache.onerror = this.handleError.bind(this);
-            bookCache.onnoupdate = this.updateStatus.bind(this);
-            bookCache.onupdateready = this.updateStatus.bind(this);
+                bookCache.oncached = this.updateStatus.bind(this);
+                bookCache.onchecking = this.updateStatus.bind(this);
+                bookCache.ondownloading = this.updateStatus.bind(this);
+                bookCache.onerror = this.handleError.bind(this);
+                bookCache.onnoupdate = this.updateStatus.bind(this);
+                bookCache.onupdateready = this.updateStatus.bind(this);
+            } catch (err) {
+                this.handleError();
+            }
         });
 
         return new Promise<void>(resolve => resolve());
