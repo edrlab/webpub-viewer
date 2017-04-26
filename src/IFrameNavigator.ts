@@ -259,7 +259,22 @@ export default class IFrameNavigator implements Navigator {
                 this.toggleDisplay(this.linksBottom);
             }
         } else if (this.settings.getSelectedView() === this.scroller) {
-            document.body.onscroll = this.saveCurrentReadingPosition.bind(this);
+            document.body.onscroll = () => {
+                this.saveCurrentReadingPosition();
+                if (this.scroller && this.scroller.atBottom()) {
+                    // Bring up the bottom nav when you get to the bottom,
+                    // if it wasn't already displayed.
+                    if (this.linksBottom.style.display === "none") {
+                        this.toggleDisplay(this.linksBottom);
+                    }
+                } else {
+                    // Remove the bottom nav when you scroll back up,
+                    // if it was displayed because you were at the bottom.
+                    if (this.linksBottom.style.display !== "none" && this.links.style.display === "none") {
+                        this.toggleDisplay(this.linksBottom);
+                    }
+                }
+            }
             this.chapterTitle.style.display = "none";
             this.chapterPosition.style.display = "none";
             if (this.eventHandler) {

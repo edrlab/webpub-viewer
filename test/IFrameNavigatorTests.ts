@@ -33,6 +33,7 @@ describe("IFrameNavigator", () => {
     let paginator: PaginatedBookView;
 
     let scrollerStart: Sinon.SinonStub;
+    let scrollerAtBottom: Sinon.SinonStub;
     let scroller: ScrollingBookView;
 
     let getLastReadingPosition: Sinon.SinonStub;
@@ -113,6 +114,9 @@ describe("IFrameNavigator", () => {
         }
         public getCurrentPosition() {
             return 0.25;
+        }
+        public atBottom() {
+            return scrollerAtBottom();
         }
     }
 
@@ -214,6 +218,7 @@ describe("IFrameNavigator", () => {
         paginator = new MockPaginator();
 
         scrollerStart = stub();
+        scrollerAtBottom = stub().returns(false);
         scroller = new MockScroller();
 
         getLastReadingPosition = stub();
@@ -297,6 +302,7 @@ describe("IFrameNavigator", () => {
             expect(onViewChange.callCount).to.equal(1);
             let chapterTitle = element.querySelector(".chapter-title") as HTMLSpanElement;
             let chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
+            let links = element.querySelector("ul.links.top") as HTMLUListElement;
             let linksBottom = element.querySelector("ul.links.bottom") as HTMLUListElement;
 
             await pause();
@@ -324,6 +330,35 @@ describe("IFrameNavigator", () => {
             // Now a scroll event saves the new reading position.
             await document.body.onscroll(new UIEvent("scroll"));
             expect(saveLastReadingPosition.callCount).to.equal(2);
+
+            // If the links are hidden, scrolling to the bottom brings up
+            // the bottom links.
+            links.style.display = "none";
+            linksBottom.style.display = "none";
+            scrollerAtBottom.returns(true);
+
+            await document.body.onscroll(new UIEvent("scroll"));
+            expect(linksBottom.style.display).not.to.equal("none");
+
+            // Scrolling back up hides the bottom links again.
+            scrollerAtBottom.returns(false);
+
+            await document.body.onscroll(new UIEvent("scroll"));
+            expect(linksBottom.style.display).to.equal("none");
+
+            // But if you brought the links up by tapping, scrolling down and
+            // back up doesn't change them.
+            links.style.display = "block";
+            linksBottom.style.display = "block";
+            scrollerAtBottom.returns(true);
+
+            await document.body.onscroll(new UIEvent("scroll"));
+            expect(linksBottom.style.display).not.to.equal("none");
+
+            scrollerAtBottom.returns(false);
+
+            await document.body.onscroll(new UIEvent("scroll"));
+            expect(linksBottom.style.display).not.to.equal("none");
         });
 
         it("should give the settings a function to call when the font size changes", async () => {
