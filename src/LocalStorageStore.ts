@@ -5,15 +5,15 @@ import MemoryStore from "./MemoryStore";
     but falls back to an in-memory store. */
 export default class LocalStorageStore implements Store {
     private fallbackStore: MemoryStore | null;
-    private manifestUrl: URL;
+    private prefix: string;
     
-    public constructor(manifestUrl: URL) {
-        this.manifestUrl = manifestUrl;
+    public constructor(prefix: string) {
+        this.prefix = prefix;
         try {
             // In some browsers (eg iOS Safari in private mode), 
             // localStorage exists but throws an exception when
             // you try to write to it.
-            const testKey = "test-" + String(Math.random());
+            const testKey = prefix + "-" + String(Math.random());
             window.localStorage.setItem(testKey, "test");
             window.localStorage.removeItem(testKey);
             this.fallbackStore = null;
@@ -23,7 +23,7 @@ export default class LocalStorageStore implements Store {
     }
 
     private getLocalStorageKey(key: string): string {
-        return this.manifestUrl.href + "-" + key;
+        return this.prefix + "-" + key;
     }
 
     public async get(key: string): Promise<string | null> {
