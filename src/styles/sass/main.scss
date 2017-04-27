@@ -26,7 +26,7 @@ button {
   border: 0;
   //border-radius: 0.3125rem;
   color: $mta-green;
-  font-size: 4vw;
+  //font-size: 4vw;
   padding: 0.35rem 0.35rem 0.2rem;
   -webkit-appearance: none;
 }
@@ -34,6 +34,20 @@ button {
 a {
   color: $mta-green;
   text-decoration: none;
+}
+
+.inactive {
+  //display: none;
+  opacity: 0;
+  z-index: -3000;
+  //transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
+}
+
+.active {
+// animation mixin here?.
+  opacity: 1;
+  z-index: 3000;
+  //transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
 }
 
 //////////////////////////////
@@ -78,6 +92,11 @@ a {
 
       @media (min-width: 30rem) {
         display: inline-block;
+        font-size: 1rem;
+      }
+
+      @media (min-width: 60rem) {
+        font-size: 1rem;
       }
 
       &.contents {
@@ -96,6 +115,18 @@ a {
       border-bottom: 1px solid $mta-gray-tint;
       height: 2.9rem;
       padding: 0.5rem 0 0;
+
+      &.inactive {
+        //opacity: 0;
+        transition: opacity 100ms cubic-bezier(0.32, 0.76, 1, 1.01);
+        //z-index: -2000;
+      }
+
+      &.active {
+        //opacity: 1;
+        transition: opacity 100ms cubic-bezier(0, 0.03, 0.63, 0.99);
+        //z-index: 2000;
+      }
 
       li:nth-child(1) { // this is the back arrow
         position: relative;
@@ -135,6 +166,11 @@ a {
 
       li:nth-child(2) { // contents button
         margin: 0 0 0 65vw;
+
+        @media (min-width: 30rem) {
+          margin-left: 20vw;
+        }
+
       }
 
       li:nth-child(3) {
@@ -239,7 +275,15 @@ a {
   .disabled {
     background-color: darken($mta-green, 20%);
     }
+
+  &.inactive {
+    transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
   }
+
+  &.active {
+    transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
+  }
+}
 // /controls-view
 
 
