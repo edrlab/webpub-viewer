@@ -164,7 +164,15 @@ a {
         margin: 0 0 0 65vw;
 
         @media (min-width: 30rem) {
-          margin-left: 20vw;
+          margin-left: 25vw;
+        }
+
+        @media (min-width: 60rem) {
+          margin-left: 60vw;
+        }
+
+        @media (min-width: 87.5rem) {
+          margin-left: 73vw;
         }
       }
 
@@ -195,7 +203,7 @@ a {
 
         @media screen and (min-width: 30rem) {
           &:nth-child(1) {
-            float: right;
+            float: left;
           }
 
           &:nth-child(3) {
