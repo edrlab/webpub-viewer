@@ -10,25 +10,27 @@
     width: 88%;
 
     a {
-      color: $mta-green-shade;
+      color: $mta-dark-gray;
       border-bottom: 1px solid darken($nypl-white, 20%);
       display: block;
       padding: 1rem;
       text-decoration: none;
       width: 100%;
 
-      &:hover {
-        background: $mta-green-shade;
-        color: $nypl-white;
+      @media screen and (min-width: 60rem) {
+        &:hover {
+          background: $mta-dark-gray;
+          color: $nypl-white;
+        }
       }
 
       &.active {
         background: $mta-gray;
-        color: $nypl-black;
+        color: $mta-black;
       }
 
       &.active:hover {
-        background: $nypl-black;
+        background: $mta-black;
         color: $mta-gray;
       }
     }
