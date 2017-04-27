@@ -4,21 +4,22 @@
 
 // MTA Subway-Reads (name subject to change)
 $green: #61a60e;
+
 $mta-green: darken($green, 5%);
 
 $mta-green-shade: darken($mta-green, 20%);
-  // compiles to:
-
-$mta-green-tint: lighten($mta-green, 20%);
-  // compiles to:
 
 $mta-gray: #9d9d9d;
 
 $mta-gray-shade: darken($mta-gray, 20%);
 
+$mta-dark-gray: darken($mta-gray, 40%);
+
 $mta-gray-tint: lighten($mta-gray, 20%);
 
 $mta-white: #fff;
+
+$mta-black: #111;
 
 // NYPL Reds
 $nypl-red: #d0343a;
@@ -40,8 +41,6 @@ $nypl-light-gray: lighten($nypl-gray, 40%);
 $nypl-lighter-gray: lighten($nypl-gray, 60%);
 
 $nypl-white: #fff;
-
-$nypl-black: #111;
 
 // NYPL Blues
 $nypl-blue: #1b7fa7;
