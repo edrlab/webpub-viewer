@@ -25,7 +25,7 @@ const upLinkTemplate = (href: string, label: string) => `
 const template = `
   <nav class="publication">
     <div class="controls">
-      <ul class="links top active" style="z-index: 2000;">
+      <ul class="links top active" style="">
         <li>
           <button class="contents disabled" aria-labelledby="contents" aria-haspopup="true" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275 180" aria-labelledby="table-of-contents" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
@@ -73,8 +73,8 @@ const template = `
       </ul>
     </div>
     <!-- /controls -->
-    <div class="contents-view controls-view inactive" style="z-index: 3000;"></div>
-    <div class="settings-view controls-view inactive" style="z-index: 3000;"></div>
+    <div class="contents-view controls-view inactive" style=""></div>
+    <div class="settings-view controls-view inactive" style=""></div>
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
