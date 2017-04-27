@@ -30,7 +30,7 @@ describe('ServiceWorkerCacher', () => {
         match = stub().returns(new Promise((resolve) => {
             resolve(matchResult);
         }));
-        addAll = stub();
+        addAll = stub().returns(new Promise(resolve => resolve()));
         const cache = ({
             match: match,
             addAll: addAll
@@ -90,20 +90,26 @@ describe('ServiceWorkerCacher', () => {
             expect(register.args[1][0]).to.equal("../../../sw.js");
         });
 
-        it("should find a manifest that's already in the cache", async () => {
+        it("shouldn't cache anything if it has already successfully cached everything", async () => {
             mockCacheAPI("i'm in the cache");
 
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            // A MockCacher that can have its status set externally.
+            class MockCacher extends ServiceWorkerCacher {
+                public setStatus(status: CacheStatus) {
+                    this.cacheStatus = status;
+                }
+            }
+
+            const cacher = new MockCacher(store, new URL("https://example.com/manifest.json"));
+            cacher.setStatus(CacheStatus.Downloaded);
             await cacher.enable();
-            // The manifest cache was opened.
-            expect(open.callCount).to.equal(1);
-            expect(open.args[0][0]).to.equal("https://example.com/manifest.json");
+            // The manifest cache was not opened.
+            expect(open.callCount).to.equal(0);
 
-            // The cache was checked for a match.
-            expect(match.callCount).to.equal(1);
-            expect(match.args[0][0]).to.equal("https://example.com/manifest.json");
+            // The cache was not checked for a match.
+            expect(match.callCount).to.equal(0);
 
-            // Nothing was added to the cache since the manifest was already there.
+            // Nothing was added to the cache.
             expect(addAll.callCount).to.equal(0);
         });
 
@@ -157,6 +163,19 @@ describe('ServiceWorkerCacher', () => {
 
         it("should provide status updates when downloading and when caching is complete", async () => {
             mockCacheAPI("i'm in the cache");
+            const manifest = new Manifest({
+              spine: [
+                  { href: "spine-item-1.html" },
+                  { href: "spine-item-2.html" }
+              ],
+              resources: [
+                  { href: "resource-1.html" },
+                  { href: "resource-2.html" }
+              ]
+            }, new URL("https://example.com/manifest.json"));
+
+            await store.set("manifest", JSON.stringify(manifest));
+
             const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
 
             const callback = stub();
@@ -192,6 +211,48 @@ describe('ServiceWorkerCacher', () => {
             await pause();
             expect(callback.callCount).to.equal(3);
             expect(callback.args[2][0]).to.equal(CacheStatus.Error);
+        });
+    });
+
+    describe('#getStatus', () => {
+        it("should provide status updates when downloading and when caching is complete", async () => {
+            mockCacheAPI("i'm in the cache");
+            const manifest = new Manifest({
+              spine: [
+                  { href: "spine-item-1.html" },
+                  { href: "spine-item-2.html" }
+              ],
+              resources: [
+                  { href: "resource-1.html" },
+                  { href: "resource-2.html" }
+              ]
+            }, new URL("https://example.com/manifest.json"));
+
+            await store.set("manifest", JSON.stringify(manifest));
+
+            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+
+            expect(cacher.getStatus()).to.equal(CacheStatus.Uncached);
+
+            cacher.enable();
+            expect(cacher.getStatus()).to.equal(CacheStatus.Downloading);
+
+            await pause();
+            expect(cacher.getStatus()).to.equal(CacheStatus.Downloaded);
+        });
+
+        it("should provide status updates when there's an error", async () => {
+            mockCacheAPI("i'm in the cache");
+            open.returns(new Promise<void>((_, reject) => reject()));
+            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+
+            expect(cacher.getStatus()).to.equal(CacheStatus.Uncached);
+
+            cacher.enable();
+            expect(cacher.getStatus()).to.equal(CacheStatus.Downloading);
+
+            await pause();
+            expect(cacher.getStatus()).to.equal(CacheStatus.Error);
         });
     });
 });

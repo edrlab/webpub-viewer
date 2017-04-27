@@ -11,7 +11,6 @@ import ScrollingBookView from "../src/ScrollingBookView";
 import Annotator from "../src/Annotator";
 import Manifest from "../src/Manifest";
 import BookSettings from "../src/BookSettings";
-import { OfflineStatus } from "../src/BookSettings";
 import MemoryStore from "../src/MemoryStore";
 import EventHandler from "../src/EventHandler";
 
@@ -20,6 +19,7 @@ describe("IFrameNavigator", () => {
 
     let enable: Sinon.SinonStub;
     let onStatusUpdate: Sinon.SinonStub;
+    let getStatus: Sinon.SinonStub;
     let cacher: Cacher;
 
     let paginatorStart: Sinon.SinonStub;
@@ -43,12 +43,9 @@ describe("IFrameNavigator", () => {
     let renderControls: Sinon.SinonStub;
     let onViewChange: Sinon.SinonStub;
     let onFontSizeChange: Sinon.SinonStub;
-    let onOfflineEnabled: Sinon.SinonStub;
     let getSelectedView: Sinon.SinonStub;
     let getSelectedFontSize: Sinon.SinonStub;
-    let getOfflineStatus: Sinon.SinonStub;
     let getOfflineStatusElement: Sinon.SinonStub;
-    let askUserToEnableOfflineUse: Sinon.SinonStub;
     let settings: BookSettings;
 
     let setupEvents: Sinon.SinonStub;
@@ -63,6 +60,10 @@ describe("IFrameNavigator", () => {
         }
         public onStatusUpdate(callback: (status: CacheStatus) => void) {
             return onStatusUpdate(callback);
+        }
+
+        public getStatus(): CacheStatus {
+            return getStatus();
         }
     }
 
@@ -138,23 +139,14 @@ describe("IFrameNavigator", () => {
         public onFontSizeChange(callback: () => void) {
             onFontSizeChange(callback);
         }
-        public onOfflineEnabled(callback: () => void) {
-            onOfflineEnabled(callback);
-        }
         public getSelectedView() {
             return getSelectedView();
         }
         public getSelectedFontSize() {
             return getSelectedFontSize();
         }
-        public getOfflineStatus() {
-            return getOfflineStatus();
-        }
         public getOfflineStatusElement() {
             return getOfflineStatusElement();
-        }
-        public askUserToEnableOfflineUse() {
-            return askUserToEnableOfflineUse();
         }
     }
 
@@ -201,6 +193,7 @@ describe("IFrameNavigator", () => {
         store.set("manifest", JSON.stringify(manifest));
         enable = stub();
         onStatusUpdate = stub();
+        getStatus = stub();
         cacher = new MockCacher();
 
         paginatorStart = stub();
@@ -224,12 +217,9 @@ describe("IFrameNavigator", () => {
         renderControls = stub();
         onViewChange = stub();
         onFontSizeChange = stub();
-        onOfflineEnabled = stub();
         getSelectedView = stub().returns(paginator);
         getSelectedFontSize = stub().returns("14px");
-        getOfflineStatus = stub().returns(OfflineStatus.Disabled);
         getOfflineStatusElement = stub().returns(offlineStatusElement);
-        askUserToEnableOfflineUse = stub();
         settings = await MockSettings.create(store, [paginator, scroller], [14, 16]);
 
         setupEvents = stub();
@@ -364,16 +354,6 @@ describe("IFrameNavigator", () => {
             expect(paginator.sideMargin).to.equal(32);
         });
 
-        it("should give the settings a function to call when offline is enabled", () => {
-            expect(onOfflineEnabled.callCount).to.equal(1);
-            expect(enable.callCount).to.equal(0);
-
-            const enableOffline = onOfflineEnabled.args[0][0];
-            enableOffline();
-
-            expect(enable.callCount).to.equal(1);
-        });
-
         it("should render the cache status", () => {
            expect(onStatusUpdate.callCount).to.equal(1);
            const callback = onStatusUpdate.args[0][0];
@@ -397,21 +377,8 @@ describe("IFrameNavigator", () => {
            expect(offlineStatusElement.innerHTML).to.contain("Error");
         });
 
-        it("should enable the cacher if offline is enabled in the settings", async () => {
-            expect(enable.callCount).to.equal(0);
-
-            getOfflineStatus.returns(OfflineStatus.Enabled);
-            await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
+        it("should enable the cacher on load", async () => {
             expect(enable.callCount).to.equal(1);
-        });
-
-        it("should ask the user to enable offline use if there's no selection", async () => {
-            expect(askUserToEnableOfflineUse.callCount).to.equal(0);
-
-            getOfflineStatus.returns(OfflineStatus.NoSelection);
-            await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
-            await pause(10);
-            expect(askUserToEnableOfflineUse.callCount).to.equal(1);
         });
 
         it("should start the selected book view", async () => {
@@ -791,6 +758,32 @@ describe("IFrameNavigator", () => {
             expect(loading.style.display).not.to.equal("none");
             await pause(100);
             expect(loading.style.display).to.equal("none");
+        });
+
+        it("should show error message when iframe fails to load", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const error = element.querySelector("div[class=error]") as HTMLDivElement;
+            const tryAgain = element.querySelector(".try-again") as HTMLButtonElement;
+
+            expect(error.style.display).to.equal("none");
+
+            // Make the annotator throw an error so the load handler won't succeed.
+            saveLastReadingPosition.throws();
+
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+            expect(error.style.display).not.to.equal("none");
+
+            // If trying again fails, the error message stays up.
+            click(tryAgain);
+            await pause();
+            expect(error.style.display).not.to.equal("none");
+
+            // If trying again succeeds, it goes away.
+            saveLastReadingPosition.returns(new Promise<void>(async (resolve) => resolve()));
+            click(tryAgain);
+            await pause();
+            expect(error.style.display).to.equal("none");
         });
     });
 

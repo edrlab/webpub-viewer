@@ -187,6 +187,21 @@ a {
   width: 12.5rem;
 }
 
+.error {
+  background-color: darken($nypl-white, 2.5%);
+  border: 1px solid $nypl-red;
+  border-radius: 0.3125rem;
+  color: $nypl-red;
+  font-family: $sans-serif-stack;
+  height: 2.5rem;
+  left: calc(50% - 6.25rem);
+  padding-top: 1.25rem;
+  position: fixed;
+  text-align: center;
+  top: calc(50% - 6.25rem);
+  width: 12.5rem;
+}
+
 .controls-view {
   font-family: $sans-serif-stack;
   font-size: $basefont;

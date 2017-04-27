@@ -19,6 +19,7 @@ export default class ApplicationCacheCacher implements Cacher {
     private readonly bookCacheUrl: URL;
     protected bookCacheElement: HTMLIFrameElement;
     private statusUpdateCallback: (status: CacheStatus) => void = () => {};
+    private status: CacheStatus = CacheStatus.Uncached;
 
     public constructor(bookCacheUrl: URL) {
         this.bookCacheUrl = bookCacheUrl;
@@ -56,6 +57,10 @@ export default class ApplicationCacheCacher implements Cacher {
         this.updateStatus();
     }
 
+    public getStatus(): CacheStatus {
+        return this.status;
+    }
+
     protected updateStatus() {
         let status: CacheStatus;
         let appCacheStatus = window.applicationCache.UNCACHED;
@@ -81,10 +86,12 @@ export default class ApplicationCacheCacher implements Cacher {
             status = CacheStatus.Downloaded;
         }
 
+        this.status = status;
         this.statusUpdateCallback(status);
     }
 
     protected handleError() {
+        this.status = CacheStatus.Error;
         this.statusUpdateCallback(CacheStatus.Error);
     }
 }

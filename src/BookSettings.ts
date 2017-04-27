@@ -21,15 +21,8 @@ const optionTemplate = (liClassName: string, buttonClassName: string, label: str
 const offlineTemplate = `
     <li>
         <div class='offline-status'></div>
-        <button class='enable-offline' href='#'>Read offline</button>
     </li>
 `;
-
-export enum OfflineStatus {
-    Enabled,
-    Disabled,
-    NoSelection
-};
 
 export default class BookSettings {
     private readonly store: Store;
@@ -37,20 +30,16 @@ export default class BookSettings {
     private viewButtons: { [key: string]: HTMLButtonElement };
     private readonly fontSizes: string[];
     private fontSizeButtons: { [key: string]: HTMLButtonElement };
-    private offlineButton: HTMLButtonElement;
     private offlineStatusElement: HTMLElement;
 
     private viewChangeCallback: () => void = () => {};
     private fontSizeChangeCallback: () => void = () => {};
-    private offlineEnabledCallback: () => void = () => {};
 
     private selectedView: BookView;
     private selectedFontSize: string;
-    private offlineStatus: OfflineStatus = OfflineStatus.NoSelection;
 
     private static readonly SELECTED_VIEW_KEY = "settings-selected-view";
     private static readonly SELECTED_FONT_SIZE_KEY = "settings-selected-font-size";
-    private static readonly OFFLINE_ENABLED_KEY = "settings-offline-enabled";
 
     /** @param store Store to save the user's selections in. */
     /** @param bookViews Array of BookView options. */
@@ -100,13 +89,6 @@ export default class BookSettings {
             }
             this.selectedFontSize = selectedFontSize;
         }
-
-        const offlineEnabled = await this.store.get(BookSettings.OFFLINE_ENABLED_KEY);
-        if (offlineEnabled === "true") {
-            this.offlineStatus = OfflineStatus.Enabled;
-        } else if (offlineEnabled === "false") {
-            this.offlineStatus = OfflineStatus.Disabled;
-        }
     }
 
     public renderControls(element: HTMLElement): void {
@@ -142,9 +124,7 @@ export default class BookSettings {
             this.updateFontSizeButtons();
         }
 
-        this.offlineButton = HTMLUtilities.findRequiredElement(element, 'button[class="enable-offline"]') as HTMLButtonElement;
         this.offlineStatusElement = HTMLUtilities.findRequiredElement(element, 'div[class="offline-status"]') as HTMLElement;
-        this.updateOfflineButton();
 
         this.setupEvents();
 
@@ -160,10 +140,6 @@ export default class BookSettings {
 
     public onFontSizeChange(callback: () => void) {
         this.fontSizeChangeCallback = callback;
-    }
-
-    public onOfflineEnabled(callback: () => void) {
-        this.offlineEnabledCallback = callback;
     }
 
     private setupEvents(): void {
@@ -208,14 +184,6 @@ export default class BookSettings {
                 event.preventDefault();
             });
         }
-
-        this.offlineButton.addEventListener("click", (event: MouseEvent) => {
-            this.offlineStatus = OfflineStatus.Enabled;
-            this.offlineEnabledCallback();
-            this.updateOfflineButton();
-            this.storeOfflineEnabled(true);
-            event.preventDefault();
-        });
     }
 
     private updateViewButtons(): void {
@@ -244,36 +212,12 @@ export default class BookSettings {
         }
     }
 
-    private updateOfflineButton(): void {
-        if (this.getOfflineStatus() === OfflineStatus.Enabled) {
-            this.offlineButton.style.display = "none";
-        } else {
-            this.offlineButton.style.display = "block";
-        }
-    }
-
     public getSelectedView(): BookView {
         return this.selectedView;
     }
 
     public getSelectedFontSize(): string {
         return this.selectedFontSize;
-    }
-
-    public getOfflineStatus(): OfflineStatus {
-        return this.offlineStatus;
-    }
-
-    public async askUserToEnableOfflineUse(): Promise<void> {
-        const enable = window.confirm("Would you like to download this book to read offline?");
-        if (enable) {
-            this.offlineStatus = OfflineStatus.Enabled;
-            this.offlineEnabledCallback();
-        } else {
-            this.offlineStatus = OfflineStatus.Disabled;
-        }
-        this.updateOfflineButton();
-        await this.storeOfflineEnabled(enable);
     }
 
     public getOfflineStatusElement(): HTMLElement {
@@ -286,9 +230,5 @@ export default class BookSettings {
 
     private async storeSelectedFontSize(fontSize: string): Promise<void> {
         return this.store.set(BookSettings.SELECTED_FONT_SIZE_KEY, fontSize);
-    }
-
-    private async storeOfflineEnabled(offlineEnabled: boolean): Promise<void> {
-        return this.store.set(BookSettings.OFFLINE_ENABLED_KEY, offlineEnabled ? "true" : "false");
     }
 };

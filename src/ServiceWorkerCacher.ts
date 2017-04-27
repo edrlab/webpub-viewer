@@ -12,7 +12,7 @@ export default class ServiceWorkerCacher implements Cacher {
     private readonly manifestUrl: URL;
     private readonly areServiceWorkersSupported: boolean;
     private readonly fallbackCacher: ApplicationCacheCacher | null;
-    private cacheStatus: CacheStatus = CacheStatus.Uncached;
+    protected cacheStatus: CacheStatus = CacheStatus.Uncached;
     private statusUpdateCallback: (status: CacheStatus) => void = () => {};
 
     /** Create a ServiceWorkerCacher. */
@@ -36,7 +36,7 @@ export default class ServiceWorkerCacher implements Cacher {
         if (this.fallbackCacher) {
             return this.fallbackCacher.enable();
 
-        } else if (this.areServiceWorkersSupported) {
+        } else if (this.areServiceWorkersSupported && (this.cacheStatus !== CacheStatus.Downloaded)) {
             this.cacheStatus = CacheStatus.Downloading;
             this.updateStatus();
             navigator.serviceWorker.register(this.serviceWorkerPath);
@@ -57,20 +57,15 @@ export default class ServiceWorkerCacher implements Cacher {
     private async verifyAndCacheManifest(manifestUrl: URL): Promise<void> {
         await navigator.serviceWorker.ready;
         try {
-            const cache = await window.caches.open(manifestUrl.href);
-            const response = await cache.match(manifestUrl.href);
-            // If the manifest wasn't already cached, we need to cache everything.
-            if (!response) {
-                // Invoke promises concurrently...
-                const promises = [this.cacheManifest(manifestUrl), this.cacheUrls(["index.html", manifestUrl.href], manifestUrl)];
-                // then wait for all of them to resolve.
-                for (const promise of promises) {
-                   await promise;
-                }
+            // Invoke promises concurrently...
+            const promises = [this.cacheManifest(manifestUrl), this.cacheUrls(["index.html", manifestUrl.href], manifestUrl)];
+            // then wait for all of them to resolve.
+            for (const promise of promises) {
+                await promise;
             }
             return new Promise<void>(resolve => resolve());
         } catch (err) {
-            return new Promise<void>((_, reject) => reject());
+            return new Promise<void>((_, reject) => reject(err));
         }
     }
 
@@ -115,6 +110,10 @@ export default class ServiceWorkerCacher implements Cacher {
             this.statusUpdateCallback = callback;
             this.updateStatus();
         }
+    }
+
+    public getStatus(): CacheStatus {
+        return this.cacheStatus;
     }
 
     private updateStatus(): void {
