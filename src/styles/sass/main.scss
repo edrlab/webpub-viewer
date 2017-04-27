@@ -91,11 +91,8 @@ a {
 
       @media screen and (min-width: 30rem) {
         display: inline-block;
-        font-size: 1rem;
-      }
-
-      @media (min-width: 60rem) {
-        font-size: 1rem;
+        font-size: 0.9rem;
+        letter-spacing: 0.07rem;
       }
 
       &.contents {
@@ -114,10 +111,6 @@ a {
       border-bottom: 1px solid $mta-gray-tint;
       height: 2.9rem;
       padding: 0.5rem 0 0;
-
-      @media screen and (min-width: 30rem) {
-        height: 3.1rem;
-      }
 
       &.inactive {
         //opacity: 0;
