@@ -21,8 +21,16 @@ self.addEventListener('activate', () => {
 });
 
 self.addEventListener('fetch', event => {
-    const cachedOrFetchedResponse = self.caches.match((event as any).request).then(response => {
-        return response || self.fetch((event as any).request);
+    const cachedResponse = self.caches.match((event as any).request).then(response => {
+        return response || Promise.reject("not cached");
     });
-    (event as any).respondWith(cachedOrFetchedResponse);
+
+    const update = self.caches.open(CACHE_NAME).then((cache: any) => {
+        return self.fetch((event as any).request).then((response: any) => {
+            return cache.put((event as any).request, response);
+        });
+    });
+
+    (event as any).respondWith(cachedResponse);
+    (event as any).waitUntil(update);
 });
