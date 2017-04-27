@@ -119,7 +119,8 @@
         color: $mta-green;
         font-size: 1.125rem; // giving this a value even though it gets set by the application... seems like a good idea.
         position: relative;
-        top: -0.7vh;
+        top: -0.5rem;
+        margin: auto 0.4rem;
       }
 
       button.increase,
