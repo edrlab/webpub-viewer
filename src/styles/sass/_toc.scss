@@ -23,13 +23,13 @@
       }
 
       &.active {
-        background: lighten($mta-green, 30%);
+        background: $mta-gray;
         color: $nypl-black;
       }
 
       &.active:hover {
         background: $nypl-black;
-        color: lighten($mta-green, 30%);
+        color: $mta-gray;
       }
     }
   }
