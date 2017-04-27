@@ -127,7 +127,7 @@ export default class BookSettings {
 
         if (this.bookViews.length > 1) {
             const viewOptions = this.bookViews.map(bookView =>
-                optionTemplate("", bookView.name, bookView.label, "menuitem")
+                optionTemplate("reading-style", bookView.name, bookView.label, "menuitem")
             );
             sections.push(sectionTemplate(viewOptions.join("")));
         }
