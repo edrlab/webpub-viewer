@@ -24,12 +24,12 @@
     button {
       border: 0.0625rem solid $mta-green;
       border-radius: 0.375rem;
-      font-size: 4vw;
+      font-size: 3.2vw;
       padding: 0.35rem;
       text-transform: uppercase;
 
       @media (min-width: 30rem) {
-        font-size: 5vw;
+        font-size: 2vw;
       }
 
       @media (min-width: 60rem) {
