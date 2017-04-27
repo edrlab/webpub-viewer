@@ -42,7 +42,7 @@
 
     > li {
       border: 0;
-      color: $mta-green-shade;
+      color: $mta-dark-gray;
       display: inline-block;
       margin: 0.5rem 0.3rem 0.5rem 0;
       padding: 0;
@@ -75,8 +75,8 @@
         width: auto;
       }
 
-      li.reading-style:nth-child(2) {
-        margin-left: -0.5rem;
+      .reading-style:nth-child(2) {
+        margin-left: -0.7rem;
       }
 
       .font-setting {
