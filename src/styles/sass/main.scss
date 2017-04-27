@@ -35,6 +35,20 @@ a {
   text-decoration: none;
 }
 
+.inactive {
+  //display: none;
+  opacity: 0;
+  z-index: -3000;
+  //transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
+}
+
+.active {
+// animation mixin here?.
+  opacity: 1;
+  z-index: 3000;
+  //transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
+}
+
 //////////////////////////////
 //   Navigation Control     //
 //////////////////////////////
@@ -77,7 +91,11 @@ a {
 
       @media screen and (min-width: 30rem) {
         display: inline-block;
-        font-size: 0.85rem;
+        font-size: 1rem;
+      }
+
+      @media (min-width: 60rem) {
+        font-size: 1rem;
       }
 
       &.contents {
@@ -99,6 +117,18 @@ a {
 
       @media screen and (min-width: 30rem) {
         height: 3.1rem;
+      }
+
+      &.inactive {
+        //opacity: 0;
+        transition: opacity 100ms cubic-bezier(0.32, 0.76, 1, 1.01);
+        //z-index: -2000;
+      }
+
+      &.active {
+        //opacity: 1;
+        transition: opacity 100ms cubic-bezier(0, 0.03, 0.63, 0.99);
+        //z-index: 2000;
       }
 
       li:nth-child(1) { // this is the back arrow
@@ -140,8 +170,8 @@ a {
       li:nth-child(2) { // contents button
         margin: 0 0 0 65vw;
 
-        @media screen and (min-width: 30rem) {
-          margin: 0 0 0 28vw;
+        @media (min-width: 30rem) {
+          margin-left: 20vw;
         }
       }
 
@@ -247,7 +277,15 @@ a {
   .disabled {
     background-color: darken($mta-green, 20%);
     }
+
+  &.inactive {
+    transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
   }
+
+  &.active {
+    transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
+  }
+}
 // /controls-view
 
 

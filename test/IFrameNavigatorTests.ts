@@ -314,7 +314,7 @@ describe("IFrameNavigator", () => {
             expect(chapterTitle.style.display).not.to.equal("none");
             expect(chapterPosition.style.display).not.to.equal("none");
             expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
-            expect(linksBottom.style.display).to.equal("none");
+            expect(linksBottom.className).to.contain(" inactive");
 
             // A scroll event does nothing when the paginator is selected.
             document.body.onscroll(new UIEvent("scroll"));
@@ -325,7 +325,7 @@ describe("IFrameNavigator", () => {
             updateBookView();
             expect(chapterTitle.style.display).to.equal("none");
             expect(chapterPosition.style.display).to.equal("none");
-            expect(linksBottom.style.display).not.to.equal("none");
+            expect(linksBottom.className).not.to.contain(" inactive");
 
             // Now a scroll event saves the new reading position.
             await document.body.onscroll(new UIEvent("scroll"));
@@ -333,32 +333,32 @@ describe("IFrameNavigator", () => {
 
             // If the links are hidden, scrolling to the bottom brings up
             // the bottom links.
-            links.style.display = "none";
-            linksBottom.style.display = "none";
+            links.className = "links top inactive";
+            linksBottom.className = "links bottom inactive";
             scrollerAtBottom.returns(true);
 
             await document.body.onscroll(new UIEvent("scroll"));
-            expect(linksBottom.style.display).not.to.equal("none");
+            expect(linksBottom.className).not.to.contain(" inactive");
 
             // Scrolling back up hides the bottom links again.
             scrollerAtBottom.returns(false);
 
             await document.body.onscroll(new UIEvent("scroll"));
-            expect(linksBottom.style.display).to.equal("none");
+            expect(linksBottom.className).to.contain(" inactive");
 
             // But if you brought the links up by tapping, scrolling down and
             // back up doesn't change them.
-            links.style.display = "block";
-            linksBottom.style.display = "block";
+            links.className = "links top active";
+            linksBottom.className = "links bottom active";
             scrollerAtBottom.returns(true);
 
             await document.body.onscroll(new UIEvent("scroll"));
-            expect(linksBottom.style.display).not.to.equal("none");
+            expect(linksBottom.className).not.to.contain(" inactive");
 
             scrollerAtBottom.returns(false);
 
             await document.body.onscroll(new UIEvent("scroll"));
-            expect(linksBottom.style.display).not.to.equal("none");
+            expect(linksBottom.className).not.to.contain(" inactive");
         });
 
         it("should give the settings a function to call when the font size changes", async () => {
@@ -585,43 +585,33 @@ describe("IFrameNavigator", () => {
             
             // Initially, the top navigation links are visible.
             // The bottom links are always hidden in paginated view.
-            expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
-            expect(linksBottom.style.display).to.equal("none");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onMiddleTap(new UIEvent("mouseup"));
-            expect(links.style.display).to.equal("none");
             expect(links.className).to.contain(" inactive");
             expect(links.className).not.to.contain(" active");
-            expect(linksBottom.style.display).to.equal("none");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onMiddleTap(new UIEvent("mouseup"));
-            expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
-            expect(linksBottom.style.display).to.equal("none");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
             // Left and right taps don't affect the navigation links.
             eventHandler.onLeftTap(new UIEvent("mouseup"));
-            expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
-            expect(linksBottom.style.display).to.equal("none");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onRightTap(new UIEvent("mouseup"));
-            expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
-            expect(linksBottom.style.display).to.equal("none");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
         });
@@ -636,48 +626,40 @@ describe("IFrameNavigator", () => {
             await pause();
             
             // Initially, the navigation links are visible.
-            expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
-            expect(linksBottom.style.display).not.to.equal("none");
             expect(linksBottom.className).to.contain(" active");
             expect(linksBottom.className).not.to.contain(" inactive");
 
             eventHandler.onMiddleTap(new UIEvent("mouseup"));
-            expect(links.style.display).to.equal("none");
             expect(links.className).to.contain(" inactive");
             expect(links.className).not.to.contain(" active");
-            expect(linksBottom.style.display).to.equal("none");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onLeftTap(new UIEvent("mouseup"));
-            expect(links.style.display).not.to.equal("none");
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
-            expect(linksBottom.style.display).not.to.equal("none");
             expect(linksBottom.className).to.contain(" active");
             expect(linksBottom.className).not.to.contain(" inactive");
 
             eventHandler.onRightTap(new UIEvent("mouseup"));
-            expect(links.style.display).to.equal("none");
             expect(links.className).to.contain(" inactive");
             expect(links.className).not.to.contain(" active");
-            expect(linksBottom.style.display).to.equal("none");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
             // If you're at the bottom, tapping should only toggle the top links.
             scrollerAtBottom.returns(true);
-            linksBottom.style.display = "block";
+            linksBottom.className = "links bottom active";
 
             eventHandler.onMiddleTap(new UIEvent("mouseup"));
-            expect(links.style.display).not.to.equal("none");
-            expect(linksBottom.style.display).not.to.equal("none");
+            expect(links.className).not.to.contain(" inactive");
+            expect(linksBottom.className).not.to.contain(" inactive");
 
             eventHandler.onLeftTap(new UIEvent("mouseup"));
-            expect(links.style.display).to.equal("none");
-            expect(linksBottom.style.display).not.to.equal("none");
+            expect(links.className).to.contain(" inactive");
+            expect(linksBottom.className).not.to.contain(" inactive");
         });
 
         it("should go to previous page", async () => {
@@ -928,14 +910,14 @@ describe("IFrameNavigator", () => {
         it("should show on first load if there's no last reading position yet", async () => {
             let toc = element.querySelector(".contents-view") as HTMLDivElement;
             let contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
-            expect(toc.style.display).not.to.equal("none");
+            expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
 
             getLastReadingPosition.returns("http://example.com/item-1.html");
             navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller);
             toc = element.querySelector(".contents-view") as HTMLDivElement;
             contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
-            expect(toc.style.display).to.equal("none");
+            expect(toc.className).to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
         });
 
@@ -943,21 +925,18 @@ describe("IFrameNavigator", () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const toc = element.querySelector(".contents-view") as HTMLDivElement; 
             const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
-            expect(toc.style.display).not.to.equal("none");
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
             click(contentsControl);
-            expect(toc.style.display).to.equal("none");
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
             click(contentsControl);
-            expect(toc.style.display).not.to.equal("none");
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
@@ -971,7 +950,6 @@ describe("IFrameNavigator", () => {
 
             iframe.src = "http://example.com/item-1.html";
             await pause();
-            expect(toc.style.display).not.to.equal("none");
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
@@ -979,13 +957,11 @@ describe("IFrameNavigator", () => {
             const nextChapterLink = element.querySelector("a[rel=next]") as HTMLAnchorElement;
             click(nextChapterLink);
             await pause();
-            expect(toc.style.display).to.equal("none");
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
 
             click(contentsControl);
-            expect(toc.style.display).not.to.equal("none");
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
@@ -993,7 +969,6 @@ describe("IFrameNavigator", () => {
             const previousChapterLink = element.querySelector("a[rel=prev]") as HTMLAnchorElement;
             click(previousChapterLink);
             await pause();
-            expect(toc.style.display).to.equal("none");
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
@@ -1012,20 +987,17 @@ describe("IFrameNavigator", () => {
             const link2 = links[1] as HTMLAnchorElement;
 
             click(link1);
-            expect(toc.style.display).to.equal("none");
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/item-1.html");
 
             click(contentsControl);
-            expect(toc.style.display).not.to.equal("none");
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
 
             click(link2);
-            expect(toc.style.display).to.equal("none");
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
@@ -1060,19 +1032,17 @@ describe("IFrameNavigator", () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const settings = element.querySelector(".settings-view") as HTMLDivElement;
             const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
-            expect(settings.style.display).to.equal("none");
+            expect(settings.className).to.contain(" inactive");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
             click(settingsControl);
-            expect(settings.style.display).not.to.equal("none");
             expect(settings.className).to.contain(" active");
             expect(settings.className).not.to.contain(" inactive");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(iframe.src).to.equal("http://example.com/start.html");
 
             click(settingsControl);
-            expect(settings.style.display).to.equal("none");
             expect(settings.className).to.contain(" inactive");
             expect(settings.className).not.to.contain(" active");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
@@ -1082,19 +1052,16 @@ describe("IFrameNavigator", () => {
         it("should hide when settings view is clicked", async () => {
             const settings = element.querySelector(".settings-view") as HTMLDivElement;
             const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
-            expect(settings.style.display).to.equal("none");
             expect(settings.className).to.contain(" inactive");
             expect(settings.className).not.to.contain(" active");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
 
             click(settingsControl);
-            expect(settings.style.display).not.to.equal("none");
             expect(settings.className).to.contain(" active");
             expect(settings.className).not.to.contain(" inactive");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("true");
 
             click(settings);
-            expect(settings.style.display).to.equal("none");
             expect(settings.className).to.contain(" inactive");
             expect(settings.className).not.to.contain(" active");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
