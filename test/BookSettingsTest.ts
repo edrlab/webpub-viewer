@@ -2,7 +2,6 @@ import { expect } from "chai";
 import { stub } from "sinon";
 
 import BookSettings from "../src/BookSettings";
-import { OfflineStatus } from "../src/BookSettings";
 import BookView from "../src/BookView";
 import MemoryStore from "../src/MemoryStore";
 
@@ -108,20 +107,6 @@ describe("BookSettings", () => {
 
             settings = await BookSettings.create(store, [view1, view2], [10, 12, 14, 16]);
             expect(settings.getSelectedFontSize()).to.equal("14px");
-        });
-
-        it("obtains the selected offline setting from the store", async () => {
-            await store.set("settings-offline-enabled", "true");
-            settings = await BookSettings.create(store, [view1], [12]);
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Enabled);
-
-            await store.set("settings-offline-enabled", "false");
-            settings = await BookSettings.create(store, [view1], [12]);
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Disabled);
-        });
-
-        it("has no offline selection if there isn't one in the store", async () => {
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.NoSelection);
         });
     });
 
@@ -287,32 +272,11 @@ describe("BookSettings", () => {
             expect(label.style.fontSize).to.equal("16px");
         });
 
-        it("renders offline button and status", async () => {
+        it("renders offline status", async () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
-            let offlineButton = element.querySelector("button[class='enable-offline']") as HTMLButtonElement;
-            expect(offlineButton.innerHTML).to.contain("offline");
-            expect(offlineButton.style.display).not.to.equal("none");
-
-            let offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
-            expect(offlineStatus).not.to.be.null;
-
-            click(offlineButton);
-            await pause();
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Enabled);
-
-            const storedOfflineEnabled = await store.get("settings-offline-enabled");
-            expect(storedOfflineEnabled).to.equal("true");
-
-            store.set("settings-offline-enabled", "true");
-            settings = await BookSettings.create(store, [view1], [12]);
-            settings.renderControls(element);
-
-            offlineButton = element.querySelector("button[class='enable-offline']") as HTMLButtonElement;
-            expect(offlineButton.style.display).to.equal("none");
-
-            offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
+            const offlineStatus = element.querySelector("div[class='offline-status']") as HTMLDivElement;
             expect(offlineStatus).not.to.be.null;
         });
 
@@ -376,48 +340,6 @@ describe("BookSettings", () => {
             click(increaseButton);
             await pause();
             expect(fontSizeChanged.callCount).to.equal(2);
-        });
-    });
-
-    describe("#onOfflineEnabled", () => {
-        it("sets up offline enabled callback", async () => {
-            const element = document.createElement("div");
-            settings.renderControls(element);
-
-            const offlineEnabled = stub();
-            settings.onOfflineEnabled(offlineEnabled);
-
-            const offlineButton = element.querySelector("button[class='enable-offline']") as HTMLButtonElement;
-            click(offlineButton);
-            await pause();
-            expect(offlineEnabled.callCount).to.equal(1);
-        });
-    });
-
-    describe("#askUserToEnableOfflineUse", () => {
-        it("sets offline status based on user's response", async () => {
-            const offlineEnabled = stub();
-            settings.onOfflineEnabled(offlineEnabled);
-
-            const element = document.createElement("div");
-            settings.renderControls(element);
-
-            const confirmStub = stub(window, "confirm").returns(true);
-            await settings.askUserToEnableOfflineUse();
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Enabled);
-            let storedSetting = await store.get("settings-offline-enabled");
-            expect(storedSetting).to.equal("true");
-            let offlineButton = element.querySelector("button[class='enable-offline']") as HTMLButtonElement;
-            expect(offlineButton.style.display).to.equal("none");
-            expect(offlineEnabled.callCount).to.equal(1);
-
-            confirmStub.returns(false);
-            await settings.askUserToEnableOfflineUse();
-            expect(settings.getOfflineStatus()).to.equal(OfflineStatus.Disabled);
-            storedSetting = await store.get("settings-offline-enabled");
-            expect(storedSetting).to.equal("false");
-            expect(offlineButton.style.display).not.to.equal("none");
-            expect(offlineEnabled.callCount).to.equal(1);
         });
     });
 });

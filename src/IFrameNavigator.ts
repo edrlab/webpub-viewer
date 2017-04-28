@@ -8,7 +8,6 @@ import Annotator from "./Annotator";
 import Manifest from "./Manifest";
 import { Link } from "./Manifest";
 import BookSettings from "./BookSettings";
-import { OfflineStatus } from "./BookSettings";
 import EventHandler from "./EventHandler";
 import * as HTMLUtilities from "./HTMLUtilities";
 
@@ -78,6 +77,10 @@ const template = `
   </nav>
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
+    <div class="error" style="display:none;">
+      <span>Error</span>
+      <button class="try-again">Try again</button>
+    </div>
     <div class="info top">
       <span class="book-title"></span>
     </div>
@@ -117,6 +120,8 @@ export default class IFrameNavigator implements Navigator {
     private tocView: HTMLDivElement;
     private settingsView: HTMLDivElement;
     private loadingMessage: HTMLDivElement;
+    private errorMessage: HTMLDivElement;
+    private tryAgainButton: HTMLButtonElement;
     private infoTop: HTMLDivElement;
     private infoBottom: HTMLDivElement;
     private bookTitle: HTMLSpanElement;
@@ -189,6 +194,8 @@ export default class IFrameNavigator implements Navigator {
             this.tocView = HTMLUtilities.findRequiredElement(element, ".contents-view") as HTMLDivElement;
             this.settingsView = HTMLUtilities.findRequiredElement(element, ".settings-view") as HTMLDivElement;
             this.loadingMessage = HTMLUtilities.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
+            this.errorMessage = HTMLUtilities.findRequiredElement(element, "div[class=error]") as HTMLDivElement;
+            this.tryAgainButton = HTMLUtilities.findRequiredElement(element, "button[class=try-again]") as HTMLButtonElement;
             this.infoTop = HTMLUtilities.findRequiredElement(element, "div[class='info top']") as HTMLDivElement;
             this.infoBottom = HTMLUtilities.findRequiredElement(element, "div[class='info bottom']") as HTMLDivElement;
             this.bookTitle = HTMLUtilities.findRequiredElement(this.infoTop, "span[class=book-title]") as HTMLSpanElement;
@@ -209,11 +216,8 @@ export default class IFrameNavigator implements Navigator {
             this.settings.renderControls(this.settingsView);
             this.settings.onViewChange(this.updateBookView.bind(this));
             this.settings.onFontSizeChange(this.updateFontSize.bind(this));
-            this.settings.onOfflineEnabled(this.enableOffline.bind(this));
             this.cacher.onStatusUpdate(this.updateOfflineCacheStatus.bind(this));
-            if (this.settings.getOfflineStatus() === OfflineStatus.Enabled) {
-                this.enableOffline();
-            }
+            this.enableOffline();
 
             return await this.loadManifest();
         } catch (err) {
@@ -237,6 +241,8 @@ export default class IFrameNavigator implements Navigator {
         this.settingsControl.addEventListener("click", this.handleSettingsClick.bind(this));
 
         this.settingsView.addEventListener("click", this.hideSettings.bind(this));
+
+        this.tryAgainButton.addEventListener("click", this.tryAgain.bind(this));
     }
 
     private updateBookView(): void {
@@ -300,7 +306,9 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private enableOffline(): void {
-        this.cacher.enable();
+        if (this.cacher.getStatus() !== CacheStatus.Downloaded) {
+            this.cacher.enable();
+        }
     }
 
     private updateOfflineCacheStatus(status: CacheStatus): void {
@@ -341,7 +349,7 @@ export default class IFrameNavigator implements Navigator {
                         href = new URL(link.href, this.manifestUrl.href).href;
                     }
                     linkElement.href = href;
-                    linkElement.text = link.title || "";
+                    linkElement.innerHTML = link.title || "";
                     linkElement.addEventListener("click", (event: Event) => {
                         event.preventDefault();
                         event.stopPropagation();
@@ -398,97 +406,103 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private async handleIFrameLoad(): Promise<void> {
+        this.errorMessage.style.display = "none";
         this.showLoadingMessageAfterDelay();
-        if (!this.firstLoad) {
-            this.hideTOC();
-        }
-        this.firstLoad = false;
-
-        let bookViewPosition = 0;
-        if (this.newPosition) {
-            bookViewPosition = this.newPosition.position;
-            this.newPosition = null;
-        }
-        this.updateBookView();
-        this.updateFontSize();
-        this.settings.getSelectedView().start(bookViewPosition);
-
-        if (this.newElementId) {
-            this.settings.getSelectedView().goToElement(this.newElementId);
-            this.newElementId = null;
-        }
-
-        let currentLocation = this.iframe.src;
-        if (this.iframe.contentDocument && this.iframe.contentDocument.location && this.iframe.contentDocument.location.href) {
-            currentLocation = this.iframe.contentDocument.location.href;
-        }
-
-        if (currentLocation.indexOf("#") !== -1) {
-            // Letting the iframe load the anchor itself doesn't always work.
-            // For example, with CSS column-based pagination, you can end up
-            // between two columns, and we can't reset the position in some
-            // browsers. Instead, we grab the element id and reload the iframe
-            // without it, then let the view figure out how to go to that element
-            // on the next load event.
-
-            const elementId = currentLocation.slice(currentLocation.indexOf("#") + 1);
-            // Set the element to go to the next time the iframe loads.
-            this.newElementId = elementId;
-            // Reload the iframe without the anchor.
-            this.iframe.src = currentLocation.slice(0, currentLocation.indexOf("#"));
-            return new Promise<void>(resolve => resolve());
-        }
-
-        this.updatePositionInfo();
-
-        const manifest = await Manifest.getManifest(this.manifestUrl, this.store);
-        const previous = manifest.getPreviousSpineItem(currentLocation);
-        if (previous && previous.href) {
-            this.previousChapterLink.href = new URL(previous.href, this.manifestUrl.href).href;
-            this.previousChapterLink.className = "";
-        } else {
-            this.previousChapterLink.removeAttribute("href");
-            this.previousChapterLink.className = "disabled";
-        }
-
-        const next = manifest.getNextSpineItem(currentLocation);
-        if (next && next.href) {
-            this.nextChapterLink.href = new URL(next.href, this.manifestUrl.href).href;
-            this.nextChapterLink.className = "";
-        } else {
-            this.nextChapterLink.removeAttribute("href");
-            this.nextChapterLink.className = "disabled";
-        }
-
-        this.setActiveTOCItem(currentLocation);
-
-        if (manifest.metadata.title) {
-            this.bookTitle.innerHTML = manifest.metadata.title;
-        }
-
-        const spineItem = manifest.getSpineItem(currentLocation);
-        if (spineItem !== null) {
-            if (spineItem.title) {
-                this.chapterTitle.innerHTML = "(" + spineItem.title + ")";
-            } else {
-                this.chapterTitle.innerHTML = "(Chapter)";
+        try {
+            if (!this.firstLoad) {
+                this.hideTOC();
             }
-        }
+            this.firstLoad = false;
 
-        if (this.eventHandler) {
-            this.eventHandler.setupEvents(this.iframe.contentDocument);
-        }
+            let bookViewPosition = 0;
+            if (this.newPosition) {
+                bookViewPosition = this.newPosition.position;
+                this.newPosition = null;
+            }
+            this.updateBookView();
+            this.updateFontSize();
+            this.settings.getSelectedView().start(bookViewPosition);
 
-        if (this.annotator) {
-            await this.saveCurrentReadingPosition();
-        }
-        this.hideLoadingMessage();
+            if (this.newElementId) {
+                this.settings.getSelectedView().goToElement(this.newElementId);
+                this.newElementId = null;
+            }
 
-        if (this.settings.getOfflineStatus() === OfflineStatus.NoSelection) {
-            setTimeout(this.settings.askUserToEnableOfflineUse.bind(this.settings), 0);
-        }
+            let currentLocation = this.iframe.src;
+            if (this.iframe.contentDocument && this.iframe.contentDocument.location && this.iframe.contentDocument.location.href) {
+                currentLocation = this.iframe.contentDocument.location.href;
+            }
 
-        return new Promise<void>(resolve => resolve());
+            if (currentLocation.indexOf("#") !== -1) {
+                // Letting the iframe load the anchor itself doesn't always work.
+                // For example, with CSS column-based pagination, you can end up
+                // between two columns, and we can't reset the position in some
+                // browsers. Instead, we grab the element id and reload the iframe
+                // without it, then let the view figure out how to go to that element
+                // on the next load event.
+
+                const elementId = currentLocation.slice(currentLocation.indexOf("#") + 1);
+                // Set the element to go to the next time the iframe loads.
+                this.newElementId = elementId;
+                // Reload the iframe without the anchor.
+                this.iframe.src = currentLocation.slice(0, currentLocation.indexOf("#"));
+                return new Promise<void>(resolve => resolve());
+            }
+
+            this.updatePositionInfo();
+
+            const manifest = await Manifest.getManifest(this.manifestUrl, this.store);
+            const previous = manifest.getPreviousSpineItem(currentLocation);
+            if (previous && previous.href) {
+                this.previousChapterLink.href = new URL(previous.href, this.manifestUrl.href).href;
+                this.previousChapterLink.className = "";
+            } else {
+                this.previousChapterLink.removeAttribute("href");
+                this.previousChapterLink.className = "disabled";
+            }
+
+            const next = manifest.getNextSpineItem(currentLocation);
+            if (next && next.href) {
+                this.nextChapterLink.href = new URL(next.href, this.manifestUrl.href).href;
+                this.nextChapterLink.className = "";
+            } else {
+                this.nextChapterLink.removeAttribute("href");
+                this.nextChapterLink.className = "disabled";
+            }
+
+            this.setActiveTOCItem(currentLocation);
+
+            if (manifest.metadata.title) {
+                this.bookTitle.innerHTML = manifest.metadata.title;
+            }
+
+            const spineItem = manifest.getSpineItem(currentLocation);
+            if (spineItem !== null) {
+                if (spineItem.title) {
+                    this.chapterTitle.innerHTML = "(" + spineItem.title + ")";
+                } else {
+                    this.chapterTitle.innerHTML = "(Chapter)";
+                }
+            }
+
+            if (this.eventHandler) {
+                this.eventHandler.setupEvents(this.iframe.contentDocument);
+            }
+
+            if (this.annotator) {
+                await this.saveCurrentReadingPosition();
+            }
+            this.hideLoadingMessage();
+            return new Promise<void>(resolve => resolve());
+        } catch (err) {
+            this.errorMessage.style.display = "block";
+            return new Promise<void>((_, reject) => reject());
+        }
+    }
+
+    private tryAgain() {
+        this.iframe.src = this.iframe.src;
+        this.enableOffline();
     }
 
     private isDisplayed(element: HTMLDivElement | HTMLUListElement) {

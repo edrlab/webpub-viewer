@@ -264,6 +264,35 @@ a {
   width: 12.5rem;
 }
 
+.error {
+  background-color: transparentize($mta-white, 0.125);
+  //border: 2px solid $mta-error-red;
+  color: $mta-error-red;
+  //font-family: $sans-serif-stack;
+  height: 100%;
+  //left: calc(50% - 6.25rem);
+  padding-top: 40vh;
+  position: fixed;
+  text-align: center;
+  //top: calc(50% - 6.25rem);
+  width: 100%;
+
+  span {
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+
+  button {
+    color: $mta-error-red;
+    border: 0.125rem solid $mta-error-red;
+    border-radius: 0.3125rem;
+    //box-shadow: 0 0 17rem 3.75rem transparentize($mta-dark-gray, 0.9);
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 1.4rem;
+  }
+}
+
 .controls-view {
   font-family: $sans-serif-stack;
   font-size: $basefont;

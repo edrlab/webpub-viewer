@@ -118,4 +118,52 @@ describe("ApplicationCacheCacher", () => {
             expect(callback.args[5][0]).to.equal(CacheStatus.Error);
         });
     });
+
+    describe("#getStatus", () => {
+        it("should provide current application cache status", async () => {
+            const iframe = document.createElement("iframe");
+            // The element must be in a document for iframe load events to work.
+            jsdomWindow.document.body.appendChild(iframe);
+
+            iframe.src = "http://example.com/test";
+
+            // Cacher with a mock implementation of enable, which
+            // is tested separately, and a method to simulate an error.
+            class MockCacher extends ApplicationCacheCacher {
+                public enable() {
+                    this.bookCacheElement = iframe;
+                    this.updateStatus();
+                    return new Promise<void>(resolve => resolve());
+                }
+
+                public error() {
+                    this.handleError();
+                }
+            }
+
+            const cacher: MockCacher = new MockCacher(new URL("http://example.com/fallback.html"));
+            expect(cacher.getStatus()).to.equal(CacheStatus.Uncached);
+
+            (iframe.contentWindow as any).applicationCache = {};
+
+            (iframe.contentWindow as any).applicationCache.status = window.applicationCache.UPDATEREADY;
+            await cacher.enable();
+            expect(cacher.getStatus()).to.equal(CacheStatus.UpdateAvailable);
+
+            (iframe.contentWindow as any).applicationCache.status = window.applicationCache.DOWNLOADING;
+            await cacher.enable();
+            expect(cacher.getStatus()).to.equal(CacheStatus.Downloading);
+
+            (iframe.contentWindow as any).applicationCache.status = window.applicationCache.OBSOLETE;
+            await cacher.enable();
+            expect(cacher.getStatus()).to.equal(CacheStatus.Uncached);
+
+            (iframe.contentWindow as any).applicationCache.status = window.applicationCache.IDLE;
+            await cacher.enable();
+            expect(cacher.getStatus()).to.equal(CacheStatus.Downloaded);
+
+            cacher.error();
+            expect(cacher.getStatus()).to.equal(CacheStatus.Error);
+        });
+    });
 });

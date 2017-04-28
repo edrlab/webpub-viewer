@@ -25,6 +25,9 @@ interface Cacher {
 
     // Register a function to call when the cache status changes.
     onStatusUpdate(callback: (status: CacheStatus) => void): void;
+
+    // Return the current CacheStatus.
+    getStatus(): CacheStatus;
 }
 
 export default Cacher;
