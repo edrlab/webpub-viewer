@@ -1,6 +1,25 @@
 // Colors imported from NYPL Toolkit
 // https://github.com/NYPL/design-toolkit/blob/master/sass/_colors.scss
-@warn "TODO: Nada... yet!";
+@warn "TODO: change all the variable names to MTA?! piece of cake";
+
+// MTA Subway-Reads (name subject to change)
+$green: #61a60e;
+
+$mta-green: darken($green, 5%);
+
+$mta-green-shade: darken($mta-green, 20%);
+
+$mta-gray: #9d9d9d;
+
+$mta-gray-shade: darken($mta-gray, 20%);
+
+$mta-dark-gray: darken($mta-gray, 40%);
+
+$mta-gray-tint: lighten($mta-gray, 20%);
+
+$mta-white: #fff;
+
+$mta-black: #111;
 
 // NYPL Reds
 $nypl-red: #d0343a;
@@ -23,11 +42,9 @@ $nypl-lighter-gray: lighten($nypl-gray, 60%);
 
 $nypl-white: #fff;
 
-$nypl-black: #111;
-
 // NYPL Blues
 $nypl-blue: #1b7fa7;
 
 $nypl-blue-dark: #135772;
 
-$nypl-blue-tint: tint($nypl-blue, 30%);
+$nypl-blue-tint: lighten($nypl-blue, 30%);

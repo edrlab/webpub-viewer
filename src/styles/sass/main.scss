@@ -1,5 +1,7 @@
 // Variables & Mixins etc.
 
+// TODO: create a better button mixin
+//       use viewport units where applicable
 // Colors
 @import "colors";
 // Type
@@ -21,29 +23,49 @@ ul li {
 
 button {
   background: $nypl-white;
-  border: 0.0625rem solid $nypl-blue-dark;
-  border-radius: 0.3125rem;
-  color: $nypl-blue-dark;
-  font-size: 1rem;
+  border: 0;
+  color: $mta-green;
+  // font-size: 4vw;
   padding: 0.35rem 0.35rem 0.2rem;
   -webkit-appearance: none;
 }
 
 a {
-  color: $nypl-blue-dark;
+  color: $mta-green;
   text-decoration: none;
+}
+
+.inactive {
+  //display: none;
+  opacity: 0;
+  z-index: -3000;
+  //transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
+}
+
+.active {
+// animation mixin here?.
+  opacity: 1;
+  z-index: 3000;
+  //transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
 }
 
 //////////////////////////////
 //   Navigation Control     //
 //////////////////////////////
 .controls {
-  color: $nypl-blue-dark;
+  color: $mta-green;
   //font-size: $basefont;
   position: fixed;
   right: 0;
   top: 0;
   width: 100%;
+
+  ul li {
+    display: inline-block;
+    //float: right;
+    //padding: 0.2rem 0.65rem 0;
+    //margin: 0 0.625rem;
+  }
 
   .links {
     background-color: $nypl-white;
@@ -55,8 +77,8 @@ a {
     text-align: center;
 
     .icon {
-      color: $nypl-blue-dark;
-      fill: $nypl-blue-dark;
+      color: $mta-green;
+      fill: $mta-green;
       height: 1.5rem;
       width: 1.5rem;
     }
@@ -64,16 +86,19 @@ a {
     .setting-text {
       display: none;
       position: relative;
+      text-transform: uppercase;
       top: -0.4rem;
 
-      @media (min-width: 30rem) {
+      @media screen and (min-width: 30rem) {
         display: inline-block;
+        font-size: 0.9rem;
+        letter-spacing: 0.07rem;
       }
 
       &.contents {
         top: -0.55rem;
 
-        @media (min-width: 30rem) {
+        @media screen and (min-width: 30rem) {
           display: inline-block;
           position: relative;
           top: -0.35rem;
@@ -83,24 +108,85 @@ a {
 
     &.top {
       background-color: $nypl-white;
-      border-bottom: 1px solid $nypl-blue-dark;
+      border-bottom: 1px solid $mta-gray-tint;
       height: 2.9rem;
+      padding: 0.5rem 0 0;
 
-      li:nth-child(1) {
-        display: none;
+      &.inactive {
+        //opacity: 0;
+        transition: opacity 100ms cubic-bezier(0.32, 0.76, 1, 1.01);
+        //z-index: -2000;
+      }
+
+      &.active {
+        //opacity: 1;
+        transition: opacity 100ms cubic-bezier(0, 0.03, 0.63, 0.99);
+        //z-index: 2000;
+      }
+
+      li:nth-child(1) { // this is the back arrow
+        position: relative;
+        text-align: left;
+        right: 0;
+
+        a[rel="up"],
+        .icon,
+        span, {
+          //display: none;
+        }
+      }
+
+      @media screen and (min-width: 30rem) {
+        li:nth-child(1) {
+          background-color: $nypl-white;
+          display: inline-block;
+          margin: 0.175rem 0 0 0.625rem;
+          padding: 0.5rem 0.35rem 0.3rem;
+
+          a[rel="up"] {
+            display: inline-block;
+          }
+
+          .icon {
+            display: inline-block;
+            height: 1.25rem;
+            width: 1.25rem;
+        }
+
+          span {
+            display: inline-block;
+            top: -0.3rem;
+        }
+      }
+    }
+
+      li:nth-child(2) { // contents button
+        margin: 0 0 0 65vw;
+
+        @media (min-width: 30rem) {
+          margin-left: 25vw;
+        }
+
+        @media (min-width: 60rem) {
+          margin-left: 60vw;
+        }
+
+        @media (min-width: 87.5rem) {
+          margin-left: 73vw;
+        }
       }
 
       li:nth-child(3) {
-        float: right;
+        //float: right;
       }
-    }
+    } // / .top
+
     // Bottom Controls
     // the, fixed bar and the arrows.
     &.bottom {
       background-color: darken($nypl-white, 2.5%);
-      border-top: 0.16rem solid $nypl-blue-dark;
+      border-top: 0.16rem solid $mta-green;
       bottom: 0;
-      display: block;
       height: 2.2rem;
       padding-top: 0.625rem;
       position: fixed;
@@ -115,7 +201,7 @@ a {
         float: none;
         padding: 0;
 
-        @media (min-width: 30rem) {
+        @media screen and (min-width: 30rem) {
           &:nth-child(1) {
             float: left;
           }
@@ -133,20 +219,20 @@ a {
         top: -0.34rem;
         text-align: center;
 
-        @media (min-width: 30rem) {
+        @media screen and (min-width: 30rem) {
           display: none;
           }
         }
 
-      @media (min-width: 30rem) {
-        //background: lighten($nypl-blue-dark, 50%);
+      @media screen and (min-width: 30rem) {
+        background: $mta-white;
         }
 
       .icon {
         height: 1.5rem;
         width: 1.5rem;
 
-        @media (min-width: 30rem) {
+        @media screen and (min-width: 30rem) {
           position: relative;
           top: 0.375rem;
         }
@@ -155,28 +241,19 @@ a {
       .chapter-control {
         display: none;
 
-        @media (min-width: 30rem) {
+        @media screen and (min-width: 30rem) {
           display: inline-block;
           }
         }
-      }
-    }
-
-  ul li {
-    display: inline-block;
-    float: left;
-    padding: 0.2rem 0.65rem 0;
-    margin: 0 0.625rem;
-  }
-}
-
-// /controls
+     } // /.bottom
+  } // /.links
+} // /.controls
 
 .loading {
   background-color: darken($nypl-white, 2.5%);
-  border: 1px solid $nypl-blue;
+  border: 1px solid $mta-green;
   border-radius: 0.3125rem;
-  color: $nypl-blue;
+  color: $mta-green;
   font-family: $sans-serif-stack;
   height: 2.5rem;
   left: calc(50% - 6.25rem);
@@ -199,36 +276,47 @@ a {
   -webkit-overflow-scrolling: touch;
 
   .disabled {
-    background-color: darken($nypl-blue, 20%);
+    background-color: darken($mta-green, 20%);
     }
-  }
-// /controls-view
 
-// /info
-.info {
-  text-align: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  color: $nypl-blue-dark;
-  margin: 0 1.5rem;
-  &.top {
-    line-height: 3rem;
+  &.inactive {
+    transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
   }
-  &.bottom {
-    line-height: 2rem;
+
+  &.active {
+    transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
   }
 }
+// /controls-view
+
+
+.info {
+  color: $mta-dark-gray;
+  margin: 0 1.5rem;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.top {
+    line-height: 3;
+  }
+
+  &.bottom {
+    line-height: 2;
+  }
+}
+// /info
 
 $transparent-nypl-gray: rgba($nypl-gray, 0.1);
 
 iframe {
   &.left-hover {
-    background: linear-gradient(to right, $transparent-nypl-gray, $transparent-nypl-gray 28%, white 30%, white);
+    background: linear-gradient(to right, $transparent-nypl-gray, $transparent-nypl-gray 28%, $mta-white 30%, $mta-white);
   }
 
   &.right-hover {
-    background: linear-gradient(to left, $transparent-nypl-gray, $transparent-nypl-gray 28%, white 30%, white);
+    background: linear-gradient(to left, $transparent-nypl-gray, $transparent-nypl-gray 28%, $mta-white 30%, $mta-white);
   }
 }
 
