@@ -14,7 +14,7 @@ import * as HTMLUtilities from "./HTMLUtilities";
 
 const upLinkTemplate = (href: string, label: string) => `
   <a rel="up" href='${href}' aria-label="${label}">
-    <svg width="16" height="25" viewBox="0 0 16 25" aria-labelledby="back-to-book" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
+    <svg width="16" height="25" viewBox="0 0 16 25" aria-labelledby="up-label" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
       <title id="up-label">${label}</title>
       <polygon points="16 1.741 13.9 0 0 12.5 13.9 25 16 23.258 4.036 12.499 16 1.741" />
     </svg>
