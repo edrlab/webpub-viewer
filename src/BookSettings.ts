@@ -25,8 +25,8 @@ const offlineTemplate = `
     </li>
 `;
 
-const decreaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="decrease-font" class="icon">
-  <title id="decrease-font">Decrease Font Size</title>
+const decreaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="decrease-font-size" class="icon">
+  <title id="decrease-font-size">Decrease Font Size</title>
     <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-35V28h35Z"/>
 </svg>
 `;
