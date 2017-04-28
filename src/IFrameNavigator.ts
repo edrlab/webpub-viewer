@@ -349,7 +349,7 @@ export default class IFrameNavigator implements Navigator {
                         href = new URL(link.href, this.manifestUrl.href).href;
                     }
                     linkElement.href = href;
-                    linkElement.text = link.title || "";
+                    linkElement.innerHTML = link.title || "";
                     linkElement.addEventListener("click", (event: Event) => {
                         event.preventDefault();
                         event.stopPropagation();
