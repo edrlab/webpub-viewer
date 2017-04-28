@@ -21,16 +21,17 @@ self.addEventListener('activate', () => {
 });
 
 self.addEventListener('fetch', event => {
-    const cachedResponse = self.caches.match((event as any).request).then(response => {
-        return response || Promise.reject("not cached");
-    });
+    // Response from the cache immediately if possible, but also fetch an update.
 
-    const update = self.caches.open(CACHE_NAME).then((cache: any) => {
-        return self.fetch((event as any).request).then((response: any) => {
-            return cache.put((event as any).request, response);
+    const cachedOrFetchedResponse = self.caches.open(CACHE_NAME).then((cache: any) => {
+        return self.caches.match((event as any).request).then(cacheResponse => {
+            const fetchPromise: Promise<any> = self.fetch((event as any).request).then((fetchResponse) => {
+                cache.put((event as any).request, fetchResponse.clone());
+                return fetchResponse;
+            });
+            return cacheResponse || fetchPromise;
         });
     });
 
-    (event as any).respondWith(cachedResponse);
-    (event as any).waitUntil(update);
+    (event as any).respondWith(cachedOrFetchedResponse);
 });
