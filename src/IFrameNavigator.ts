@@ -78,7 +78,7 @@ const template = `
   <main style="overflow: hidden">
     <div class="loading" style="display:none;">Loading</div>
     <div class="error" style="display:none;">
-      Error
+      <span>Error</span>
       <button class="try-again">Try again</button>
     </div>
     <div class="info top">
