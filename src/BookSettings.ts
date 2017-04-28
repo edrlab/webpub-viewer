@@ -14,8 +14,8 @@ const sectionTemplate = (options: string) => `
     </ul></li>
 `;
 
-const optionTemplate = (liClassName: string, buttonClassName: string, label: string) => `
-    <li class='${liClassName}'><button class='${buttonClassName}'>${label}</button></li>
+const optionTemplate = (liClassName: string, buttonClassName: string, label: string, role: string) => `
+    <li class='${liClassName}'><button class='${buttonClassName}' role='${role}'>${label}</button></li>
 `;
 
 const offlineTemplate = `
@@ -24,12 +24,25 @@ const offlineTemplate = `
     </li>
 `;
 
+const decreaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="decrease-font-size" class="icon">
+  <title id="decrease-font-size">Decrease Font Size</title>
+    <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-35V28h35Z"/>
+</svg>
+`;
+
+const increaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="increase-font-size" class="icon">
+  <title id="increase-font-size">Increase Font Size</title>
+    <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-15.5V47.49841h-4V32h-15.5V28h15.5V12.49841h4V28h15.5Z"/>
+</svg>
+`;
+
 export default class BookSettings {
     private readonly store: Store;
     private readonly bookViews: BookView[];
     private viewButtons: { [key: string]: HTMLButtonElement };
     private readonly fontSizes: string[];
     private fontSizeButtons: { [key: string]: HTMLButtonElement };
+    private fontSizeLabel: HTMLLIElement;
     private offlineStatusElement: HTMLElement;
 
     private viewChangeCallback: () => void = () => {};
@@ -96,16 +109,16 @@ export default class BookSettings {
 
         if (this.bookViews.length > 1) {
             const viewOptions = this.bookViews.map(bookView =>
-                optionTemplate("", bookView.name, bookView.label)
+                optionTemplate("reading-style", bookView.name, bookView.label, "menuitem")
             );
             sections.push(sectionTemplate(viewOptions.join("")));
         }
 
         if (this.fontSizes.length > 1) {
-            const fontSizeOptions = optionTemplate("font-setting", "decrease", "A") + optionTemplate("font-setting", "increase", "A");
+            const fontSizeLabel = "<li class='font-size-label'>A</li>";
+            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg, "menuitem") + fontSizeLabel + optionTemplate("font-setting", "increase", increaseSvg, "menuitem");
             sections.push(sectionTemplate(fontSizeOptions));
         }
-
         sections.push(offlineTemplate);
 
         element.innerHTML = template(sections.join(""));
@@ -121,6 +134,7 @@ export default class BookSettings {
             for (const fontSizeName of ["decrease", "increase"]) {
                 this.fontSizeButtons[fontSizeName] = HTMLUtilities.findRequiredElement(element, "button[class=" + fontSizeName + "]") as HTMLButtonElement;
             }
+            this.fontSizeLabel = HTMLUtilities.findRequiredElement(element, 'li[class="font-size-label"]') as HTMLLIElement;
             this.updateFontSizeButtons();
         }
 
@@ -210,6 +224,8 @@ export default class BookSettings {
         } else {
             this.fontSizeButtons["increase"].className = "increase";
         }
+
+        this.fontSizeLabel.style.fontSize = this.selectedFontSize;
     }
 
     public getSelectedView(): BookView {

@@ -10,26 +10,28 @@
     width: 88%;
 
     a {
-      color: $nypl-blue-dark;
+      color: $mta-dark-gray;
       border-bottom: 1px solid darken($nypl-white, 20%);
       display: block;
       padding: 1rem;
       text-decoration: none;
       width: 100%;
 
-      &:hover {
-        background: $nypl-blue-dark;
-        color: $nypl-white;
+      @media screen and (min-width: 60rem) {
+        &:hover {
+          background: $mta-dark-gray;
+          color: $nypl-white;
+        }
       }
 
       &.active {
-        background: lighten($nypl-blue, 30%);
-        color: $nypl-black;
+        background: $mta-gray;
+        color: $mta-black;
       }
 
       &.active:hover {
-        background: $nypl-black;
-        color: lighten($nypl-blue, 30%);
+        background: $mta-black;
+        color: $mta-gray;
       }
     }
   }

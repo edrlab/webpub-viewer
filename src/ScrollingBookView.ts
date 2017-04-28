@@ -42,6 +42,10 @@ export default class ScrollingBookView implements BookView {
         return document.body.scrollTop / document.body.scrollHeight;
     }
 
+    public atBottom(): boolean {
+        return (document.body.scrollHeight - document.body.scrollTop) === window.innerHeight;
+    }
+
     public goToPosition(position: number) {
         this.setIFrameSize();
         document.body.scrollTop = document.body.scrollHeight * position;

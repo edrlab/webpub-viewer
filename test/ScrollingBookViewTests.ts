@@ -107,6 +107,21 @@ describe("ScrollingBookView", () => {
         });
     });
 
+    describe("#atBottom", () => {
+        it("should work", () => {
+            scroller.start(0);
+
+            document.body.scrollTop = 10;
+            (document.body as any).scrollHeight = 200;
+            (window as any).innerHeight = 100;
+
+            expect(scroller.atBottom()).to.equal(false);
+
+            document.body.scrollTop = 100;
+            expect(scroller.atBottom()).to.equal(true);
+        });
+    });
+
     describe("#goToPosition", () => {
         it("should go to beginning", () => {
             scroller.start(0);
