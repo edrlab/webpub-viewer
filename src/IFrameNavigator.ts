@@ -594,8 +594,9 @@ export default class IFrameNavigator implements Navigator {
         const oldPosition = selectedView.getCurrentPosition();
 
         const fontSize = this.settings.getSelectedFontSize();
-        this.iframe.contentDocument.body.style.fontSize = fontSize;
-        this.iframe.contentDocument.body.style.lineHeight = "1.5";
+        const body = HTMLUtilities.findRequiredElement(this.iframe.contentDocument, "body") as HTMLBodyElement;
+        body.style.fontSize = fontSize;
+        body.style.lineHeight = "1.5";
 
         const fontSizeNumber = parseInt(fontSize.slice(0, -2));
         let sideMargin = fontSizeNumber * 2;

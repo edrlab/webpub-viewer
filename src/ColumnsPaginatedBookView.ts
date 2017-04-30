@@ -1,4 +1,5 @@
 import PaginatedBookView from "./PaginatedBookView";
+import * as HTMLUtilities from "./HTMLUtilities";
 
 export default class ColumnsPaginatedBookView implements PaginatedBookView {
     public readonly name = "columns-paginated-view";
@@ -19,7 +20,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
 
         // any is necessary because CSSStyleDeclaration type does not include
         // all the vendor-prefixed attributes.
-        const body = this.bookElement.contentDocument.body as any;
+        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as any;
         body.style.columnCount = 1;
         body.style.WebkitColumnCount = 1;
         body.style.MozColumnCount = 1;
@@ -32,7 +33,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         const viewportElement = document.createElement("meta");
         viewportElement.name = "viewport";
         viewportElement.content = "width=device-width, initial-scale=1, maximum-scale=1";
-        const head = this.bookElement.contentDocument.querySelector("head");
+        const head = HTMLUtilities.findElement(this.bookElement.contentDocument, "head");
         if (head) {
             head.appendChild(viewportElement);
         }
@@ -42,7 +43,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
     private setSize(): void {
         // any is necessary because CSSStyleDeclaration type does not include
         // all the vendor-prefixed attributes.
-        const body = this.bookElement.contentDocument.body as any;
+        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as any;
 
         const width = (document.body.offsetWidth - this.sideMargin * 2) + "px"
         body.style.columnWidth = width;
@@ -73,7 +74,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         document.body.style.top = "";
         document.body.style.bottom = "";
 
-        const body = this.bookElement.contentDocument.body as any;
+        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as any;
         body.style.columnCount = "";
         body.style.WebkitColumnCount = "";
         body.style.MozColumnCount = "";
@@ -99,17 +100,36 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
     /** Returns the total width of the columns that are currently
         positioned to the left of the iframe viewport. */
     private getLeftColumnsWidth(): number {
-        return -(this.bookElement.contentDocument.body.style.left || "0px").slice(0, -2);
+        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
+
+        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') !== -1;
+        const isXML = this.bookElement.src.indexOf(".xml") !== -1;
+        if (isFirefox && isXML) {
+            // This handles books from Feedbooks with XML resources.
+            return body.scrollLeft;
+        }
+
+        return -(body.style.left || "0px").slice(0, -2);
     }
 
     /** Returns the total width of the columns that are currently
         positioned to the right of the iframe viewport. */
     private getRightColumnsWidth(): number {
+        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') !== -1;
+
         // scrollWidth includes the column in the iframe viewport as well as
         // columns to the right.
-        const scrollWidth = this.bookElement.contentDocument.body.scrollWidth;
+        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
+        const scrollWidth = body.scrollWidth;
         const width = this.getColumnWidth();
-        const rightWidth = scrollWidth + this.sideMargin - width;
+        let rightWidth = scrollWidth + this.sideMargin - width;
+        if (isFirefox) {
+            // In Firefox, scrollWidth doesn't change when some columns
+            // are off to the left, so we need to subtract them.
+            const leftWidth = this.getLeftColumnsWidth();
+            rightWidth = rightWidth - leftWidth;
+        }
+        
         if (rightWidth === this.sideMargin) {
             return 0;
         } else {
@@ -119,13 +139,23 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
 
     /** Returns the width of one column. */
     private getColumnWidth(): number {
-        return this.bookElement.contentDocument.body.offsetWidth + this.sideMargin * 2;
+        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
+        return body.offsetWidth + this.sideMargin * 2;
     }
 
     /** Shifts the columns so that the specified width is positioned
         to the left of the iframe viewport. */
     private setLeftColumnsWidth(width: number) {
-        this.bookElement.contentDocument.body.style.left = -width + "px";
+        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
+
+        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') !== -1;
+        const isXML = this.bookElement.src.indexOf(".xml") !== -1;
+        if (isFirefox && isXML) {
+            // This handles books from Feedbooks with XML resources.
+            body.scrollLeft = width;
+        } else {
+            body.style.left = -width + "px";
+        }
     }
 
     /** Returns number in range [0..1) representing the
