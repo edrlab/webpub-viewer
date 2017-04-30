@@ -995,6 +995,20 @@ describe("IFrameNavigator", () => {
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/subitem-1.html");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(3);
+
+            // Clicking the link that's already open won't reload the iframe.
+            click(contentsControl);
+            click(link2);
+            expect(toc.className).to.contain(" inactive");
+            expect(toc.className).not.to.contain(" active");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
+            expect(iframe.src).to.equal("http://example.com/subitem-1.html");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(3);
         });
 
         it("should set class on the active toc item", async () => {

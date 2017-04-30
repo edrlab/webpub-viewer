@@ -353,10 +353,16 @@ export default class IFrameNavigator implements Navigator {
                     linkElement.addEventListener("click", (event: Event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        this.navigate({
-                            resource: linkElement.href,
-                            position: 0
-                        });
+                        if ((event.currentTarget as HTMLAnchorElement).className.indexOf("active") !== -1) {
+                            // This TOC item is already loaded. Hide the TOC
+                            // but don't navigate.
+                            this.hideTOC();
+                        } else {
+                            this.navigate({
+                                resource: linkElement.href,
+                                position: 0
+                            });
+                        }
                     });
                     listItemElement.appendChild(linkElement);
 
