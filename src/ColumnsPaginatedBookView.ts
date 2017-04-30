@@ -56,6 +56,9 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         body.style.width = width;
         body.style.marginLeft = this.sideMargin + "px";
         body.style.marginRight = this.sideMargin + "px";
+        body.style.marginTop = "0px";
+        body.style.marginBottom = "0px";
+        this.bookElement.contentDocument.documentElement.style.height = this.height + "px";
         this.bookElement.style.height = this.height + "px";
         this.bookElement.style.width = document.body.offsetWidth + "px";
 
@@ -93,6 +96,9 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         body.style.width = "";
         body.style.marginLeft = "";
         body.style.marginRight = "";
+        body.style.marginTop = "";
+        body.style.marginBottom = "";
+        this.bookElement.contentDocument.documentElement.style.height = "";
         this.bookElement.style.height = "";
         this.bookElement.style.width = "";
     }
