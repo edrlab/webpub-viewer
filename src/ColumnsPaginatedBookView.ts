@@ -45,7 +45,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         // all the vendor-prefixed attributes.
         const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as any;
 
-        const width = (document.body.offsetWidth - this.sideMargin * 2) + "px"
+        const width = (window.innerWidth - this.sideMargin * 2) + "px"
         body.style.columnWidth = width;
         body.style.WebkitColumnWidth = width;
         body.style.MozColumnWidth = width;
@@ -60,7 +60,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         body.style.marginBottom = "0px";
         this.bookElement.contentDocument.documentElement.style.height = this.height + "px";
         this.bookElement.style.height = this.height + "px";
-        this.bookElement.style.width = document.body.offsetWidth + "px";
+        this.bookElement.style.width = window.innerWidth + "px";
 
         const images = body.querySelectorAll("img");
         for (const image of images) {
