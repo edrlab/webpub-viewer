@@ -53,6 +53,38 @@
       }
     }
 
+    > li:nth-child(1) {
+
+      @media screen and (min-width: 30rem) {
+        width: 40%;
+        margin-left: 20%;
+        text-align: right;
+      }
+
+      @media screen and (min-width: 60rem) {
+        margin-left: 0;
+        width: 85vw;
+        text-align: right;
+      }
+
+      @media screen and (min-width: 87.5rem) {
+        width: 89.75vw;
+      }
+    }
+
+    > li:nth-child(2) {
+
+      @media screen and (min-width: 30rem) {
+        width: 20%;
+        text-align: left;
+      }
+
+      @media screen and (min-width: 60rem) {
+        width: auto;
+        text-align: right;
+      }
+    }
+
     > li:nth-child(3) {
       display: none;
       margin-right: 0;
