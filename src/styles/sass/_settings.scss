@@ -84,7 +84,9 @@
 
       @media screen and (min-width: 30rem) {
         width: 20%;
+        position: relative;
         text-align: left;
+        top: 0.2rem;
 
         .settings-options {
           padding-top: 0.15rem;
