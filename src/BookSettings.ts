@@ -192,7 +192,7 @@ export default class BookSettings {
                     const newFontSize = this.fontSizes[currentFontSizeIndex + 1];
                     this.selectedFontSize = newFontSize;
                     this.fontSizeChangeCallback();
-                    //this.updateFontSizeButtons();
+                    this.updateFontSizeButtons();
                     this.storeSelectedFontSize(newFontSize);
                 }
                 event.preventDefault();
