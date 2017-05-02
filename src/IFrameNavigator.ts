@@ -353,10 +353,16 @@ export default class IFrameNavigator implements Navigator {
                     linkElement.addEventListener("click", (event: Event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        this.navigate({
-                            resource: linkElement.href,
-                            position: 0
-                        });
+                        if ((event.currentTarget as HTMLAnchorElement).className.indexOf("active") !== -1) {
+                            // This TOC item is already loaded. Hide the TOC
+                            // but don't navigate.
+                            this.hideTOC();
+                        } else {
+                            this.navigate({
+                                resource: linkElement.href,
+                                position: 0
+                            });
+                        }
                     });
                     listItemElement.appendChild(linkElement);
 
@@ -594,8 +600,9 @@ export default class IFrameNavigator implements Navigator {
         const oldPosition = selectedView.getCurrentPosition();
 
         const fontSize = this.settings.getSelectedFontSize();
-        this.iframe.contentDocument.body.style.fontSize = fontSize;
-        this.iframe.contentDocument.body.style.lineHeight = "1.5";
+        const body = HTMLUtilities.findRequiredElement(this.iframe.contentDocument, "body") as HTMLBodyElement;
+        body.style.fontSize = fontSize;
+        body.style.lineHeight = "1.5";
 
         const fontSizeNumber = parseInt(fontSize.slice(0, -2));
         let sideMargin = fontSizeNumber * 2;

@@ -6,6 +6,8 @@ sw.js
 webpub-viewer.js
 require.js
 fetch.js
+url-polyfill.js
+manifest.json
 text/titlepage.xhtml
 text/imprint.xhtml
 text/epigraph.xhtml

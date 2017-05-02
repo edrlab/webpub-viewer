@@ -246,6 +246,7 @@ describe("IFrameNavigator", () => {
 
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
+        (window as any).innerWidth = 1024;
         navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
     });
 
@@ -353,7 +354,7 @@ describe("IFrameNavigator", () => {
 
         it("should give the settings a function to call when the font size changes", async () => {
             // If the window is wide enough, the view gets a large margin.
-            // This is what jsdom sets the window width to by default.
+            // This should've been set before the test started.
             expect(window.innerWidth).to.equal(1024);
 
             expect(onFontSizeChange.callCount).to.equal(1);
@@ -995,6 +996,20 @@ describe("IFrameNavigator", () => {
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/subitem-1.html");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(3);
+
+            // Clicking the link that's already open won't reload the iframe.
+            click(contentsControl);
+            click(link2);
+            expect(toc.className).to.contain(" inactive");
+            expect(toc.className).not.to.contain(" active");
+            expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
+            expect(iframe.src).to.equal("http://example.com/subitem-1.html");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(3);
         });
 
         it("should set class on the active toc item", async () => {

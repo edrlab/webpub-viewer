@@ -12,7 +12,9 @@ index.html
 ../../webpub-viewer.js
 ../../require.js
 ../../fetch.js
+../../url-polyfill.js
 ../../main.css
+manifest.json
 text/titlepage.xhtml
 text/imprint.xhtml
 text/note.xhtml
