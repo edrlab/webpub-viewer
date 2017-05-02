@@ -919,22 +919,41 @@ describe("IFrameNavigator", () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const toc = element.querySelector(".contents-view") as HTMLDivElement; 
             const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
+
+            const links = toc.querySelectorAll("li > a");
+            const link1 = links[0] as HTMLAnchorElement;
+            const link2 = links[1] as HTMLAnchorElement;
+            const link3 = links[2] as HTMLAnchorElement;
+            const link4 = links[3] as HTMLAnchorElement;
+
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(iframe.src).to.equal("http://example.com/start.html");
+            expect(link1.tabIndex).to.equal(0);
+            expect(link2.tabIndex).to.equal(0);
+            expect(link3.tabIndex).to.equal(0);
+            expect(link4.tabIndex).to.equal(0);
 
             click(contentsControl);
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/start.html");
+            expect(link1.tabIndex).to.equal(-1);
+            expect(link2.tabIndex).to.equal(-1);
+            expect(link3.tabIndex).to.equal(-1);
+            expect(link4.tabIndex).to.equal(-1);
 
             click(contentsControl);
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(iframe.src).to.equal("http://example.com/start.html");
+            expect(link1.tabIndex).to.equal(0);
+            expect(link2.tabIndex).to.equal(0);
+            expect(link3.tabIndex).to.equal(0);
+            expect(link4.tabIndex).to.equal(0);
         });
 
         it("should hide when other navigation links are clicked", async () => {
@@ -942,11 +961,21 @@ describe("IFrameNavigator", () => {
             const toc = element.querySelector(".contents-view") as HTMLDivElement;
             const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
 
+            const links = toc.querySelectorAll("li > a");
+            const link1 = links[0] as HTMLAnchorElement;
+            const link2 = links[1] as HTMLAnchorElement;
+            const link3 = links[2] as HTMLAnchorElement;
+            const link4 = links[3] as HTMLAnchorElement;
+
             iframe.src = "http://example.com/item-1.html";
             await pause();
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
+            expect(link1.tabIndex).to.equal(0);
+            expect(link2.tabIndex).to.equal(0);
+            expect(link3.tabIndex).to.equal(0);
+            expect(link4.tabIndex).to.equal(0);
 
             const nextChapterLink = element.querySelector("a[rel=next]") as HTMLAnchorElement;
             click(nextChapterLink);
@@ -954,11 +983,19 @@ describe("IFrameNavigator", () => {
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
+            expect(link1.tabIndex).to.equal(-1);
+            expect(link2.tabIndex).to.equal(-1);
+            expect(link3.tabIndex).to.equal(-1);
+            expect(link4.tabIndex).to.equal(-1);
 
             click(contentsControl);
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
+            expect(link1.tabIndex).to.equal(0);
+            expect(link2.tabIndex).to.equal(0);
+            expect(link3.tabIndex).to.equal(0);
+            expect(link4.tabIndex).to.equal(0);
 
             const previousChapterLink = element.querySelector("a[rel=prev]") as HTMLAnchorElement;
             click(previousChapterLink);
@@ -966,6 +1003,10 @@ describe("IFrameNavigator", () => {
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
+            expect(link1.tabIndex).to.equal(-1);
+            expect(link2.tabIndex).to.equal(-1);
+            expect(link3.tabIndex).to.equal(-1);
+            expect(link4.tabIndex).to.equal(-1);
         });
 
         it("should navigate to a toc item", async () => {
@@ -985,17 +1026,23 @@ describe("IFrameNavigator", () => {
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/item-1.html");
+            expect(link1.tabIndex).to.equal(-1);
+            expect(link2.tabIndex).to.equal(-1);
 
             click(contentsControl);
             expect(toc.className).to.contain(" active");
             expect(toc.className).not.to.contain(" inactive");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("true");
+            expect(link1.tabIndex).to.equal(0);
+            expect(link2.tabIndex).to.equal(0);
 
             click(link2);
             expect(toc.className).to.contain(" inactive");
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/subitem-1.html");
+            expect(link1.tabIndex).to.equal(-1);
+            expect(link2.tabIndex).to.equal(-1);
 
             await pause();
             expect(saveLastReadingPosition.callCount).to.equal(3);
@@ -1007,6 +1054,8 @@ describe("IFrameNavigator", () => {
             expect(toc.className).not.to.contain(" active");
             expect(contentsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/subitem-1.html");
+            expect(link1.tabIndex).to.equal(-1);
+            expect(link2.tabIndex).to.equal(-1);
 
             await pause();
             expect(saveLastReadingPosition.callCount).to.equal(3);
@@ -1040,39 +1089,53 @@ describe("IFrameNavigator", () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const settings = element.querySelector(".settings-view") as HTMLDivElement;
             const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
+
+            settings.innerHTML = "<button tabindex=-1>Test</button>";
+            const button = settings.querySelector("button") as HTMLButtonElement;
+
             expect(settings.className).to.contain(" inactive");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/start.html");
+            expect(button.tabIndex).to.equal(-1);
 
             click(settingsControl);
             expect(settings.className).to.contain(" active");
             expect(settings.className).not.to.contain(" inactive");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(iframe.src).to.equal("http://example.com/start.html");
+            expect(button.tabIndex).to.equal(0);
 
             click(settingsControl);
             expect(settings.className).to.contain(" inactive");
             expect(settings.className).not.to.contain(" active");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/start.html");
+            expect(button.tabIndex).to.equal(-1);
         });
 
         it("should hide when settings view is clicked", async () => {
             const settings = element.querySelector(".settings-view") as HTMLDivElement;
             const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
+
+            settings.innerHTML = "<button tabindex=-1>Test</button>";
+            const button = settings.querySelector("button") as HTMLButtonElement;
+
             expect(settings.className).to.contain(" inactive");
             expect(settings.className).not.to.contain(" active");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
+            expect(button.tabIndex).to.equal(-1);
 
             click(settingsControl);
             expect(settings.className).to.contain(" active");
             expect(settings.className).not.to.contain(" inactive");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("true");
+            expect(button.tabIndex).to.equal(0);
 
             click(settings);
             expect(settings.className).to.contain(" inactive");
             expect(settings.className).not.to.contain(" active");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
+            expect(button.tabIndex).to.equal(-1);
         });
     });
 

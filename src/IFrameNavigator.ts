@@ -356,6 +356,7 @@ export default class IFrameNavigator implements Navigator {
                 for (const link of links) {
                     const listItemElement : HTMLLIElement = document.createElement("li");
                     const linkElement: HTMLAnchorElement = document.createElement("a");
+                    linkElement.tabIndex = -1;
                     let href = "";
                     if (link.href) {
                         href = new URL(link.href, this.manifestUrl.href).href;
@@ -527,19 +528,49 @@ export default class IFrameNavigator implements Navigator {
         return element.className.indexOf(" active") !== -1;
     }
 
+    private showElement(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        element.className = element.className.replace(" inactive", "");
+        if (element.className.indexOf(" active") === -1) {
+            element.className += " active";
+        }
+        if (control) {
+            control.setAttribute("aria-expanded", "true");
+        }
+        // Add buttons and links in the element to the tab order.
+        const buttons = Array.prototype.slice.call(element.querySelectorAll("button"));
+        const links = Array.prototype.slice.call(element.querySelectorAll("a"));
+        for (const button of buttons) {
+            button.tabIndex = 0;
+        }
+        for (const link of links) {
+            link.tabIndex = 0;
+        }
+    }
+
+    private hideElement(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        element.className = element.className.replace(" active", "");
+        if (element.className.indexOf(" inactive") === -1) {
+            element.className += " inactive";
+        }
+        if (control) {
+            control.setAttribute("aria-expanded", "false");
+        }
+        // Remove buttons and links in the element from the tab order.
+        const buttons = Array.prototype.slice.call(element.querySelectorAll("button"));
+        const links = Array.prototype.slice.call(element.querySelectorAll("a"));
+        for (const button of buttons) {
+            button.tabIndex = -1;
+        }
+        for (const link of links) {
+            link.tabIndex = -1;
+        }
+    }
+
     private toggleDisplay(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement): void {
         if (!this.isDisplayed(element)) {
-            element.className = element.className.replace(" inactive", "");
-            element.className += " active";
-            if (control) {
-                control.setAttribute("aria-expanded", "true");
-            }
+            this.showElement(element, control);
         } else {
-            element.className = element.className.replace(" active", "");
-            element.className += " inactive";
-            if (control) {
-                control.setAttribute("aria-expanded", "false");
-            }
+            this.hideElement(element, control);
         }
     }
 
@@ -711,11 +742,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private hideTOC(): void {
-        this.contentsControl.setAttribute("aria-expanded", "false");
-        this.tocView.className = this.tocView.className.replace(" active", "");
-        if (this.tocView.className.indexOf(" inactive") === -1) {
-            this.tocView.className += " inactive";
-        }
+        this.hideElement(this.tocView, this.contentsControl);
     }
 
     private setActiveTOCItem(resource: string): void {
@@ -737,11 +764,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private hideSettings(): void {
-        this.settingsControl.setAttribute("aria-expanded", "false");
-        this.settingsView.className = this.settingsView.className.replace(" active", "");
-        if (this.settingsView.className.indexOf(" inactive") === -1) {
-            this.settingsView.className += " inactive";
-        }
+        this.hideElement(this.settingsView, this.settingsControl);
     }
 
     private navigate(readingPosition: ReadingPosition): void {
