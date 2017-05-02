@@ -2,6 +2,7 @@
 // Settings View Sytles     //
 //////////////////////////////
 .settings-view {
+  overflow: hidden;
 
   > .settings-menu {
     background-color: $mta-white;
@@ -12,6 +13,10 @@
     padding: 0 1rem;
     position: relative;
     width: 100%;
+
+    @media screen and (min-width: 30rem) {
+      height: 3.5rem;
+    }
 
     @media (min-width: 60rem) {
       width: 100%;
@@ -30,10 +35,25 @@
         //font-size: 1vw;
       }
 
+      svg.checkedIcon {
+        // styles the icon that appears next to paginate/scrolling buttons
+        // set a default color
+        color: $mta-white;
+        display: none;
+        fill: $mta-white;
+        height: 1rem;
+        width: 0.6875rem;
+      }
+
       // reverse the active state
       &.active {
         color: $nypl-white;
         background-color: $mta-green;
+
+        svg.checkedIcon {
+          display: inline-block;
+        }
+
       }
     }
 
@@ -47,9 +67,55 @@
       vertical-align: text-bottom;
       width: 100%;
 
+      @media screen and (min-width: 30rem) {
+        margin: 0.7rem 0.3rem 0.5rem 0;
+      }
+
       @media (min-width: 60rem) {
         display: inline-block;
         margin-right: 1%;
+      }
+    }
+
+    > li:nth-child(1) { // the parent of paginate/scrolling buttons
+
+      @media screen and (min-width: 30rem) {
+        width: 40%;
+        margin-left: 20%;
+        text-align: right;
+      }
+
+      @media screen and (min-width: 60rem) {
+        margin-left: 0;
+        width: 85vw;
+        text-align: right;
+      }
+
+      @media screen and (min-width: 87.5rem) {
+        width: 89.75vw;
+      }
+    }
+
+    > li:nth-child(2) { // the type / font increase & decrease buttons
+
+      @media screen and (min-width: 30rem) {
+        width: 20%;
+        position: relative;
+        text-align: left;
+        top: 0.2rem;
+
+        .settings-options {
+          padding-top: 0.15rem;
+        }
+
+        .font-size-label {
+          top: -0.17rem;
+        }
+      }
+
+      @media screen and (min-width: 60rem) {
+        width: auto;
+        text-align: right;
       }
     }
 
@@ -94,12 +160,6 @@
       }
 
       .icon {
-        //background-color: $mta-green;
-        //border: 0;
-        //border-radius: 3rem;
-        //color: $mta-white;
-        //font-size: 1.3rem;
-        //padding: 0.2rem 0.69rem;
         color: $mta-green;
         fill: $mta-green;
         height: 1.75rem;
@@ -113,9 +173,9 @@
 
       .font-size-label {
         color: $mta-green;
-        font-size: 1.125rem; // giving this a value even though it gets set by the application... seems like a good idea.
+        font-size: 1.5rem;
         position: relative;
-        top: -0.5rem;
+        top: -0.17rem;
         margin: auto 0.4rem;
       }
 
