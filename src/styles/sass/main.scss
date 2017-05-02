@@ -124,7 +124,7 @@ a {
         //z-index: 2000;
       }
 
-      li:nth-child(1) { // this is the back arrow
+      > li:nth-child(1) { // this is the back arrow
         position: relative;
         text-align: left;
         right: 0;
@@ -137,7 +137,7 @@ a {
       }
 
       @media screen and (min-width: 30rem) {
-        li:nth-child(1) {
+        > li:nth-child(1) {
           background-color: $nypl-white;
           display: inline-block;
           margin: 0.175rem 0 0 0.625rem;
@@ -160,7 +160,7 @@ a {
       }
     }
 
-      li:nth-child(2) { // contents button
+      > li:nth-child(2) { // contents button
         margin: 0 0 0 65vw;
 
         @media (min-width: 30rem) {
@@ -176,7 +176,7 @@ a {
         }
       }
 
-      li:nth-child(3) {
+      > li:nth-child(3) {
         //float: right;
       }
     } // / .top
@@ -303,6 +303,7 @@ a {
   top: 3rem;
   width: 100%;
   -webkit-overflow-scrolling: touch;
+  text-align: left;
 
   .disabled {
     background-color: darken($mta-green, 20%);
