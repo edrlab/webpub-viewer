@@ -13,6 +13,10 @@
     position: relative;
     width: 100%;
 
+    @media screen and (min-width: 30rem) {
+      height: 3.5rem;
+    }
+
     @media (min-width: 60rem) {
       width: 100%;
     }
@@ -47,13 +51,17 @@
       vertical-align: text-bottom;
       width: 100%;
 
+      @media screen and (min-width: 30rem) {
+        margin: 0.7rem 0.3rem 0.5rem 0;
+      }
+
       @media (min-width: 60rem) {
         display: inline-block;
         margin-right: 1%;
       }
     }
 
-    > li:nth-child(1) {
+    > li:nth-child(1) { // the paginate/scrolling buttons
 
       @media screen and (min-width: 30rem) {
         width: 40%;
@@ -72,11 +80,19 @@
       }
     }
 
-    > li:nth-child(2) {
+    > li:nth-child(2) { // the type / font increase & decrease buttons
 
       @media screen and (min-width: 30rem) {
         width: 20%;
         text-align: left;
+
+        .settings-options {
+          padding-top: 0.15rem;
+        }
+
+        .font-size-label {
+          top: -0.17rem;
+        }
       }
 
       @media screen and (min-width: 60rem) {
@@ -139,9 +155,9 @@
 
       .font-size-label {
         color: $mta-green;
-        font-size: 1.125rem; // giving this a value even though it gets set by the application... seems like a good idea.
+        font-size: 1.5rem;
         position: relative;
-        top: -0.5rem;
+        top: -0.17rem;
         margin: auto 0.4rem;
       }
 
