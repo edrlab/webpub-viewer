@@ -111,7 +111,9 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') !== -1;
         const isXML = this.bookElement.src.indexOf(".xml") !== -1;
         if (isFirefox && isXML) {
-            // This handles books from Feedbooks with XML resources.
+            // Feedbooks epubs have resources with .xml file extensions for historical
+            // reasons. Firefox handles these differently than XHTML files, and setting
+            // a left position as well as overflow:hidden causes the pages to be blank.
             return body.scrollLeft;
         }
 
@@ -157,7 +159,9 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') !== -1;
         const isXML = this.bookElement.src.indexOf(".xml") !== -1;
         if (isFirefox && isXML) {
-            // This handles books from Feedbooks with XML resources.
+            // Feedbooks epubs have resources with .xml file extensions for historical
+            // reasons. Firefox handles these differently than XHTML files, and setting
+            // a left position as well as overflow:hidden causes the pages to be blank.
             body.scrollLeft = width;
         } else {
             body.style.left = -width + "px";
