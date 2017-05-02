@@ -3,6 +3,7 @@
 //////////////////////////////
 .contents-view {
   background-color: $nypl-white;
+  overflow: scroll;
   top: 3.2rem;
 
   ul li {
