@@ -1075,4 +1075,35 @@ describe("IFrameNavigator", () => {
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
         });
     });
+
+    describe("scrolling suggestion", () => {
+        it("should show in paginated mode but not scrolling mode", async () => {
+            let scrollingSuggestion = element.querySelector(".scrolling-suggestion") as HTMLAnchorElement;
+            expect(scrollingSuggestion.style.display).not.to.equal("none");
+
+            getSelectedView.returns(scroller);            
+            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
+            scrollingSuggestion = element.querySelector(".scrolling-suggestion") as HTMLAnchorElement;
+            
+            expect(scrollingSuggestion.style.display).to.equal("none");
+        });
+
+        it("should hide when book view changes to scroller and show when it changes to paginator", async () => {
+            let scrollingSuggestion = element.querySelector(".scrolling-suggestion") as HTMLAnchorElement;
+            const updateBookView = onViewChange.args[0][0];
+
+            updateBookView();
+            expect(scrollingSuggestion.style.display).not.to.equal("none");
+
+            getSelectedView.returns(scroller);
+
+            updateBookView();
+            expect(scrollingSuggestion.style.display).to.equal("none");
+
+            getSelectedView.returns(paginator);
+
+            updateBookView();
+            expect(scrollingSuggestion.style.display).not.to.equal("none");
+        });
+    });
 });

@@ -349,5 +349,26 @@ iframe {
   }
 }
 
+.scrolling-suggestion {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  background-color: white;
+  margin: 5px;
+  padding: 5px 10px;
+  z-index: 4000;
+
+  &:focus {
+    left: auto;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    top: 5px;
+  }
+}
+
 @import "toc";
 @import "settings";
