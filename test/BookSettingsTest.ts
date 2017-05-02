@@ -219,17 +219,17 @@ describe("BookSettings", () => {
 
             const decreaseButton = element.querySelector("button[class=decrease]") as HTMLButtonElement;
             const increaseButton = element.querySelector("button[class=increase]") as HTMLButtonElement;
-            const label = element.querySelector(".font-size-label") as HTMLLIElement;
+            //const label = element.querySelector(".font-size-label") as HTMLLIElement;
 
             expect(settings.getSelectedFontSize()).to.equal("14px");
-            expect(label.style.fontSize).to.equal("14px");
+            //expect(label.style.fontSize).to.equal("14px");
 
             click(decreaseButton);
             await pause();
             expect(settings.getSelectedFontSize()).to.equal("12px");
             let storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("12px");
-            expect(label.style.fontSize).to.equal("12px");
+            //expect(label.style.fontSize).to.equal("12px");
 
             // The decrease button is now disabled because the size can't be decreased more.
             expect(decreaseButton.className).to.contain("disabled");
@@ -241,14 +241,14 @@ describe("BookSettings", () => {
             expect(settings.getSelectedFontSize()).to.equal("12px");
             storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("12px");
-            expect(label.style.fontSize).to.equal("12px");
+            //expect(label.style.fontSize).to.equal("12px");
 
             click(increaseButton);
             await pause();
             expect(settings.getSelectedFontSize()).to.equal("14px");
             storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("14px");
-            expect(label.style.fontSize).to.equal("14px");
+            //expect(label.style.fontSize).to.equal("14px");
 
             expect(decreaseButton.className).not.to.contain("disabled");
             expect(increaseButton.className).not.to.contain("disabled");
@@ -258,7 +258,7 @@ describe("BookSettings", () => {
             expect(settings.getSelectedFontSize()).to.equal("16px");
             storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("16px");
-            expect(label.style.fontSize).to.equal("16px");
+            //expect(label.style.fontSize).to.equal("16px");
 
             expect(decreaseButton.className).not.to.contain("disabled");
             expect(increaseButton.className).to.contain("disabled");
@@ -269,7 +269,7 @@ describe("BookSettings", () => {
             expect(settings.getSelectedFontSize()).to.equal("16px");
             storedFontSize = await store.get("settings-selected-font-size");
             expect(storedFontSize).to.equal("16px");
-            expect(label.style.fontSize).to.equal("16px");
+            //expect(label.style.fontSize).to.equal("16px");
         });
 
         it("renders offline status", async () => {
