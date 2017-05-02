@@ -293,12 +293,15 @@ a {
   }
 }
 
+.contents-view {
+  overflow: auto;
+}
+
 .controls-view {
   font-family: $sans-serif-stack;
   font-size: $basefont;
   height: calc(100% - 2rem);
   left: 0;
-  //overflow: scroll;
   position: fixed;
   top: 3rem;
   width: 100%;
