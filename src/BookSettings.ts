@@ -42,7 +42,7 @@ export default class BookSettings {
     private viewButtons: { [key: string]: HTMLButtonElement };
     private readonly fontSizes: string[];
     private fontSizeButtons: { [key: string]: HTMLButtonElement };
-    //private fontSizeLabel: HTMLLIElement;
+    private fontSizeLabel: HTMLLIElement;
     private offlineStatusElement: HTMLElement;
 
     private viewChangeCallback: () => void = () => {};
@@ -134,8 +134,8 @@ export default class BookSettings {
             for (const fontSizeName of ["decrease", "increase"]) {
                 this.fontSizeButtons[fontSizeName] = HTMLUtilities.findRequiredElement(element, "button[class=" + fontSizeName + "]") as HTMLButtonElement;
             }
-            // this.fontSizeLabel = HTMLUtilities.findRequiredElement(element, 'li[class="font-size-label"]') as HTMLLIElement;
-            // this.updateFontSizeButtons();
+            this.fontSizeLabel = HTMLUtilities.findRequiredElement(element, 'li[class="font-size-label"]') as HTMLLIElement;
+            this.updateFontSizeButtons();
         }
 
         this.offlineStatusElement = HTMLUtilities.findRequiredElement(element, 'div[class="offline-status"]') as HTMLElement;
@@ -180,7 +180,7 @@ export default class BookSettings {
                     const newFontSize = this.fontSizes[currentFontSizeIndex - 1];
                     this.selectedFontSize = newFontSize;
                     this.fontSizeChangeCallback();
-                    //this.updateFontSizeButtons();
+                    this.updateFontSizeButtons();
                     this.storeSelectedFontSize(newFontSize);
                 }
                 event.preventDefault();
@@ -210,23 +210,23 @@ export default class BookSettings {
         }
     }
 
-    // private updateFontSizeButtons(): void {
-    //     const currentFontSizeIndex = this.fontSizes.indexOf(this.selectedFontSize);
-    //
-    //     if (currentFontSizeIndex === 0) {
-    //         this.fontSizeButtons["decrease"].className = "decrease disabled";
-    //     } else {
-    //         this.fontSizeButtons["decrease"].className = "decrease";
-    //     }
-    //
-    //     if (currentFontSizeIndex === this.fontSizes.length - 1) {
-    //         this.fontSizeButtons["increase"].className = "increase disabled";
-    //     } else {
-    //         this.fontSizeButtons["increase"].className = "increase";
-    //     }
-    //
-    //     this.fontSizeLabel.style.fontSize = this.selectedFontSize;
-    // }
+    private updateFontSizeButtons(): void {
+        const currentFontSizeIndex = this.fontSizes.indexOf(this.selectedFontSize);
+
+        if (currentFontSizeIndex === 0) {
+            this.fontSizeButtons["decrease"].className = "decrease disabled";
+        } else {
+            this.fontSizeButtons["decrease"].className = "decrease";
+        }
+
+        if (currentFontSizeIndex === this.fontSizes.length - 1) {
+            this.fontSizeButtons["increase"].className = "increase disabled";
+        } else {
+            this.fontSizeButtons["increase"].className = "increase";
+        }
+
+        //this.fontSizeLabel.style.fontSize = this.selectedFontSize;
+    }
 
     public getSelectedView(): BookView {
         return this.selectedView;
