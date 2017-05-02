@@ -92,6 +92,7 @@ describe("EventHandler", () => {
         element.appendChild(parentLink);
 
         (window as any).devicePixelRatio = 2;
+        (window as any).innerWidth = 1024;
     });
 
     describe("#setupEvents", () => {

@@ -14,6 +14,7 @@
     "sass": "node-sass --source-map true src/styles/sass/ -o dist/styles/css/"
   },
   "dependencies": {
+    "url-polyfill": "^1.0.4",
     "whatwg-fetch": "^2.0.1"
   },
   "devDependencies": {

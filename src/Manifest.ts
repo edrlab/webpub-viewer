@@ -25,26 +25,37 @@ export default class Manifest {
     private readonly manifestUrl: URL;
 
     public static async getManifest(manifestUrl: URL, store?: Store): Promise<Manifest> {
-        try {
+        const fetchManifest = async (): Promise<Manifest> => {
             const response = await window.fetch(manifestUrl.href)
             const manifestJSON = await response.json();
             if (store) {
                 await store.set("manifest", JSON.stringify(manifestJSON));
             }
             return new Manifest(manifestJSON, manifestUrl);
-        } catch (err) {
-            // We couldn't fetch the response, but there might be a cached version.
-            if (store) {
-                const manifestString = await store.get("manifest");
-                if (manifestString) {
-                    const manifestJSON = JSON.parse(manifestString);
-                    return new Manifest(manifestJSON, manifestUrl);
-                }
-            }
+        };
 
-            // There's nothing we can do, reraise the error.
-            throw err;
+        const tryToUpdateManifestButIgnoreResult = async (): Promise<void> => {
+            try {
+                await fetchManifest();
+            } catch (err) {
+                // Ignore errors.
+            }
+            return new Promise<void>(resolve => resolve());
         }
+
+        // Respond immediately with the manifest from the store, if possible.
+        if (store) {
+            const manifestString = await store.get("manifest");
+            if (manifestString) {
+                // Kick off a fetch to update the store for next time,
+                // but don't await it.
+                tryToUpdateManifestButIgnoreResult();
+                const manifestJSON = JSON.parse(manifestString);
+                return new Manifest(manifestJSON, manifestUrl);
+            }
+        }
+
+        return fetchManifest();
     }
 
     public constructor(manifestJSON: any, manifestUrl: URL) {

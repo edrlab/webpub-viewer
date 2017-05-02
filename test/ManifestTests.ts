@@ -41,11 +41,15 @@ describe("Manifest", () => {
             }
         };
         const manifest = new Manifest(manifestJSON, new URL("https://example.com/manifest.json"));
-        const store = new MemoryStore();
+        let store: MemoryStore;
 
         const mockFetchAPI = (response: Promise<Response>) => {
             window.fetch = stub().returns(response);
         };
+
+        beforeEach(() => {
+            store = new MemoryStore();
+        });
 
         describe("if fetching the manifest fails", () => {
             const fetchFailure = new Promise((_, reject) => reject());
@@ -60,6 +64,16 @@ describe("Manifest", () => {
 
                 const response: Manifest = await Manifest.getManifest(new URL("https://example.com/manifest.json"), store);
                 expect(response).to.deep.equal(manifest);
+            });
+
+            it("should reject promise if there's nothing in the store", async () => {
+                let rejected = false;
+                try {
+                    await Manifest.getManifest(new URL("https://example.com/manifest.json"), store);
+                } catch (err) {
+                    rejected = true;
+                }
+                expect(rejected).to.be.true;
             });
         });
 

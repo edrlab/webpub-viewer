@@ -3,7 +3,8 @@
 <head>
   <title>Webpub Viewer Example</title>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">                        
   <link rel="stylesheet" href="main.css">
 </head>
 <body>
@@ -11,6 +12,7 @@
   </div>
   <script src="require.js"></script>
   <script src="fetch.js"></script>
+  <script src="url-polyfill.js"></script>
   <script src="webpub-viewer.js"></script>
   <script>
     require(["LocalStorageStore", "ServiceWorkerCacher", "IFrameNavigator", "ColumnsPaginatedBookView", "ScrollingBookView", "LocalAnnotator", "BookSettings", "EventHandler"],
