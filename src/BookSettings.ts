@@ -230,8 +230,6 @@ export default class BookSettings {
         } else {
             this.fontSizeButtons["increase"].className = "increase";
         }
-
-        this.fontSizeLabel.style.fontSize = this.selectedFontSize;
     }
 
     public getSelectedView(): BookView {
