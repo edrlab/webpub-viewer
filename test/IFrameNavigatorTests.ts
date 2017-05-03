@@ -1111,9 +1111,10 @@ describe("IFrameNavigator", () => {
             expect(button.tabIndex).to.equal(-1);
         });
 
-        it("should hide when settings view is clicked", async () => {
+        it("should hide settings and nav when settings view is clicked", async () => {
             const settings = element.querySelector(".settings-view") as HTMLDivElement;
             const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
+            const links = element.querySelector(".links.top") as HTMLDivElement;
 
             settings.innerHTML = "<button tabindex=-1>Test</button>";
             const button = settings.querySelector("button") as HTMLButtonElement;
@@ -1122,18 +1123,22 @@ describe("IFrameNavigator", () => {
             expect(settings.className).not.to.contain(" active");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(button.tabIndex).to.equal(-1);
+            expect(links.className).to.contain(" active");
 
             click(settingsControl);
             expect(settings.className).to.contain(" active");
             expect(settings.className).not.to.contain(" inactive");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(button.tabIndex).to.equal(0);
+            expect(links.className).to.contain(" active");
 
             click(settings);
             expect(settings.className).to.contain(" inactive");
             expect(settings.className).not.to.contain(" active");
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(button.tabIndex).to.equal(-1);
+            expect(links.className).not.to.contain(" active");
+            expect(links.className).to.contain(" inactive");
         });
     });
 
