@@ -37,12 +37,13 @@
 
       svg.checkedIcon {
         // styles the icon that appears next to paginate/scrolling buttons
-        // set a default color
+        // set a default color of $mta-white, since this should always
+        // show up on a dark color background.
         color: $mta-white;
         display: none;
         fill: $mta-white;
-        height: 1rem;
-        width: 0.6875rem;
+        height: 0.9rem;
+        width: 0.5875rem;
       }
 
       // reverse the active state
@@ -52,6 +53,10 @@
 
         svg.checkedIcon {
           display: inline-block;
+          margin: 0 0 0 0.5rem;
+          position: relative;
+          top: -0.01rem;
+          vertical-align: text-bottom;
         }
 
       }
