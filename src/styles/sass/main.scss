@@ -298,7 +298,6 @@ a {
   font-size: $basefont;
   height: calc(100% - 2rem);
   left: 0;
-  overflow: scroll;
   position: fixed;
   top: 3rem;
   width: 100%;
@@ -319,7 +318,6 @@ a {
 }
 // /controls-view
 
-
 .info {
   color: $mta-dark-gray;
   margin: 0 1.5rem;
@@ -334,6 +332,11 @@ a {
 
   &.bottom {
     line-height: 2;
+  }
+
+  .chapter-position,
+  .chapter-title {
+    font-size: 0.85rem;
   }
 }
 // /info
