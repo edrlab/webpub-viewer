@@ -79,13 +79,13 @@ describe("ColumnsPaginatedBookView", () => {
         it("should remove styling from iframe and iframe body", () => {
             paginator.start(0);
 
-            expect(document.body.style.overflow).not.to.equal("scroll");
+            expect(document.body.style.overflow).not.to.equal("auto");
             expect(iframe.style.height).not.to.equal("");
             expect(iframe.contentDocument.body.style.columnWidth).not.to.equal("");
 
             paginator.stop();
 
-            expect(document.body.style.overflow).to.equal("scroll");
+            expect(document.body.style.overflow).to.equal("auto");
             expect(iframe.style.height).to.equal("");
             expect(iframe.contentDocument.body.style.columnWidth).to.equal("");
         });
