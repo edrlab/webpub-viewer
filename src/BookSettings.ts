@@ -122,7 +122,7 @@ export default class BookSettings {
 
         if (this.fontSizes.length > 1) {
             const fontSizeLabel = "<li class='font-size-label'>A</li>";
-            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg, "menuitem", "", "") + fontSizeLabel + optionTemplate("font-setting", "increase", increaseSvg, "menuitem", "", "");
+            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg, "menuitem", "", "decrease-font") + fontSizeLabel + optionTemplate("font-setting", "increase", increaseSvg, "menuitem", "", "increase-font");
             sections.push(sectionTemplate(fontSizeOptions));
         }
         sections.push(offlineTemplate);
