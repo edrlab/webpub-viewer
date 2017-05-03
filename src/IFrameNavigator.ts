@@ -67,7 +67,7 @@ const template = `
     <div class="info top">
       <span class="book-title"></span>
     </div>
-    <iframe style="border:0; overflow: hidden;"></iframe>
+    <iframe title="book text" style="border:0; overflow: hidden;"></iframe>
     <div class="info bottom">
       <span class="chapter-position"></span>
       <span class="chapter-title"></span>
