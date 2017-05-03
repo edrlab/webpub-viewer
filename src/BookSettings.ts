@@ -14,8 +14,8 @@ const sectionTemplate = (options: string) => `
     </ul></li>
 `;
 
-const optionTemplate = (liClassName: string, buttonClassName: string, label: string, role: string) => `
-    <li class='${liClassName}'><button class='${buttonClassName}' role='${role}' tabindex=-1>${label}</button></li>
+const optionTemplate = (liClassName: string, buttonClassName: string, label: string, role: string, svgIcon: string, buttonId: string) => `
+    <li class='${liClassName}'><button id='${buttonId}' class='${buttonClassName}' role='${role}' tabindex=-1>${label}${svgIcon}</button></li>
 `;
 
 const offlineTemplate = `
@@ -33,6 +33,12 @@ const decreaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="
 const increaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="increase-font-size" class="icon">
   <title id="increase-font-size">Increase Font Size</title>
     <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-15.5V47.49841h-4V32h-15.5V28h15.5V12.49841h4V28h15.5Z"/>
+</svg>
+`;
+
+const checkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 32" preserveAspectRatio="xMidYMid meet" class="checkedIcon" aria-label="check-icon" role="img">
+  <title id="check-icon">check icon</title>
+  <path d="M18.05257,31.0625,2.00775,15.01814a1,1,0,0,1,0-1.41422l2.535-2.535a1,1,0,0,1,1.4142,0L18.05257,23.16406,40.57154.646a1,1,0,0,1,1.4142,0l2.535,2.535a1,1,0,0,1,0,1.41423Z" />
 </svg>
 `;
 
@@ -109,14 +115,14 @@ export default class BookSettings {
 
         if (this.bookViews.length > 1) {
             const viewOptions = this.bookViews.map(bookView =>
-                optionTemplate("reading-style", bookView.name, bookView.label, "menuitem")
+                optionTemplate("reading-style", bookView.name, bookView.label, "menuitem", checkSvg, bookView.label)
             );
             sections.push(sectionTemplate(viewOptions.join("")));
         }
 
         if (this.fontSizes.length > 1) {
             const fontSizeLabel = "<li class='font-size-label'>A</li>";
-            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg, "menuitem") + fontSizeLabel + optionTemplate("font-setting", "increase", increaseSvg, "menuitem");
+            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg, "menuitem", "", "") + fontSizeLabel + optionTemplate("font-setting", "increase", increaseSvg, "menuitem", "", "");
             sections.push(sectionTemplate(fontSizeOptions));
         }
         sections.push(offlineTemplate);
@@ -204,8 +210,10 @@ export default class BookSettings {
         for (const view of this.bookViews) {
             if (view === this.selectedView) {
                 this.viewButtons[view.name].className = view.name + " active";
+                this.viewButtons[view.name].setAttribute("aria-label", view.label + " mode enabled");
             } else {
                 this.viewButtons[view.name].className = view.name;
+                this.viewButtons[view.name].setAttribute("aria-label", view.label + " mode disabled");
             }
         }
     }
