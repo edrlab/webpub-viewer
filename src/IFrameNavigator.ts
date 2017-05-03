@@ -748,12 +748,23 @@ export default class IFrameNavigator implements Navigator {
     private handleContentsClick(event: MouseEvent): void {
         this.hideSettings();
         this.toggleDisplay(this.tocView, this.contentsControl);
+        // While the TOC is displayed, prevent scrolling in the book.
+        if (this.settings.getSelectedView() === this.scroller) {
+            if (this.isDisplayed(this.tocView)) {
+                document.body.style.overflow = "hidden";
+            } else {
+                document.body.style.overflow = "auto";
+            }
+        }
         event.preventDefault();
         event.stopPropagation();
     }
 
     private hideTOC(): void {
         this.hideElement(this.tocView, this.contentsControl);
+        if (this.settings.getSelectedView() === this.scroller) {
+            document.body.style.overflow = "auto";
+        }
     }
 
     private setActiveTOCItem(resource: string): void {
