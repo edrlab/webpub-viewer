@@ -15,7 +15,7 @@ const sectionTemplate = (options: string) => `
 `;
 
 const optionTemplate = (liClassName: string, buttonClassName: string, label: string, role: string, svgIcon: string, buttonId: string) => `
-    <li class='${liClassName}'><button id='${buttonId}' class='${buttonClassName}' role='${role}'>${label}${svgIcon}</button></li>
+    <li class='${liClassName}'><button id='${buttonId}' class='${buttonClassName}' role='${role}' tabindex=-1>${label}${svgIcon}</button></li>
 `;
 
 const offlineTemplate = `
