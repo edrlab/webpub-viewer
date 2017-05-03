@@ -37,7 +37,7 @@ const increaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="
 `;
 
 const checkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 32" preserveAspectRatio="xMidYMid meet" class="checkedIcon" aria-label="check-icon" role="img">
-  <title id="check-icon">check icon</title>
+  <title>check icon</title>
   <path d="M18.05257,31.0625,2.00775,15.01814a1,1,0,0,1,0-1.41422l2.535-2.535a1,1,0,0,1,1.4142,0L18.05257,23.16406,40.57154.646a1,1,0,0,1,1.4142,0l2.535,2.535a1,1,0,0,1,0,1.41423Z" />
 </svg>
 `;
