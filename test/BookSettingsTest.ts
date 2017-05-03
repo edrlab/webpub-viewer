@@ -219,10 +219,8 @@ describe("BookSettings", () => {
 
             const decreaseButton = element.querySelector("button[class=decrease]") as HTMLButtonElement;
             const increaseButton = element.querySelector("button[class=increase]") as HTMLButtonElement;
-            //const label = element.querySelector(".font-size-label") as HTMLLIElement;
 
             expect(settings.getSelectedFontSize()).to.equal("14px");
-            //expect(label.style.fontSize).to.equal("14px");
 
             click(decreaseButton);
             await pause();
