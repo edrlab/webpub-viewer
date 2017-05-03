@@ -108,7 +108,7 @@ a {
 
     &.top {
       background-color: $nypl-white;
-      border-bottom: 1px solid $mta-gray-tint;
+      border-bottom: 0.0625rem solid $mta-gray-tint;
       height: 2.9rem;
       padding: 0.5rem 0 0;
 
@@ -251,7 +251,7 @@ a {
 
 .loading {
   background-color: darken($nypl-white, 2.5%);
-  border: 1px solid $mta-green;
+  border: 0.0625rem solid $mta-green;
   border-radius: 0.3125rem;
   color: $mta-green;
   font-family: $sans-serif-stack;
@@ -358,12 +358,12 @@ iframe {
   position: absolute;
   left: -10000px;
   top: auto;
-  width: 1px;
-  height: 1px;
+  width: 0.0625rem;
+  height: 0.0625rem;
   overflow: hidden;
-  background-color: white;
-  margin: 5px;
-  padding: 5px 10px;
+  background-color: $mta-white;
+  margin: 0.3125rem;
+  padding: 0.3125rem 0.625rem;
   z-index: 4000;
 
   &:focus {
