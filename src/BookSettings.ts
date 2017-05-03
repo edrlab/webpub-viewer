@@ -14,8 +14,8 @@ const sectionTemplate = (options: string) => `
     </ul></li>
 `;
 
-const optionTemplate = (liClassName: string, buttonClassName: string, label: string, role: string, svgCheckIcon: string, buttonId: string) => `
-    <li class='${liClassName}'><button id='${buttonId}' class='${buttonClassName}' role='${role}'>${label}${svgCheckIcon}</button></li>
+const optionTemplate = (liClassName: string, buttonClassName: string, label: string, role: string, svgIcon: string, buttonId: string) => `
+    <li class='${liClassName}'><button id='${buttonId}' class='${buttonClassName}' role='${role}'>${label}${svgIcon}</button></li>
 `;
 
 const offlineTemplate = `
@@ -210,8 +210,10 @@ export default class BookSettings {
         for (const view of this.bookViews) {
             if (view === this.selectedView) {
                 this.viewButtons[view.name].className = view.name + " active";
+                this.viewButtons[view.name].setAttribute("aria-label", view.label + " mode enabled");
             } else {
                 this.viewButtons[view.name].className = view.name;
+                this.viewButtons[view.name].setAttribute("aria-label", view.label + " mode disabled");
             }
         }
     }

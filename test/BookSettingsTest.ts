@@ -116,9 +116,11 @@ describe("BookSettings", () => {
             settings.renderControls(element);
 
             let view1Button = element.querySelector("button[class='view1 active']") as HTMLButtonElement;
-            expect(view1Button.innerHTML).to.equal("View 1");
+            expect(view1Button.innerHTML).to.contain("View 1");
+            expect(view1Button.getAttribute("aria-label")).to.equal("View 1 mode enabled");
             let view2Button = element.querySelector("button[class=view2]") as HTMLButtonElement;
-            expect(view2Button.innerHTML).to.equal("View 2");
+            expect(view2Button.innerHTML).to.contain("View 2");
+            expect(view2Button.getAttribute("aria-label")).to.equal("View 2 mode disabled");
 
             // If there's no views or only 1 view, views don't show up in the settings.
 
@@ -161,6 +163,10 @@ describe("BookSettings", () => {
             expect(view1Button.className).not.to.contain("active");
             expect(view2Button.className).to.contain("active");
 
+            expect(view1Button.getAttribute("aria-label")).to.equal("View 1 mode disabled");
+            expect(view2Button.getAttribute("aria-label")).to.equal("View 2 mode enabled");
+
+
             click(view1Button);
             await pause();
 
@@ -179,6 +185,9 @@ describe("BookSettings", () => {
 
             expect(view1Button.className).to.contain("active");
             expect(view2Button.className).not.to.contain("active");
+
+            expect(view1Button.getAttribute("aria-label")).to.equal("View 1 mode enabled");
+            expect(view2Button.getAttribute("aria-label")).to.equal("View 2 mode disabled");
         });
 
         it("renders font size increase and decrease buttons", async () => {
