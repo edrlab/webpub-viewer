@@ -139,7 +139,6 @@ export default class IFrameNavigator implements Navigator {
     private newPosition: ReadingPosition | null;
     private newElementId: string | null;
     private isLoading: boolean;
-    private firstLoad: boolean;
 
     public static async create(
         element: HTMLElement,
@@ -213,7 +212,6 @@ export default class IFrameNavigator implements Navigator {
             this.newPosition = null;
             this.newElementId = null;
             this.isLoading = true;
-            this.firstLoad = false;
             this.setupEvents();
 
             if (this.paginator) {
@@ -422,9 +420,6 @@ export default class IFrameNavigator implements Navigator {
                 position: 0
             };
             this.navigate(position);
-            // Show TOC when book is first opened.
-            this.firstLoad = true;
-            this.toggleDisplay(this.tocView, this.contentsControl);
         }
 
         return new Promise<void>(resolve => resolve());
@@ -434,10 +429,7 @@ export default class IFrameNavigator implements Navigator {
         this.errorMessage.style.display = "none";
         this.showLoadingMessageAfterDelay();
         try {
-            if (!this.firstLoad) {
-                this.hideTOC();
-            }
-            this.firstLoad = false;
+            this.hideTOC();
 
             let bookViewPosition = 0;
             if (this.newPosition) {
