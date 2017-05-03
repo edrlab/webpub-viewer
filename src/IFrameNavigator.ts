@@ -586,6 +586,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleToggleLinksClick(event: MouseEvent | TouchEvent): void {
         this.hideTOC();
+        this.hideSettings();
         this.toggleDisplay(this.links);
         if (this.settings.getSelectedView() === this.scroller) {
             if (!this.scroller.atBottom()) {
