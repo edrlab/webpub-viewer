@@ -167,7 +167,8 @@ describe("IFrameNavigator", () => {
         spine: [
             { href: "start.html", title: "Start" },
             { href: "item-1.html", title: "Item 1" },
-            { href: "item-2.html" }
+            { href: "item-2.html" },
+            { href: "item-3.html" }
         ],
         toc: [
             {
@@ -280,7 +281,16 @@ describe("IFrameNavigator", () => {
 
             iframe.src = "http://example.com/item-2.html";
             await pause();
-            expect(chapterTitle.innerHTML).to.equal("(Chapter)");
+            expect(chapterTitle.innerHTML).to.equal("(Item 2)");
+
+            iframe.src = "http://example.com/item-3.html";
+            await pause();
+            expect(chapterTitle.innerHTML).to.equal("(Current Chapter)");
+
+            iframe.src = "http://example.com/subitem-2.html";
+            await pause();
+            expect(chapterTitle.innerHTML).to.equal("(Subitem 2)");
+
         });
 
         it("should render the chapter position", async () => {
@@ -520,11 +530,11 @@ describe("IFrameNavigator", () => {
             const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
 
             // On the last page, the previous link won't be enabled.
-            iframe.src = "http://example.com/item-2.html";
+            iframe.src = "http://example.com/item-3.html";
             await pause();
             expect(next.href).to.equal("");
             click(next);
-            expect(iframe.src).to.equal("http://example.com/item-2.html");
+            expect(iframe.src).to.equal("http://example.com/item-3.html");
 
             // On an earlier page, it will.
             iframe.src = "http://example.com/item-1.html";
@@ -727,7 +737,7 @@ describe("IFrameNavigator", () => {
             });
 
             // If you're on the last page of the last spine item, it does nothing.
-            iframe.src = "http://example.com/item-2.html";
+            iframe.src = "http://example.com/item-3.html";
             await pause();
             onLastPage.returns(true);
             paginatorCurrentPage = 3;
@@ -735,7 +745,7 @@ describe("IFrameNavigator", () => {
             eventHandler.onRightTap(new UIEvent("mouseup"));
             expect(onLastPage.callCount).to.equal(3);
             expect(goToNextPage.callCount).to.equal(2);
-            expect(iframe.src).to.equal("http://example.com/item-2.html");
+            expect(iframe.src).to.equal("http://example.com/item-3.html");
             expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
 
             // If you're on the last page of an earlier spine item, it goes to the

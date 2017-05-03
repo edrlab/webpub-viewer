@@ -493,14 +493,24 @@ export default class IFrameNavigator implements Navigator {
                 this.bookTitle.innerHTML = manifest.metadata.title;
             }
 
+            let chapterTitle;
             const spineItem = manifest.getSpineItem(currentLocation);
             if (spineItem !== null) {
-                if (spineItem.title) {
-                    this.chapterTitle.innerHTML = "(" + spineItem.title + ")";
-                } else {
-                    this.chapterTitle.innerHTML = "(Chapter)";
+                chapterTitle = spineItem.title;
+            }
+            if (!chapterTitle) {
+                const tocItem = manifest.getTOCItem(currentLocation);
+                if (tocItem !== null && tocItem.title) {
+                    chapterTitle = tocItem.title;
                 }
             }
+
+            if (chapterTitle) {
+                this.chapterTitle.innerHTML = "(" + chapterTitle + ")";
+            } else {
+                this.chapterTitle.innerHTML = "(Current Chapter)";
+            }
+
 
             if (this.eventHandler) {
                 this.eventHandler.setupEvents(this.iframe.contentDocument);
