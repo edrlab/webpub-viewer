@@ -70,7 +70,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
     }
 
     public stop(): void {
-        document.body.style.overflow = "scroll";
+        document.body.style.overflow = "auto";
         document.body.style.position = "static";
         document.body.style.left = "";
         document.body.style.right = "";

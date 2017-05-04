@@ -35,10 +35,30 @@
         //font-size: 1vw;
       }
 
+      svg.checkedIcon {
+        // styles the icon that appears next to paginate/scrolling buttons
+        // set a default color of $mta-white, since this should always
+        // show up on a dark color background.
+        color: $mta-white;
+        display: none;
+        fill: $mta-white;
+        height: 0.9rem;
+        width: 0.5875rem;
+      }
+
       // reverse the active state
       &.active {
         color: $nypl-white;
         background-color: $mta-green;
+
+        svg.checkedIcon {
+          display: inline-block;
+          margin: 0 0 0 0.5rem;
+          position: relative;
+          top: -0.01rem;
+          vertical-align: text-bottom;
+        }
+
       }
     }
 
@@ -62,10 +82,10 @@
       }
     }
 
-    > li:nth-child(1) { // the paginate/scrolling buttons
+    > li:nth-child(1) { // the parent of paginate/scrolling buttons
 
       @media screen and (min-width: 30rem) {
-        width: 40%;
+        width: 45%;
         margin-left: 20%;
         text-align: right;
       }

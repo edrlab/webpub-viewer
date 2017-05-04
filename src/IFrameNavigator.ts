@@ -24,9 +24,13 @@ const upLinkTemplate = (href: string, label: string) => `
 const template = `
   <nav class="publication">
     <div class="controls">
+      <a href="#settings-control" class="scrolling-suggestion" style="display: none">
+          We recommend scrolling mode for use with screen readers and keyboard navigation.
+          Go to settings to switch to scrolling mode.
+      </a>
       <ul class="links top active">
         <li>
-          <button class="contents disabled" aria-labelledby="contents" aria-haspopup="true" aria-expanded="false">
+          <button class="contents disabled" aria-labelledby="table-of-contents" aria-haspopup="true" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275 180" aria-labelledby="table-of-contents" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
             <title id="table-of-contents">table of contents</title>
               <rect x="66" y="152" width="209" height="28"/>
@@ -36,19 +40,41 @@ const template = `
               <rect y="76" width="33" height="28"/>
               <rect y="152" width="33" height="28"/>
             </svg>
-            <span class="setting-text contents">Contents</span>
+            <span class="setting-text contents" id="contents">Contents</span>
           </button>
+          <div class="contents-view controls-view inactive" aria-hidden="true"></div>
         </li>
         <li>
-          <button class="settings" aria-labelledby="settings-menu" aria-expanded="false" aria-haspopup="true">
+          <button class="settings" aria-labelledby="settings" aria-expanded="false" aria-haspopup="true">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 186.47158 186.4716" aria-labelledby="settings" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
               <title id="settings">Settings</title>
               <path d="M183.29465,117.36676l3.17693-24.131-23.52051-9.17834-4.75089-17.73081,15.78033-19.70844L159.1637,27.30789,136.04194,37.44974,120.145,28.2714,117.36676,3.17693,93.2358,0,84.05746,23.52051,66.32665,28.2714,46.61759,12.49107,27.30789,27.30789,37.44974,50.42966l-9.17834,15.897L3.17693,69.10484,0,93.2358l23.52051,9.17834L28.2714,120.145,12.49107,139.854l14.81682,19.3097,23.12177-10.14185,15.897,9.17834,2.77819,25.09447,24.131,3.17693,9.17834-23.52051L120.145,158.2002l19.70844,15.78033,19.31031-14.81682-10.14185-23.12177,9.17834-15.897ZM93.2358,129.84856A36.61276,36.61276,0,1,1,129.84856,93.2358,36.61267,36.61267,0,0,1,93.2358,129.84856Z"/>
               </svg>
-            <span class="setting-text settings">Settings</span>
+            <span class="setting-text settings" aria-labelledby="settings">Settings</span>
           </button>
+          <div class="settings-view controls-view inactive" aria-hidden="true"></div>
         </li>
       </ul>
+    </div>
+    <!-- /controls -->
+  </nav>
+  <main style="overflow: hidden" tabindex=-1>
+    <div class="loading" style="display:none;">Loading</div>
+    <div class="error" style="display:none;">
+      <span>Error</span>
+      <button class="try-again">Try again</button>
+    </div>
+    <div class="info top">
+      <span class="book-title"></span>
+    </div>
+    <iframe style="border:0; overflow: hidden;"></iframe>
+    <div class="info bottom">
+      <span class="chapter-position"></span>
+      <span class="chapter-title"></span>
+    </div>
+  </main>
+  <nav class="publication">
+    <div class="controls">
       <ul class="links bottom active">
         <li>
           <a rel="prev" class="disabled" role="button" aria-labelledby="left-arrow-icon">
@@ -72,24 +98,7 @@ const template = `
       </ul>
     </div>
     <!-- /controls -->
-    <div class="contents-view controls-view inactive"></div>
-    <div class="settings-view controls-view inactive"></div>
   </nav>
-  <main style="overflow: hidden">
-    <div class="loading" style="display:none;">Loading</div>
-    <div class="error" style="display:none;">
-      <span>Error</span>
-      <button class="try-again">Try again</button>
-    </div>
-    <div class="info top">
-      <span class="book-title"></span>
-    </div>
-    <iframe style="border:0; overflow: hidden;"></iframe>
-    <div class="info bottom">
-      <span class="chapter-position"></span>
-      <span class="chapter-title"></span>
-    </div>
-  </main>
 `;
 
 interface ReadingPosition {
@@ -110,11 +119,11 @@ export default class IFrameNavigator implements Navigator {
     private upUrl: URL | null;
     private upLabel: string | null;
     private iframe: HTMLIFrameElement;
+    private scrollingSuggestion: HTMLAnchorElement;
     private nextChapterLink: HTMLAnchorElement;
     private previousChapterLink: HTMLAnchorElement;
     private contentsControl: HTMLButtonElement;
     private settingsControl: HTMLButtonElement;
-    public navigation: Element;
     private links: HTMLUListElement;
     private linksBottom: HTMLUListElement;
     private tocView: HTMLDivElement;
@@ -184,11 +193,11 @@ export default class IFrameNavigator implements Navigator {
         this.manifestUrl = manifestUrl;
         try {
             this.iframe = HTMLUtilities.findRequiredElement(element, "iframe") as HTMLIFrameElement;
+            this.scrollingSuggestion = HTMLUtilities.findRequiredElement(element, ".scrolling-suggestion") as HTMLAnchorElement;
             this.nextChapterLink = HTMLUtilities.findRequiredElement(element, "a[rel=next]") as HTMLAnchorElement;
             this.previousChapterLink = HTMLUtilities.findRequiredElement(element, "a[rel=prev]") as HTMLAnchorElement;
             this.contentsControl = HTMLUtilities.findRequiredElement(element, "button.contents") as HTMLButtonElement;
             this.settingsControl = HTMLUtilities.findRequiredElement(element, "button.settings") as HTMLButtonElement;
-            this.navigation = HTMLUtilities.findRequiredElement(element, "div[class=controls]");
             this.links = HTMLUtilities.findRequiredElement(element, "ul.links.top") as HTMLUListElement;
             this.linksBottom = HTMLUtilities.findRequiredElement(element, "ul.links.bottom") as HTMLUListElement;
             this.tocView = HTMLUtilities.findRequiredElement(element, ".contents-view") as HTMLDivElement;
@@ -219,6 +228,10 @@ export default class IFrameNavigator implements Navigator {
             this.cacher.onStatusUpdate(this.updateOfflineCacheStatus.bind(this));
             this.enableOffline();
 
+            if (this.scroller && (this.settings.getSelectedView() !== this.scroller)) {
+                this.scrollingSuggestion.style.display = "block";
+            }
+
             return await this.loadManifest();
         } catch (err) {
             // There's a mismatch between the template and the selectors above,
@@ -248,6 +261,7 @@ export default class IFrameNavigator implements Navigator {
     private updateBookView(): void {
         const doNothing = () => {};
         if (this.settings.getSelectedView() === this.paginator) {
+            this.scrollingSuggestion.style.display = "block";
             document.body.onscroll = () => {};
             this.chapterTitle.style.display = "inline";
             this.chapterPosition.style.display = "inline";
@@ -265,6 +279,7 @@ export default class IFrameNavigator implements Navigator {
                 this.toggleDisplay(this.linksBottom);
             }
         } else if (this.settings.getSelectedView() === this.scroller) {
+            this.scrollingSuggestion.style.display = "none";
             document.body.onscroll = () => {
                 this.saveCurrentReadingPosition();
                 if (this.scroller && this.scroller.atBottom()) {
@@ -344,6 +359,7 @@ export default class IFrameNavigator implements Navigator {
                 for (const link of links) {
                     const listItemElement : HTMLLIElement = document.createElement("li");
                     const linkElement: HTMLAnchorElement = document.createElement("a");
+                    linkElement.tabIndex = -1;
                     let href = "";
                     if (link.href) {
                         href = new URL(link.href, this.manifestUrl.href).href;
@@ -358,6 +374,9 @@ export default class IFrameNavigator implements Navigator {
                             // but don't navigate.
                             this.hideTOC();
                         } else {
+                            // Set focus back to the contents toggle button so screen readers
+                            // don't get stuck on a hidden link.
+                            this.contentsControl.focus();
                             this.navigate({
                                 resource: linkElement.href,
                                 position: 0
@@ -515,19 +534,51 @@ export default class IFrameNavigator implements Navigator {
         return element.className.indexOf(" active") !== -1;
     }
 
+    private showElement(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        element.className = element.className.replace(" inactive", "");
+        if (element.className.indexOf(" active") === -1) {
+            element.className += " active";
+        }
+        element.setAttribute("aria-hidden", "false");
+        if (control) {
+            control.setAttribute("aria-expanded", "true");
+        }
+        // Add buttons and links in the element to the tab order.
+        const buttons = Array.prototype.slice.call(element.querySelectorAll("button"));
+        const links = Array.prototype.slice.call(element.querySelectorAll("a"));
+        for (const button of buttons) {
+            button.tabIndex = 0;
+        }
+        for (const link of links) {
+            link.tabIndex = 0;
+        }
+    }
+
+    private hideElement(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        element.className = element.className.replace(" active", "");
+        if (element.className.indexOf(" inactive") === -1) {
+            element.className += " inactive";
+        }
+        element.setAttribute("aria-hidden", "true");
+        if (control) {
+            control.setAttribute("aria-expanded", "false");
+        }
+        // Remove buttons and links in the element from the tab order.
+        const buttons = Array.prototype.slice.call(element.querySelectorAll("button"));
+        const links = Array.prototype.slice.call(element.querySelectorAll("a"));
+        for (const button of buttons) {
+            button.tabIndex = -1;
+        }
+        for (const link of links) {
+            link.tabIndex = -1;
+        }
+    }
+
     private toggleDisplay(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement): void {
         if (!this.isDisplayed(element)) {
-            element.className = element.className.replace(" inactive", "");
-            element.className += " active";
-            if (control) {
-                control.setAttribute("aria-expanded", "true");
-            }
+            this.showElement(element, control);
         } else {
-            element.className = element.className.replace(" active", "");
-            element.className += " inactive";
-            if (control) {
-                control.setAttribute("aria-expanded", "false");
-            }
+            this.hideElement(element, control);
         }
     }
 
@@ -699,11 +750,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private hideTOC(): void {
-        this.contentsControl.setAttribute("aria-expanded", "false");
-        this.tocView.className = this.tocView.className.replace(" active", "");
-        if (this.tocView.className.indexOf(" inactive") === -1) {
-            this.tocView.className += " inactive";
-        }
+        this.hideElement(this.tocView, this.contentsControl);
     }
 
     private setActiveTOCItem(resource: string): void {
@@ -725,11 +772,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private hideSettings(): void {
-        this.settingsControl.setAttribute("aria-expanded", "false");
-        this.settingsView.className = this.settingsView.className.replace(" active", "");
-        if (this.settingsView.className.indexOf(" inactive") === -1) {
-            this.settingsView.className += " inactive";
-        }
+        this.hideElement(this.settingsView, this.settingsControl);
     }
 
     private navigate(readingPosition: ReadingPosition): void {
