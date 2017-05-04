@@ -48,6 +48,13 @@ a {
 //////////////////////////////
 //   Navigation Control     //
 //////////////////////////////
+.svgIcon.use { // this hides the X icon used for closing menus
+  display: none;
+  height: 0;
+  position: absolute;
+  width: 0;
+}
+
 .controls {
   color: $mta-green;
   position: fixed;
@@ -73,6 +80,19 @@ a {
       fill: $mta-green;
       height: 1.5rem;
       width: 1.5rem;
+    }
+
+    svg[aria-labelledby="close-icon"] {
+      display: none;
+      height: 0;
+      width: 0;
+
+      &.active-icon {
+        display: inline-block;
+        fill: $mta-error-red;
+        height: 1.5rem;
+        width: 1.5rem;
+      }
     }
 
     .setting-text {
@@ -156,10 +176,6 @@ a {
         @media (min-width: 87.5rem) {
           margin-left: 73vw;
         }
-      }
-
-      svg[aria-labelledby="close-icon"] {
-        fill: $mta-green;
       }
     } // / .top
 
