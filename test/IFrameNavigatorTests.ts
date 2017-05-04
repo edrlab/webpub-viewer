@@ -882,6 +882,25 @@ describe("IFrameNavigator", () => {
     });
 
     describe("table of contents", () => {
+        it("should be hidden if the manifest has an empty toc", async () => {
+            const manifest = new Manifest({
+                metadata: {
+                    title: "Title"
+                },
+                spine: [
+                    { href: "start.html", title: "Start" },
+                    { href: "item-1.html", title: "Item 1" },
+                    { href: "item-2.html" },
+                    { href: "item-3.html" }
+                ]
+            }, new URL("http://example.com/manifest.json"));
+            store.set("manifest", JSON.stringify(manifest));
+
+            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
+            const toc = element.querySelector(".contents-view") as HTMLDivElement;
+            expect(toc.parentElement.style.display).to.equal("none");
+        });
+
         it("should render each link in the manifest toc", async () => {
             const toc = element.querySelector(".contents-view") as HTMLDivElement;
 
