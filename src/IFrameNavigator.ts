@@ -24,7 +24,7 @@ const upLinkTemplate = (href: string, label: string) => `
 const template = `
   <nav class="publication">
     <div class="controls">
-      <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" class="svgIcon">
+      <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" class="svgIcon use">
           <defs>
             <symbol id="close-icon" viewBox="0 0 29.69 29.812">
               <title>Close Icon</title>
@@ -49,7 +49,7 @@ const template = `
               <rect y="76" width="33" height="28"/>
               <rect y="152" width="33" height="28"/>
             </svg>
-            <svg role="img" aria-labelledby="close-icon">
+            <svg class="icon" role="img" aria-labelledby="close-icon">
               <use xlink:href="#close-icon"></use>
             </svg>
             <span class="setting-text contents" id="contents">Contents</span>
