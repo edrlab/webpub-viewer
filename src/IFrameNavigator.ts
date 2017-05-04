@@ -24,6 +24,15 @@ const upLinkTemplate = (href: string, label: string) => `
 const template = `
   <nav class="publication">
     <div class="controls">
+      <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" class="svgIcon">
+          <defs>
+            <symbol id="close-icon" viewBox="0 0 29.69 29.812">
+              <title>Close Icon</title>
+              <path d="M2081.71,127.488l26.79-26.879a1.459,1.459,0,0,1,2.06,2.068l-26.79,26.879a1.453,1.453,0,0,1-2.06,0A1.483,1.483,0,0,1,2081.71,127.488Z" transform="translate(-2081.31 -100.188)"/>
+              <path d="M2083.77,100.609l26.79,26.879a1.459,1.459,0,0,1-2.06,2.068l-26.79-26.879a1.483,1.483,0,0,1,0-2.068A1.453,1.453,0,0,1,2083.77,100.609Z" transform="translate(-2081.31 -100.188)"/>
+            </symbol>
+        </defs>
+      </svg>
       <a href="#settings-control" class="scrolling-suggestion" style="display: none">
           We recommend scrolling mode for use with screen readers and keyboard navigation.
           Go to settings to switch to scrolling mode.
@@ -39,6 +48,9 @@ const template = `
               <rect width="33" height="28"/>
               <rect y="76" width="33" height="28"/>
               <rect y="152" width="33" height="28"/>
+            </svg>
+            <svg role="img" aria-labelledby="close-icon">
+              <use xlink:href="#close-icon"></use>
             </svg>
             <span class="setting-text contents" id="contents">Contents</span>
           </button>
