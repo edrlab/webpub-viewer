@@ -36,17 +36,13 @@ a {
 }
 
 .inactive {
-  //display: none;
   opacity: 0;
   z-index: -3000;
-  //transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
 }
 
 .active {
-// animation mixin here?.
   opacity: 1;
   z-index: 3000;
-  //transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
 }
 
 //////////////////////////////
@@ -54,7 +50,6 @@ a {
 //////////////////////////////
 .controls {
   color: $mta-green;
-  //font-size: $basefont;
   position: fixed;
   right: 0;
   top: 0;
@@ -62,9 +57,6 @@ a {
 
   ul li {
     display: inline-block;
-    //float: right;
-    //padding: 0.2rem 0.65rem 0;
-    //margin: 0 0.625rem;
   }
 
   .links {
@@ -113,27 +105,17 @@ a {
       padding: 0.5rem 0 0;
 
       &.inactive {
-        //opacity: 0;
         transition: opacity 100ms cubic-bezier(0.32, 0.76, 1, 1.01);
-        //z-index: -2000;
       }
 
       &.active {
-        //opacity: 1;
         transition: opacity 100ms cubic-bezier(0, 0.03, 0.63, 0.99);
-        //z-index: 2000;
       }
 
       > li:nth-child(1) { // this is the back arrow
         position: relative;
         text-align: left;
         right: 0;
-
-        a[rel="up"],
-        .icon,
-        span, {
-          //display: none;
-        }
       }
 
       @media screen and (min-width: 30rem) {
@@ -176,8 +158,8 @@ a {
         }
       }
 
-      > li:nth-child(3) {
-        //float: right;
+      svg[aria-labelledby="close-icon"] {
+        fill: $mta-green;
       }
     } // / .top
 
@@ -266,15 +248,11 @@ a {
 
 .error {
   background-color: transparentize($mta-white, 0.125);
-  //border: 2px solid $mta-error-red;
   color: $mta-error-red;
-  //font-family: $sans-serif-stack;
   height: 100%;
-  //left: calc(50% - 6.25rem);
   padding-top: 40vh;
   position: fixed;
   text-align: center;
-  //top: calc(50% - 6.25rem);
   width: 100%;
 
   span {
@@ -286,7 +264,6 @@ a {
     color: $mta-error-red;
     border: 0.125rem solid $mta-error-red;
     border-radius: 0.3125rem;
-    //box-shadow: 0 0 17rem 3.75rem transparentize($mta-dark-gray, 0.9);
     font-size: 1rem;
     font-weight: 700;
     padding: 1.4rem;
@@ -342,15 +319,13 @@ a {
 }
 // /info
 
-$transparent-nypl-gray: rgba($nypl-gray, 0.1);
-
 iframe {
   &.left-hover {
-    background: linear-gradient(to right, $transparent-nypl-gray, $transparent-nypl-gray 28%, $mta-white 30%, $mta-white);
+    background: linear-gradient(to right, $transparent-mta-gray, $transparent-mta-gray 28%, $mta-white 30%, $mta-white);
   }
 
   &.right-hover {
-    background: linear-gradient(to left, $transparent-nypl-gray, $transparent-nypl-gray 28%, $mta-white 30%, $mta-white);
+    background: linear-gradient(to left, $transparent-mta-gray, $transparent-mta-gray 28%, $mta-white 30%, $mta-white);
   }
 }
 
@@ -371,7 +346,7 @@ iframe {
     width: auto;
     height: auto;
     overflow: visible;
-    top: 5px;
+    top: 0.3125rem;
   }
 }
 

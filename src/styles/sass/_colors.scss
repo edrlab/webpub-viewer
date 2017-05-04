@@ -15,11 +15,13 @@ $mta-dark-gray: darken($mta-gray, 40%);
 
 $mta-gray-tint: lighten($mta-gray, 20%);
 
+$transparent-mta-gray: rgba($mta-gray, 0.1);
+
 $mta-white: #fff;
 
 $mta-black: #111;
 
-// NYPL Reds
+// MTA Reds
 $mta-error-red: #d0343a;
 
 $nypl-red-dark: #97272c;
