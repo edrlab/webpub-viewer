@@ -67,7 +67,7 @@ const template = `
     <div class="info top">
       <span class="book-title"></span>
     </div>
-    <iframe style="border:0; overflow: hidden;"></iframe>
+    <iframe title="book text" style="border:0; overflow: hidden;"></iframe>
     <div class="info bottom">
       <span class="chapter-position"></span>
       <span class="chapter-title"></span>
@@ -139,7 +139,6 @@ export default class IFrameNavigator implements Navigator {
     private newPosition: ReadingPosition | null;
     private newElementId: string | null;
     private isLoading: boolean;
-    private firstLoad: boolean;
 
     public static async create(
         element: HTMLElement,
@@ -213,7 +212,6 @@ export default class IFrameNavigator implements Navigator {
             this.newPosition = null;
             this.newElementId = null;
             this.isLoading = true;
-            this.firstLoad = false;
             this.setupEvents();
 
             if (this.paginator) {
@@ -253,7 +251,7 @@ export default class IFrameNavigator implements Navigator {
 
         this.settingsControl.addEventListener("click", this.handleSettingsClick.bind(this));
 
-        this.settingsView.addEventListener("click", this.hideSettings.bind(this));
+        this.settingsView.addEventListener("click", this.handleToggleLinksClick.bind(this));
 
         this.tryAgainButton.addEventListener("click", this.tryAgain.bind(this));
     }
@@ -394,6 +392,8 @@ export default class IFrameNavigator implements Navigator {
                 parentElement.appendChild(listElement);
             }
             createTOC(this.tocView, toc);
+        } else {
+            this.contentsControl.parentElement.style.display = "none";
         }
 
         if (this.upUrl) {
@@ -422,9 +422,6 @@ export default class IFrameNavigator implements Navigator {
                 position: 0
             };
             this.navigate(position);
-            // Show TOC when book is first opened.
-            this.firstLoad = true;
-            this.toggleDisplay(this.tocView, this.contentsControl);
         }
 
         return new Promise<void>(resolve => resolve());
@@ -434,10 +431,7 @@ export default class IFrameNavigator implements Navigator {
         this.errorMessage.style.display = "none";
         this.showLoadingMessageAfterDelay();
         try {
-            if (!this.firstLoad) {
-                this.hideTOC();
-            }
-            this.firstLoad = false;
+            this.hideTOC();
 
             let bookViewPosition = 0;
             if (this.newPosition) {
@@ -501,14 +495,24 @@ export default class IFrameNavigator implements Navigator {
                 this.bookTitle.innerHTML = manifest.metadata.title;
             }
 
+            let chapterTitle;
             const spineItem = manifest.getSpineItem(currentLocation);
             if (spineItem !== null) {
-                if (spineItem.title) {
-                    this.chapterTitle.innerHTML = "(" + spineItem.title + ")";
-                } else {
-                    this.chapterTitle.innerHTML = "(Chapter)";
+                chapterTitle = spineItem.title;
+            }
+            if (!chapterTitle) {
+                const tocItem = manifest.getTOCItem(currentLocation);
+                if (tocItem !== null && tocItem.title) {
+                    chapterTitle = tocItem.title;
                 }
             }
+
+            if (chapterTitle) {
+                this.chapterTitle.innerHTML = "(" + chapterTitle + ")";
+            } else {
+                this.chapterTitle.innerHTML = "(Current Chapter)";
+            }
+
 
             if (this.eventHandler) {
                 this.eventHandler.setupEvents(this.iframe.contentDocument);
@@ -584,6 +588,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleToggleLinksClick(event: MouseEvent | TouchEvent): void {
         this.hideTOC();
+        this.hideSettings();
         this.toggleDisplay(this.links);
         if (this.settings.getSelectedView() === this.scroller) {
             if (!this.scroller.atBottom()) {
@@ -745,12 +750,23 @@ export default class IFrameNavigator implements Navigator {
     private handleContentsClick(event: MouseEvent): void {
         this.hideSettings();
         this.toggleDisplay(this.tocView, this.contentsControl);
+        // While the TOC is displayed, prevent scrolling in the book.
+        if (this.settings.getSelectedView() === this.scroller) {
+            if (this.isDisplayed(this.tocView)) {
+                document.body.style.overflow = "hidden";
+            } else {
+                document.body.style.overflow = "auto";
+            }
+        }
         event.preventDefault();
         event.stopPropagation();
     }
 
     private hideTOC(): void {
         this.hideElement(this.tocView, this.contentsControl);
+        if (this.settings.getSelectedView() === this.scroller) {
+            document.body.style.overflow = "auto";
+        }
     }
 
     private setActiveTOCItem(resource: string): void {
