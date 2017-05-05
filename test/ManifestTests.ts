@@ -27,7 +27,13 @@ describe("Manifest", () => {
             ],
             toc: [
                 { href: "spine-item-1.html", title: "Chapter 1" },
-                { href: "spine-item-2.html", title: "Chapter 2" }
+                {
+                    href: "spine-item-2.html",
+                    title: "Chapter 2",
+                    children: [
+                        { href: "spine-item-3.html", title: "Chapter 3" }
+                    ]
+                }
             ],
         }, new URL("http://example.com/manifest.json"));
 
@@ -199,6 +205,29 @@ describe("Manifest", () => {
 
         it("should return null for item not in the spine", () => {
             const item = manifest.getSpineItem("http://example.com/toc.html");
+            expect(item).to.be.null;
+        });
+    });
+
+    describe("#getTOCItem", () => {
+        it("should return correct top-level item", () => {
+            let item = manifest.getTOCItem("http://example.com/spine-item-1.html") as Link;
+            expect(item).not.to.be.null;
+            expect(item.href).to.equal("spine-item-1.html");
+
+            item = manifest.getTOCItem("http://example.com/spine-item-2.html") as Link;
+            expect(item).not.to.be.null;
+            expect(item.href).to.equal("spine-item-2.html");
+        });
+
+        it("should return correct nested item", () => {
+            const item = manifest.getTOCItem("http://example.com/spine-item-3.html") as Link;
+            expect(item).not.to.be.null;
+            expect(item.href).to.equal("spine-item-3.html");
+        });
+
+        it("should return null for item not in the toc", () => {
+            const item = manifest.getTOCItem("http://example.com/toc.html");
             expect(item).to.be.null;
         });
     });

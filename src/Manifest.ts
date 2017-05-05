@@ -110,4 +110,26 @@ export default class Manifest {
         }
         return null;
     }
+
+    public getTOCItem(href: string): Link | null {
+        const findItem = (href: string, links: Array<Link>): Link | null => {
+            for (let index = 0; index < links.length; index++) {
+                const item = links[index];
+                if (item.href) {
+                    const itemUrl = new URL(item.href, this.manifestUrl.href).href;
+                    if (itemUrl === href) {
+                        return item;
+                    }
+                }
+                if (item.children) {
+                    const childItem = findItem(href, item.children);
+                    if (childItem !== null) {
+                        return childItem;
+                    }
+                }
+            }
+            return null;
+        }
+        return findItem(href, this.toc);
+    }
 }
