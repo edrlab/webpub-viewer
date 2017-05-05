@@ -124,6 +124,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         positioned to the right of the iframe viewport. */
     private getRightColumnsWidth(): number {
         const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') !== -1;
+        const isIE = navigator.userAgent.toLowerCase().indexOf('trident') !== -1;
 
         // scrollWidth includes the column in the iframe viewport as well as
         // columns to the right.
@@ -131,8 +132,8 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         const scrollWidth = body.scrollWidth;
         const width = this.getColumnWidth();
         let rightWidth = scrollWidth + this.sideMargin - width;
-        if (isFirefox) {
-            // In Firefox, scrollWidth doesn't change when some columns
+        if (isFirefox || isIE) {
+            // In Firefox and IE, scrollWidth doesn't change when some columns
             // are off to the left, so we need to subtract them.
             const leftWidth = this.getLeftColumnsWidth();
             rightWidth = rightWidth - leftWidth;
