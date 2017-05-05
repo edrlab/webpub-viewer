@@ -40,7 +40,7 @@ const template = `
       <ul class="links top active">
         <li>
           <button class="contents disabled" aria-labelledby="table-of-contents" aria-haspopup="true" aria-expanded="false">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275 180" aria-labelledby="table-of-contents" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275 180" aria-labelledby="table-of-contents" preserveAspectRatio="xMidYMid meet" role="img" class="icon open">
             <title id="table-of-contents">table of contents</title>
               <rect x="66" y="152" width="209" height="28"/>
               <rect x="66" y="76" width="209" height="28"/>
@@ -49,7 +49,7 @@ const template = `
               <rect y="76" width="33" height="28"/>
               <rect y="152" width="33" height="28"/>
             </svg>
-            <svg class="icon inactive-icon" role="img" aria-labelledby="close-icon">
+            <svg class="icon close inactive-icon" role="img" aria-labelledby="close-icon">
               <use xlink:href="#close-icon"></use>
             </svg>
             <span class="setting-text contents" id="contents">Contents</span>
@@ -58,11 +58,11 @@ const template = `
         </li>
         <li>
           <button class="settings" aria-labelledby="settings" aria-expanded="false" aria-haspopup="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 186.47158 186.4716" aria-labelledby="settings" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 186.47158 186.4716" aria-labelledby="settings" preserveAspectRatio="xMidYMid meet" role="img" class="icon open">
               <title id="settings">Settings</title>
               <path d="M183.29465,117.36676l3.17693-24.131-23.52051-9.17834-4.75089-17.73081,15.78033-19.70844L159.1637,27.30789,136.04194,37.44974,120.145,28.2714,117.36676,3.17693,93.2358,0,84.05746,23.52051,66.32665,28.2714,46.61759,12.49107,27.30789,27.30789,37.44974,50.42966l-9.17834,15.897L3.17693,69.10484,0,93.2358l23.52051,9.17834L28.2714,120.145,12.49107,139.854l14.81682,19.3097,23.12177-10.14185,15.897,9.17834,2.77819,25.09447,24.131,3.17693,9.17834-23.52051L120.145,158.2002l19.70844,15.78033,19.31031-14.81682-10.14185-23.12177,9.17834-15.897ZM93.2358,129.84856A36.61276,36.61276,0,1,1,129.84856,93.2358,36.61267,36.61267,0,0,1,93.2358,129.84856Z"/>
               </svg>
-              <svg class="icon inactive-icon" role="img" aria-labelledby="close-icon">
+              <svg class="icon close inactive-icon" role="img" aria-labelledby="close-icon">
                 <use xlink:href="#close-icon"></use>
               </svg>
             <span class="setting-text settings" aria-labelledby="settings">Settings</span>
@@ -557,6 +557,17 @@ export default class IFrameNavigator implements Navigator {
         element.setAttribute("aria-hidden", "false");
         if (control) {
             control.setAttribute("aria-expanded", "true");
+
+            const openIcon = control.querySelector(".icon.open");
+            if (openIcon && (openIcon.getAttribute("class") || "").indexOf(" inactive-icon") === -1) {
+                const newIconClass = (openIcon.getAttribute("class") || "") + " inactive-icon";
+                openIcon.setAttribute("class", newIconClass);
+            }
+            const closeIcon = control.querySelector(".icon.close");
+            if (closeIcon) {
+                const newIconClass = (closeIcon.getAttribute("class") ||"").replace(" inactive-icon", "");
+                closeIcon.setAttribute("class", newIconClass);
+            }
         }
         // Add buttons and links in the element to the tab order.
         const buttons = Array.prototype.slice.call(element.querySelectorAll("button"));
@@ -577,6 +588,17 @@ export default class IFrameNavigator implements Navigator {
         element.setAttribute("aria-hidden", "true");
         if (control) {
             control.setAttribute("aria-expanded", "false");
+
+            const openIcon = control.querySelector(".icon.open");
+            if (openIcon) {
+                const newIconClass = (openIcon.getAttribute("class") ||"").replace(" inactive-icon", "");
+                openIcon.setAttribute("class", newIconClass);
+            }
+            const closeIcon = control.querySelector(".icon.close");
+            if (closeIcon && (closeIcon.getAttribute("class") || "").indexOf(" inactive-icon") === -1) {
+                const newIconClass = (closeIcon.getAttribute("class") || "") + " inactive-icon";
+                closeIcon.setAttribute("class", newIconClass);
+            }
         }
         // Remove buttons and links in the element from the tab order.
         const buttons = Array.prototype.slice.call(element.querySelectorAll("button"));
