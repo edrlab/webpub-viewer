@@ -88,13 +88,6 @@ a {
       width: 0;
     }
 
-    // .active-icon {
-    //   display: inline-block;
-    //   fill: $mta-error-red;
-    //   height: 1.5rem;
-    //   width: 1.5rem;
-    // }
-
     .setting-text {
       display: none;
       position: relative;
@@ -137,12 +130,6 @@ a {
         text-align: left;
         right: 0;
         margin: 0 65vw 0 0;
-
-        a[rel="up"],
-        .icon,
-        span, {
-          //display: none;
-        }
 
         @media (min-width: 30rem) {
           margin-right: 25vw;
