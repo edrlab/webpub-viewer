@@ -82,17 +82,17 @@ a {
       width: 1.5rem;
     }
 
-    svg[aria-labelledby="close-icon"] {
+    .inactive-icon { // x-close icon
       display: none;
       height: 0;
       width: 0;
+    }
 
-      &.active-icon {
-        display: inline-block;
-        fill: $mta-error-red;
-        height: 1.5rem;
-        width: 1.5rem;
-      }
+    .active-icon {
+      display: inline-block;
+      fill: $mta-error-red;
+      height: 1.5rem;
+      width: 1.5rem;
     }
 
     .setting-text {
