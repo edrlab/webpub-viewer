@@ -135,6 +135,7 @@ export default class IFrameNavigator implements Navigator {
     private upLabel: string | null;
     private iframe: HTMLIFrameElement;
     private scrollingSuggestion: HTMLAnchorElement;
+    private upLink: HTMLAnchorElement | null = null;
     private nextChapterLink: HTMLAnchorElement;
     private previousChapterLink: HTMLAnchorElement;
     private contentsControl: HTMLButtonElement;
@@ -238,6 +239,14 @@ export default class IFrameNavigator implements Navigator {
             this.settings.renderControls(this.settingsView);
             this.settings.onViewChange(this.updateBookView.bind(this));
             this.settings.onFontSizeChange(this.updateFontSize.bind(this));
+
+            // Trap keyboard focus inside the settings view when it's displayed.
+            const settingsButtons = this.settingsView.querySelectorAll("button");
+            if (settingsButtons && settingsButtons.length > 0) {
+                const lastSettingsButton = settingsButtons[settingsButtons.length - 1];
+                this.setupModalFocusTrap(this.settingsView, this.settingsControl, lastSettingsButton);
+            }
+
             this.cacher.onStatusUpdate(this.updateOfflineCacheStatus.bind(this));
             this.enableOffline();
 
@@ -269,6 +278,45 @@ export default class IFrameNavigator implements Navigator {
         this.settingsView.addEventListener("click", this.handleToggleLinksClick.bind(this));
 
         this.tryAgainButton.addEventListener("click", this.tryAgain.bind(this));
+
+        this.contentsControl.addEventListener("keydown", this.hideTOCOnEscape.bind(this));
+
+        this.tocView.addEventListener("keydown", this.hideTOCOnEscape.bind(this));
+
+        this.settingsControl.addEventListener("keydown", this.hideSettingsOnEscape.bind(this));
+
+        this.settingsView.addEventListener("keydown", this.hideSettingsOnEscape.bind(this));
+    }
+
+    private setupModalFocusTrap(modal: HTMLDivElement, closeButton: HTMLButtonElement, lastFocusableElement: HTMLButtonElement | HTMLAnchorElement): void {
+        // Trap keyboard focus in a modal dialog when it's displayed.
+        const TAB_KEY = 9;
+
+        // Going backwards from the close button sends you to the last focusable element.
+        closeButton.addEventListener("keydown", (event: KeyboardEvent) => {
+            if (this.isDisplayed(modal)) {
+                const tab = (event.keyCode === TAB_KEY);
+                const shift = !!event.shiftKey;
+                if (tab && shift) {
+                    lastFocusableElement.focus();
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }
+        });
+
+        // Going forward from the last focusable element sends you to the close button.
+        lastFocusableElement.addEventListener("keydown", (event: KeyboardEvent) => {
+            if (this.isDisplayed(modal)) {
+                const tab = (event.keyCode === TAB_KEY);
+                const shift = !!event.shiftKey;
+                if (tab && !shift) {
+                    closeButton.focus();
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }
+        });
     }
 
     private updateBookView(): void {
@@ -369,6 +417,7 @@ export default class IFrameNavigator implements Navigator {
 
             const createTOC = (parentElement: Element, links: Array<Link>) => {
                 const listElement: HTMLUListElement = document.createElement("ul");
+                let lastLink: HTMLAnchorElement | null = null;
                 for (const link of links) {
                     const listItemElement : HTMLLIElement = document.createElement("li");
                     const linkElement: HTMLAnchorElement = document.createElement("a");
@@ -403,7 +452,14 @@ export default class IFrameNavigator implements Navigator {
                     }
 
                     listElement.appendChild(listItemElement);
+                    lastLink = linkElement;
                 }
+
+                // Trap keyboard focus inside the TOC while it's open.
+                if (lastLink) {
+                    this.setupModalFocusTrap(this.tocView, this.contentsControl, lastLink);
+                }
+
                 parentElement.appendChild(listElement);
             }
             createTOC(this.tocView, toc);
@@ -416,6 +472,7 @@ export default class IFrameNavigator implements Navigator {
             const upParent : HTMLLIElement = document.createElement("li");
             upParent.innerHTML = upHTML;
             this.links.insertBefore(upParent, this.links.firstChild);
+            this.upLink = HTMLUtilities.findRequiredElement(this.links, "a[rel=up]") as HTMLAnchorElement;
         }
 
         let lastReadingPosition: ReadingPosition | null = null;
@@ -615,11 +672,58 @@ export default class IFrameNavigator implements Navigator {
         }
     }
 
+    private showModal(modal: HTMLDivElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        // Hide the rest of the page for screen readers.
+        this.iframe.setAttribute("aria-hidden", "true");
+        this.scrollingSuggestion.setAttribute("aria-hidden", "true");
+        if (this.upLink) {
+            this.upLink.setAttribute("aria-hidden", "true");
+        }
+        this.contentsControl.setAttribute("aria-hidden", "true");
+        this.settingsControl.setAttribute("aria-hidden", "true");
+        this.linksBottom.setAttribute("aria-hidden", "true");
+        this.loadingMessage.setAttribute("aria-hidden", "true");
+        this.errorMessage.setAttribute("aria-hidden", "true");
+        this.infoTop.setAttribute("aria-hidden", "true");
+        this.infoBottom.setAttribute("aria-hidden", "true");
+
+        if (control) {        
+            control.setAttribute("aria-hidden", "false");
+        }
+        this.showElement(modal, control);
+    }
+
+    private hideModal(modal: HTMLDivElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        // Restore the page for screen readers.
+        this.iframe.setAttribute("aria-hidden", "false");
+        this.scrollingSuggestion.setAttribute("aria-hidden", "false");
+        if (this.upLink) {
+            this.upLink.setAttribute("aria-hidden", "false");
+        }
+        this.contentsControl.setAttribute("aria-hidden", "false");
+        this.settingsControl.setAttribute("aria-hidden", "false");
+        this.linksBottom.setAttribute("aria-hidden", "false");
+        this.loadingMessage.setAttribute("aria-hidden", "false");
+        this.errorMessage.setAttribute("aria-hidden", "false");
+        this.infoTop.setAttribute("aria-hidden", "false");
+        this.infoBottom.setAttribute("aria-hidden", "false");
+
+        this.hideElement(modal, control);
+    }
+
     private toggleDisplay(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement): void {
         if (!this.isDisplayed(element)) {
             this.showElement(element, control);
         } else {
             this.hideElement(element, control);
+        }
+    }
+
+    private toggleModal(modal: HTMLDivElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        if (!this.isDisplayed(modal)) {
+            this.showModal(modal, control);
+        } else {
+            this.hideModal(modal, control);
         }
     }
 
@@ -786,7 +890,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleContentsClick(event: MouseEvent): void {
         this.hideSettings();
-        this.toggleDisplay(this.tocView, this.contentsControl);
+        this.toggleModal(this.tocView, this.contentsControl);
         // While the TOC is displayed, prevent scrolling in the book.
         if (this.settings.getSelectedView() === this.scroller) {
             if (this.isDisplayed(this.tocView)) {
@@ -800,9 +904,16 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private hideTOC(): void {
-        this.hideElement(this.tocView, this.contentsControl);
+        this.hideModal(this.tocView, this.contentsControl);
         if (this.settings.getSelectedView() === this.scroller) {
             document.body.style.overflow = "auto";
+        }
+    }
+
+    private hideTOCOnEscape(event: KeyboardEvent) {
+        const ESCAPE_KEY = 27;
+        if (this.isDisplayed(this.tocView) && event.keyCode === ESCAPE_KEY) {
+            this.hideTOC();
         }
     }
 
@@ -819,13 +930,20 @@ export default class IFrameNavigator implements Navigator {
 
     private handleSettingsClick(event: MouseEvent): void {
         this.hideTOC();
-        this.toggleDisplay(this.settingsView, this.settingsControl);
+        this.toggleModal(this.settingsView, this.settingsControl);
         event.preventDefault();
         event.stopPropagation();
     }
 
     private hideSettings(): void {
-        this.hideElement(this.settingsView, this.settingsControl);
+        this.hideModal(this.settingsView, this.settingsControl);
+    }
+
+    private hideSettingsOnEscape(event: KeyboardEvent) {
+        const ESCAPE_KEY = 27;
+        if (this.isDisplayed(this.settingsView) && event.keyCode === ESCAPE_KEY) {
+            this.hideSettings();
+        }
     }
 
     private navigate(readingPosition: ReadingPosition): void {
