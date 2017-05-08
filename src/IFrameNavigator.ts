@@ -76,7 +76,7 @@ const template = `
   <main style="overflow: hidden" tabindex=-1>
     <div class="loading" style="display:none;">Loading</div>
     <div class="error" style="display:none;">
-      <span>Error</span>
+      <span>There was an error loading this page.</span>
       <button class="try-again">Try again</button>
     </div>
     <div class="info top">
