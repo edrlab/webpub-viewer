@@ -663,8 +663,8 @@ export default class IFrameNavigator implements Navigator {
         const fontSizeNumber = parseInt(fontSize.slice(0, -2));
         let sideMargin = fontSizeNumber * 2;
 
-        if (window.innerWidth > fontSizeNumber * 45) {
-            const extraMargin = Math.floor((window.innerWidth - fontSizeNumber * 40) / 2);
+        if (document.documentElement.clientWidth > fontSizeNumber * 45) {
+            const extraMargin = Math.floor((document.documentElement.clientWidth - fontSizeNumber * 40) / 2);
             sideMargin = sideMargin + extraMargin;
         }
         if (this.paginator) {
@@ -703,10 +703,10 @@ export default class IFrameNavigator implements Navigator {
         }
 
         if (this.paginator) {
-            this.paginator.height = (window.innerHeight - topHeight - bottomHeight - 10);
+            this.paginator.height = (document.documentElement.clientHeight - topHeight - bottomHeight - 10);
         }
         if (this.scroller) {
-            this.scroller.height = (window.innerHeight - topHeight - bottomHeight - 10);
+            this.scroller.height = (document.documentElement.clientHeight - topHeight - bottomHeight - 10);
         }
 
         selectedView.goToPosition(oldPosition);

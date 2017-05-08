@@ -34,7 +34,7 @@ describe("ScrollingBookView", () => {
             scroller.sideMargin = 11;
             scroller.height = 70;
             (iframe.contentDocument.body as any).scrollHeight = 200;
-            (window as any).innerWidth = 50;
+            (document.documentElement as any).clientWidth = 50;
 
             scroller.start(0);
             expect(iframe.style.height).to.equal("200px");
@@ -113,7 +113,7 @@ describe("ScrollingBookView", () => {
 
             document.body.scrollTop = 10;
             (document.body as any).scrollHeight = 200;
-            (window as any).innerHeight = 100;
+            (document.documentElement as any).clientHeight = 100;
 
             expect(scroller.atBottom()).to.equal(false);
 

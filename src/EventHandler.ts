@@ -43,11 +43,19 @@ export default class EventHandler {
         return !!('ontouchstart' in window || navigator.maxTouchPoints);
     }
 
+    private isZoomed() {
+        return (window.innerWidth !== document.documentElement.clientWidth);
+    }
+
     private handleMouseEventStart = (event: MouseEvent): void => {
         this.pendingMouseEventStart = event;
     }
 
     private handleTouchEventStart = (event: TouchEvent): void => {
+        if (this.isZoomed()) {
+            return;
+        }
+
         if (event.changedTouches.length !== 1) {
             // This is a multi-touch event. Ignore.
             return;
@@ -91,6 +99,10 @@ export default class EventHandler {
     }
 
     private handleTouchEventEnd = (event: TouchEvent): void => {
+        if (this.isZoomed()) {
+            return;
+        }
+
         if (event.changedTouches.length !== 1) {
             // This is a multi-touch event. Ignore.
             return;

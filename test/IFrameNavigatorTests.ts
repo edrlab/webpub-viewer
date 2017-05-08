@@ -247,7 +247,7 @@ describe("IFrameNavigator", () => {
 
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
-        (window as any).innerWidth = 1024;
+        (document.documentElement as any).clientWidth = 1024;
         navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
     });
 
@@ -365,7 +365,7 @@ describe("IFrameNavigator", () => {
         it("should give the settings a function to call when the font size changes", async () => {
             // If the window is wide enough, the view gets a large margin.
             // This should've been set before the test started.
-            expect(window.innerWidth).to.equal(1024);
+            expect(document.documentElement.clientWidth).to.equal(1024);
 
             expect(onFontSizeChange.callCount).to.equal(1);
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
@@ -387,7 +387,7 @@ describe("IFrameNavigator", () => {
 
             // If the window is small, the view gets a smaller margin, but still based
             // on the font size.
-            (window as any).innerWidth = 100;
+            (document.documentElement as any).clientWidth = 100;
 
             getSelectedFontSize.returns("14px");
             updateFontSize();
@@ -823,7 +823,7 @@ describe("IFrameNavigator", () => {
             const infoBottom = element.querySelector(".info.bottom") as HTMLDivElement;
             (linksTop as any).clientHeight = 10;
             (linksBottom as any).clientHeight = 20;
-            (window as any).innerHeight = 100;
+            (document.documentElement as any).clientHeight = 100;
 
             iframe.src = "http://example.com/item-1.html";
             await pause();
