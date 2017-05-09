@@ -92,17 +92,17 @@ describe('ServiceWorkerCacher', () => {
             });
             await cacher.enable();
             expect(register.callCount).to.equal(1);
-            expect(register.args[0][0]).to.equal("sw.js");
+            expect(register.args[0][0]).to.equal("https://example.com/sw.js");
 
             cacher = new ServiceWorkerCacher({
                 store,
                 manifestUrl: new URL("https://example.com/manifest.json"),
-                serviceWorkerPath: "../../../sw.js",
+                serviceWorkerUrl: new URL("../../../sw.js", "https://example.com/1/2/3/4/"),
                 fallbackBookCacheUrl: new URL("https://example.com/fallback.html")
             });
             await cacher.enable();
             expect(register.callCount).to.equal(2);
-            expect(register.args[1][0]).to.equal("../../../sw.js");
+            expect(register.args[1][0]).to.equal("https://example.com/1/sw.js");
         });
 
         it("shouldn't cache anything if it has already successfully cached everything", async () => {
@@ -148,7 +148,11 @@ describe('ServiceWorkerCacher', () => {
             await store.set("manifest", JSON.stringify(manifest));
             const cacher = new ServiceWorkerCacher({
                 store,
-                manifestUrl: new URL("https://example.com/manifest.json")
+                manifestUrl: new URL("https://example.com/manifest.json"),
+                staticFileUrls: [
+                    new URL("static-1.html", "https://example.com"),
+                    new URL("static-2.html", "https://example.com")
+                ]
             });
             await cacher.enable();
             let urlsThatWereCached: Array<string> = [];
@@ -159,7 +163,8 @@ describe('ServiceWorkerCacher', () => {
                 urlsThatWereCached = urlsThatWereCached.concat(urls);
             });
             expect(urlsThatWereCached).to.contain("https://example.com/manifest.json");
-            expect(urlsThatWereCached).to.contain("https://example.com/index.html");
+            expect(urlsThatWereCached).to.contain("https://example.com/static-1.html");
+            expect(urlsThatWereCached).to.contain("https://example.com/static-2.html");
             expect(urlsThatWereCached).to.contain("https://example.com/spine-item-1.html");
             expect(urlsThatWereCached).to.contain("https://example.com/spine-item-2.html");
             expect(urlsThatWereCached).to.contain("https://example.com/resource-1.html");

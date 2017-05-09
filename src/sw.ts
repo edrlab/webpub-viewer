@@ -1,21 +1,5 @@
 const CACHE_NAME = "webpub-viewer";
 
-const urlsToCache: any = [
-    "require.js",
-    "fetch.js",
-    "webpub-viewer.js",
-    "index.html",
-    "main.css"
-];
-
-self.addEventListener('install', event => {
-    const urlsCached = self.caches.open(CACHE_NAME).then((cache: any) => {
-        return cache.addAll(urlsToCache);
-    });
-    (event as any).waitUntil(urlsCached);
-    self.skipWaiting();
-});
-
 self.addEventListener('activate', () => {
     self.clients.claim();
 });

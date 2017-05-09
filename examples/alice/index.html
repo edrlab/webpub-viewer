@@ -26,7 +26,17 @@
       var cacher = new ServiceWorkerCacher.default({
         store: store,
         manifestUrl: webpubManifestUrl,
-        serviceWorkerPath: "sw.js",
+        serviceWorkerUrl: new URL("sw.js", window.location.href),
+        staticFileUrls: [
+          new URL(window.location.href),
+          new URL("index.html", window.location.href),
+          new URL("main.css", window.location.href),
+          new URL("require.js", window.location.href),
+          new URL("fetch.js", window.location.href),
+          new URL("url-polyfill.js", window.location.href),
+          new URL("promise.js", window.location.href),
+          new URL("webpub-viewer.js", window.location.href)
+        ],
         fallbackBookCacheUrl: bookCacheUrl
       });
 
