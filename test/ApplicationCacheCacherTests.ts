@@ -11,7 +11,9 @@ describe("ApplicationCacheCacher", () => {
     let jsdomWindow: Window;
 
     beforeEach(() => {
-        cacher = new ApplicationCacheCacher(new URL("http://example.com/fallback.html"));
+        cacher = new ApplicationCacheCacher({
+            bookCacheUrl: new URL("http://example.com/fallback.html")
+        });
 
         jsdomWindow = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
@@ -50,7 +52,9 @@ describe("ApplicationCacheCacher", () => {
                 }
             }
 
-            cacher = new MockCacher(new URL("http://example.com/fallback.html"));
+            cacher = new MockCacher({
+                bookCacheUrl: new URL("http://example.com/fallback.html")
+            });
 
             await cacher.enable();
             expect(updateStatus.callCount).to.equal(1);
@@ -87,7 +91,9 @@ describe("ApplicationCacheCacher", () => {
 
             const callback = stub();
 
-            const cacher: MockCacher = new MockCacher(new URL("http://example.com/fallback.html"));
+            const cacher: MockCacher = new MockCacher({
+                bookCacheUrl: new URL("http://example.com/fallback.html")
+            });
             cacher.onStatusUpdate(callback);
             expect(callback.callCount).to.equal(1);
             expect(callback.args[0][0]).to.equal(CacheStatus.Uncached);
@@ -141,7 +147,9 @@ describe("ApplicationCacheCacher", () => {
                 }
             }
 
-            const cacher: MockCacher = new MockCacher(new URL("http://example.com/fallback.html"));
+            const cacher: MockCacher = new MockCacher({
+                bookCacheUrl: new URL("http://example.com/fallback.html")
+            });
             expect(cacher.getStatus()).to.equal(CacheStatus.Uncached);
 
             (iframe.contentWindow as any).applicationCache = {};

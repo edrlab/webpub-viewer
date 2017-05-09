@@ -63,13 +63,21 @@ describe("BookSettings", () => {
         view2 = new MockBookView(2, "view2", "View 2");
 
         store = new MemoryStore();
-        settings = await BookSettings.create(store, [view1, view2], [12, 14, 16]);
+        settings = await BookSettings.create({
+            store,
+            bookViews: [view1, view2],
+            fontSizesInPixels: [12, 14, 16]
+        });
     });
 
     describe("#create", () => {
         it("obtains the selected view from the store", async () => {
             await store.set("settings-selected-view", view2.name);
-            settings = await BookSettings.create(store, [view1, view2], []);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1, view2],
+                fontSizesInPixels: []
+            });
             expect(settings.getSelectedView()).to.equal(view2);
         });
 
@@ -79,33 +87,60 @@ describe("BookSettings", () => {
 
         it("obtains the selected font size from the store", async () => {
             await store.set("settings-selected-font-size", "18px");
-            settings = await BookSettings.create(store, [view1, view2], [12, 14, 16, 18]);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1, view2],
+                fontSizesInPixels: [12, 14, 16, 18]
+            });
             expect(settings.getSelectedFontSize()).to.equal("18px");
         });
 
         it("sets the selected font size to the default if the selected font size in the store isn't one of the options", async () => {
             await store.set("settings-selected-font-size", "12345px");
-            settings = await BookSettings.create(store, [view1, view2], [12, 14, 16, 18], 18);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1, view2],
+                fontSizesInPixels: [12, 14, 16, 18],
+                defaultFontSizeInPixels: 18
+            });
             expect(settings.getSelectedFontSize()).to.equal("18px");
         });
 
         it("sets the selected font size to the default if there's no selected font size in the store", async () => {
-            settings = await BookSettings.create(store, [view1, view2], [14, 16], 14);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1, view2],
+                fontSizesInPixels: [14, 16],
+                defaultFontSizeInPixels: 14
+            });
             expect(settings.getSelectedFontSize()).to.equal("14px");
         });
 
         it("sets the selected font size to the middle font size if the default isn't one of the options", async () => {
-            settings = await BookSettings.create(store, [view1, view2], [14, 16], 12345);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1, view2],
+                fontSizesInPixels: [14, 16],
+                defaultFontSizeInPixels: 12345
+            });
             expect(settings.getSelectedFontSize()).to.equal("16px");
         });
 
         it("sets the selected font size to the middle font size (rounded up) if there's no default and no selected font size in the store", async () => {
             expect(settings.getSelectedFontSize()).to.equal("14px");
 
-            settings = await BookSettings.create(store, [view1, view2], [12, 14]);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1, view2],
+                fontSizesInPixels: [12, 14]
+            });
             expect(settings.getSelectedFontSize()).to.equal("14px");
 
-            settings = await BookSettings.create(store, [view1, view2], [10, 12, 14, 16]);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1, view2],
+                fontSizesInPixels: [10, 12, 14, 16]
+            });
             expect(settings.getSelectedFontSize()).to.equal("14px");
         });
     });
@@ -124,14 +159,22 @@ describe("BookSettings", () => {
 
             // If there's no views or only 1 view, views don't show up in the settings.
 
-            settings = await BookSettings.create(store, [view1], [12]);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1],
+                fontSizesInPixels: [12]
+            });
             settings.renderControls(element);
             view1Button = element.querySelector("button[class='view1 active']") as HTMLButtonElement;
             expect(view1Button).to.be.null;
             view2Button = element.querySelector("button[class=view2]") as HTMLButtonElement;
             expect(view2Button).to.be.null;
 
-            settings = await BookSettings.create(store, [], [12]);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [],
+                fontSizesInPixels: [12]
+            });
             settings.renderControls(element);
             view1Button = element.querySelector("button[class='view1 active']") as HTMLButtonElement;
             expect(view1Button).to.be.null;
@@ -203,7 +246,11 @@ describe("BookSettings", () => {
 
             // If there's no font size or only one font size, font size controls don't show up in settings.
 
-            settings = await BookSettings.create(store, [view1], [12]);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1],
+                fontSizesInPixels: [12]
+            });
             settings.renderControls(element);
             decreaseButton = element.querySelector("button[class='decrease']") as HTMLButtonElement;
             expect(decreaseButton).to.be.null;
@@ -212,7 +259,11 @@ describe("BookSettings", () => {
             label = element.querySelector(".font-size-label") as HTMLLIElement;
             expect(label).to.be.null;
 
-            settings = await BookSettings.create(store, [view1], []);
+            settings = await BookSettings.create({
+                store,
+                bookViews: [view1],
+                fontSizesInPixels: []
+            });
             settings.renderControls(element);
             decreaseButton = element.querySelector("button[class='decrease']") as HTMLButtonElement;
             expect(decreaseButton).to.be.null;

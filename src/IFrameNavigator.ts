@@ -121,6 +121,22 @@ interface ReadingPosition {
     position: number;
 }
 
+export interface IFrameNavigatorConfig {
+    element: HTMLElement;
+    manifestUrl: URL;
+    store: Store;
+    cacher: Cacher;
+    settings: BookSettings;
+    annotator?: Annotator;
+    paginator?: PaginatedBookView;
+    scroller?: ScrollingBookView;
+    eventHandler?: EventHandler;
+    upLink?:  {
+        url?: URL;
+        label?: string;
+    };
+}
+
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
 export default class IFrameNavigator implements Navigator {
     private manifestUrl: URL;
@@ -156,27 +172,15 @@ export default class IFrameNavigator implements Navigator {
     private newElementId: string | null;
     private isLoading: boolean;
 
-    public static async create(
-        element: HTMLElement,
-        manifestUrl: URL,
-        store: Store,
-        cacher: Cacher,
-        settings: BookSettings,
-        annotator: Annotator | null = null,
-        paginator: PaginatedBookView | null = null,
-        scroller: ScrollingBookView | null = null,
-        eventHandler: EventHandler | null = null,
-        upUrl: URL | null = null,
-        upLabel: string | null = "Back"
-        ) {
-
+    public static async create(config: IFrameNavigatorConfig) {
         const navigator = new this(
-            store, cacher, settings, annotator,
-            paginator, scroller, eventHandler,
-            upUrl, upLabel
+            config.store, config.cacher, config.settings, config.annotator || null,
+            config.paginator || null, config.scroller || null, config.eventHandler || null,
+            config.upLink ? config.upLink.url || null : null,
+            config.upLink ? config.upLink.label || null : null
         );
 
-        await navigator.start(element, manifestUrl);
+        await navigator.start(config.element, config.manifestUrl);
         return navigator;
     }
 
