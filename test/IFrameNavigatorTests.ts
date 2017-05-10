@@ -876,9 +876,9 @@ describe("IFrameNavigator", () => {
             iframe.src = "http://example.com/item-1.html";
             await pause();
             click(next);
-            await pause(250);
+            await pause(200);
             expect(loading.style.display).not.to.equal("none");
-            await pause(100);
+            await pause(150);
             expect(loading.style.display).to.equal("none");
         });
 
