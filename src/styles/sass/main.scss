@@ -81,12 +81,12 @@ a {
       fill: $mta-green;
       height: 1.5rem;
       width: 1.5rem;
-    }
 
-    .icon.inactive-icon { // x-close icon
-      display: none;
-      height: 0;
-      width: 0;
+      &.inactive-icon { // x-close icon
+        display: none;
+        height: 0;
+        width: 0;
+      }
     }
 
     .setting-text {
