@@ -2,7 +2,7 @@
 // Table of Contents Styles //
 //////////////////////////////
 .contents-view {
-  background-color: $nypl-white;
+  background-color: $mta-white;
   overflow: scroll;
   top: 3.2rem;
 
@@ -12,7 +12,7 @@
 
     a {
       color: $mta-dark-gray;
-      border-bottom: 1px solid darken($nypl-white, 20%);
+      border-bottom: 1px solid darken($mta-white, 20%);
       display: block;
       padding: 1rem;
       text-decoration: none;
@@ -21,7 +21,7 @@
       @media screen and (min-width: 60rem) {
         &:hover {
           background: $mta-dark-gray;
-          color: $nypl-white;
+          color: $mta-white;
         }
       }
 

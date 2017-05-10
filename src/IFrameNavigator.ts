@@ -24,6 +24,15 @@ const upLinkTemplate = (href: string, label: string) => `
 const template = `
   <nav class="publication">
     <div class="controls">
+      <svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" class="svgIcon use">
+          <defs>
+            <symbol id="close-icon" viewBox="0 0 29.69 29.812">
+              <title>Close Icon</title>
+              <path d="M2081.71,127.488l26.79-26.879a1.459,1.459,0,0,1,2.06,2.068l-26.79,26.879a1.453,1.453,0,0,1-2.06,0A1.483,1.483,0,0,1,2081.71,127.488Z" transform="translate(-2081.31 -100.188)"/>
+              <path d="M2083.77,100.609l26.79,26.879a1.459,1.459,0,0,1-2.06,2.068l-26.79-26.879a1.483,1.483,0,0,1,0-2.068A1.453,1.453,0,0,1,2083.77,100.609Z" transform="translate(-2081.31 -100.188)"/>
+            </symbol>
+        </defs>
+      </svg>
       <a href="#settings-control" class="scrolling-suggestion" style="display: none">
           We recommend scrolling mode for use with screen readers and keyboard navigation.
           Go to settings to switch to scrolling mode.
@@ -31,7 +40,7 @@ const template = `
       <ul class="links top active">
         <li>
           <button class="contents disabled" aria-labelledby="table-of-contents" aria-haspopup="true" aria-expanded="false">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275 180" aria-labelledby="table-of-contents" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 275 180" aria-labelledby="table-of-contents" preserveAspectRatio="xMidYMid meet" role="img" class="icon open">
             <title id="table-of-contents">table of contents</title>
               <rect x="66" y="152" width="209" height="28"/>
               <rect x="66" y="76" width="209" height="28"/>
@@ -40,15 +49,21 @@ const template = `
               <rect y="76" width="33" height="28"/>
               <rect y="152" width="33" height="28"/>
             </svg>
+            <svg class="icon close inactive-icon" role="img" aria-labelledby="close-icon">
+              <use xlink:href="#close-icon"></use>
+            </svg>
             <span class="setting-text contents" id="contents">Contents</span>
           </button>
           <div class="contents-view controls-view inactive" aria-hidden="true"></div>
         </li>
         <li>
           <button class="settings" aria-labelledby="settings" aria-expanded="false" aria-haspopup="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 186.47158 186.4716" aria-labelledby="settings" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 186.47158 186.4716" aria-labelledby="settings" preserveAspectRatio="xMidYMid meet" role="img" class="icon open">
               <title id="settings">Settings</title>
               <path d="M183.29465,117.36676l3.17693-24.131-23.52051-9.17834-4.75089-17.73081,15.78033-19.70844L159.1637,27.30789,136.04194,37.44974,120.145,28.2714,117.36676,3.17693,93.2358,0,84.05746,23.52051,66.32665,28.2714,46.61759,12.49107,27.30789,27.30789,37.44974,50.42966l-9.17834,15.897L3.17693,69.10484,0,93.2358l23.52051,9.17834L28.2714,120.145,12.49107,139.854l14.81682,19.3097,23.12177-10.14185,15.897,9.17834,2.77819,25.09447,24.131,3.17693,9.17834-23.52051L120.145,158.2002l19.70844,15.78033,19.31031-14.81682-10.14185-23.12177,9.17834-15.897ZM93.2358,129.84856A36.61276,36.61276,0,1,1,129.84856,93.2358,36.61267,36.61267,0,0,1,93.2358,129.84856Z"/>
+              </svg>
+              <svg class="icon close inactive-icon" role="img" aria-labelledby="close-icon">
+                <use xlink:href="#close-icon"></use>
               </svg>
             <span class="setting-text settings" aria-labelledby="settings">Settings</span>
           </button>
@@ -120,6 +135,7 @@ export default class IFrameNavigator implements Navigator {
     private upLabel: string | null;
     private iframe: HTMLIFrameElement;
     private scrollingSuggestion: HTMLAnchorElement;
+    private upLink: HTMLAnchorElement | null = null;
     private nextChapterLink: HTMLAnchorElement;
     private previousChapterLink: HTMLAnchorElement;
     private contentsControl: HTMLButtonElement;
@@ -223,6 +239,14 @@ export default class IFrameNavigator implements Navigator {
             this.settings.renderControls(this.settingsView);
             this.settings.onViewChange(this.updateBookView.bind(this));
             this.settings.onFontSizeChange(this.updateFontSize.bind(this));
+
+            // Trap keyboard focus inside the settings view when it's displayed.
+            const settingsButtons = this.settingsView.querySelectorAll("button");
+            if (settingsButtons && settingsButtons.length > 0) {
+                const lastSettingsButton = settingsButtons[settingsButtons.length - 1];
+                this.setupModalFocusTrap(this.settingsView, this.settingsControl, lastSettingsButton);
+            }
+
             this.cacher.onStatusUpdate(this.updateOfflineCacheStatus.bind(this));
             this.enableOffline();
 
@@ -254,6 +278,45 @@ export default class IFrameNavigator implements Navigator {
         this.settingsView.addEventListener("click", this.handleToggleLinksClick.bind(this));
 
         this.tryAgainButton.addEventListener("click", this.tryAgain.bind(this));
+
+        this.contentsControl.addEventListener("keydown", this.hideTOCOnEscape.bind(this));
+
+        this.tocView.addEventListener("keydown", this.hideTOCOnEscape.bind(this));
+
+        this.settingsControl.addEventListener("keydown", this.hideSettingsOnEscape.bind(this));
+
+        this.settingsView.addEventListener("keydown", this.hideSettingsOnEscape.bind(this));
+    }
+
+    private setupModalFocusTrap(modal: HTMLDivElement, closeButton: HTMLButtonElement, lastFocusableElement: HTMLButtonElement | HTMLAnchorElement): void {
+        // Trap keyboard focus in a modal dialog when it's displayed.
+        const TAB_KEY = 9;
+
+        // Going backwards from the close button sends you to the last focusable element.
+        closeButton.addEventListener("keydown", (event: KeyboardEvent) => {
+            if (this.isDisplayed(modal)) {
+                const tab = (event.keyCode === TAB_KEY);
+                const shift = !!event.shiftKey;
+                if (tab && shift) {
+                    lastFocusableElement.focus();
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }
+        });
+
+        // Going forward from the last focusable element sends you to the close button.
+        lastFocusableElement.addEventListener("keydown", (event: KeyboardEvent) => {
+            if (this.isDisplayed(modal)) {
+                const tab = (event.keyCode === TAB_KEY);
+                const shift = !!event.shiftKey;
+                if (tab && !shift) {
+                    closeButton.focus();
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            }
+        });
     }
 
     private updateBookView(): void {
@@ -354,6 +417,7 @@ export default class IFrameNavigator implements Navigator {
 
             const createTOC = (parentElement: Element, links: Array<Link>) => {
                 const listElement: HTMLUListElement = document.createElement("ul");
+                let lastLink: HTMLAnchorElement | null = null;
                 for (const link of links) {
                     const listItemElement : HTMLLIElement = document.createElement("li");
                     const linkElement: HTMLAnchorElement = document.createElement("a");
@@ -388,7 +452,14 @@ export default class IFrameNavigator implements Navigator {
                     }
 
                     listElement.appendChild(listItemElement);
+                    lastLink = linkElement;
                 }
+
+                // Trap keyboard focus inside the TOC while it's open.
+                if (lastLink) {
+                    this.setupModalFocusTrap(this.tocView, this.contentsControl, lastLink);
+                }
+
                 parentElement.appendChild(listElement);
             }
             createTOC(this.tocView, toc);
@@ -401,6 +472,7 @@ export default class IFrameNavigator implements Navigator {
             const upParent : HTMLLIElement = document.createElement("li");
             upParent.innerHTML = upHTML;
             this.links.insertBefore(upParent, this.links.firstChild);
+            this.upLink = HTMLUtilities.findRequiredElement(this.links, "a[rel=up]") as HTMLAnchorElement;
         }
 
         let lastReadingPosition: ReadingPosition | null = null;
@@ -546,6 +618,17 @@ export default class IFrameNavigator implements Navigator {
         element.setAttribute("aria-hidden", "false");
         if (control) {
             control.setAttribute("aria-expanded", "true");
+
+            const openIcon = control.querySelector(".icon.open");
+            if (openIcon && (openIcon.getAttribute("class") || "").indexOf(" inactive-icon") === -1) {
+                const newIconClass = (openIcon.getAttribute("class") || "") + " inactive-icon";
+                openIcon.setAttribute("class", newIconClass);
+            }
+            const closeIcon = control.querySelector(".icon.close");
+            if (closeIcon) {
+                const newIconClass = (closeIcon.getAttribute("class") ||"").replace(" inactive-icon", "");
+                closeIcon.setAttribute("class", newIconClass);
+            }
         }
         // Add buttons and links in the element to the tab order.
         const buttons = Array.prototype.slice.call(element.querySelectorAll("button"));
@@ -566,6 +649,17 @@ export default class IFrameNavigator implements Navigator {
         element.setAttribute("aria-hidden", "true");
         if (control) {
             control.setAttribute("aria-expanded", "false");
+
+            const openIcon = control.querySelector(".icon.open");
+            if (openIcon) {
+                const newIconClass = (openIcon.getAttribute("class") ||"").replace(" inactive-icon", "");
+                openIcon.setAttribute("class", newIconClass);
+            }
+            const closeIcon = control.querySelector(".icon.close");
+            if (closeIcon && (closeIcon.getAttribute("class") || "").indexOf(" inactive-icon") === -1) {
+                const newIconClass = (closeIcon.getAttribute("class") || "") + " inactive-icon";
+                closeIcon.setAttribute("class", newIconClass);
+            }
         }
         // Remove buttons and links in the element from the tab order.
         const buttons = Array.prototype.slice.call(element.querySelectorAll("button"));
@@ -578,11 +672,58 @@ export default class IFrameNavigator implements Navigator {
         }
     }
 
+    private showModal(modal: HTMLDivElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        // Hide the rest of the page for screen readers.
+        this.iframe.setAttribute("aria-hidden", "true");
+        this.scrollingSuggestion.setAttribute("aria-hidden", "true");
+        if (this.upLink) {
+            this.upLink.setAttribute("aria-hidden", "true");
+        }
+        this.contentsControl.setAttribute("aria-hidden", "true");
+        this.settingsControl.setAttribute("aria-hidden", "true");
+        this.linksBottom.setAttribute("aria-hidden", "true");
+        this.loadingMessage.setAttribute("aria-hidden", "true");
+        this.errorMessage.setAttribute("aria-hidden", "true");
+        this.infoTop.setAttribute("aria-hidden", "true");
+        this.infoBottom.setAttribute("aria-hidden", "true");
+
+        if (control) {        
+            control.setAttribute("aria-hidden", "false");
+        }
+        this.showElement(modal, control);
+    }
+
+    private hideModal(modal: HTMLDivElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        // Restore the page for screen readers.
+        this.iframe.setAttribute("aria-hidden", "false");
+        this.scrollingSuggestion.setAttribute("aria-hidden", "false");
+        if (this.upLink) {
+            this.upLink.setAttribute("aria-hidden", "false");
+        }
+        this.contentsControl.setAttribute("aria-hidden", "false");
+        this.settingsControl.setAttribute("aria-hidden", "false");
+        this.linksBottom.setAttribute("aria-hidden", "false");
+        this.loadingMessage.setAttribute("aria-hidden", "false");
+        this.errorMessage.setAttribute("aria-hidden", "false");
+        this.infoTop.setAttribute("aria-hidden", "false");
+        this.infoBottom.setAttribute("aria-hidden", "false");
+
+        this.hideElement(modal, control);
+    }
+
     private toggleDisplay(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement): void {
         if (!this.isDisplayed(element)) {
             this.showElement(element, control);
         } else {
             this.hideElement(element, control);
+        }
+    }
+
+    private toggleModal(modal: HTMLDivElement, control?: HTMLAnchorElement | HTMLButtonElement) {
+        if (!this.isDisplayed(modal)) {
+            this.showModal(modal, control);
+        } else {
+            this.hideModal(modal, control);
         }
     }
 
@@ -749,7 +890,7 @@ export default class IFrameNavigator implements Navigator {
 
     private handleContentsClick(event: MouseEvent): void {
         this.hideSettings();
-        this.toggleDisplay(this.tocView, this.contentsControl);
+        this.toggleModal(this.tocView, this.contentsControl);
         // While the TOC is displayed, prevent scrolling in the book.
         if (this.settings.getSelectedView() === this.scroller) {
             if (this.isDisplayed(this.tocView)) {
@@ -763,9 +904,16 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private hideTOC(): void {
-        this.hideElement(this.tocView, this.contentsControl);
+        this.hideModal(this.tocView, this.contentsControl);
         if (this.settings.getSelectedView() === this.scroller) {
             document.body.style.overflow = "auto";
+        }
+    }
+
+    private hideTOCOnEscape(event: KeyboardEvent) {
+        const ESCAPE_KEY = 27;
+        if (this.isDisplayed(this.tocView) && event.keyCode === ESCAPE_KEY) {
+            this.hideTOC();
         }
     }
 
@@ -782,13 +930,20 @@ export default class IFrameNavigator implements Navigator {
 
     private handleSettingsClick(event: MouseEvent): void {
         this.hideTOC();
-        this.toggleDisplay(this.settingsView, this.settingsControl);
+        this.toggleModal(this.settingsView, this.settingsControl);
         event.preventDefault();
         event.stopPropagation();
     }
 
     private hideSettings(): void {
-        this.hideElement(this.settingsView, this.settingsControl);
+        this.hideModal(this.settingsView, this.settingsControl);
+    }
+
+    private hideSettingsOnEscape(event: KeyboardEvent) {
+        const ESCAPE_KEY = 27;
+        if (this.isDisplayed(this.settingsView) && event.keyCode === ESCAPE_KEY) {
+            this.hideSettings();
+        }
     }
 
     private navigate(readingPosition: ReadingPosition): void {
