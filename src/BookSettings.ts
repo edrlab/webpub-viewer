@@ -46,7 +46,7 @@ export interface BookSettingsConfig {
     /** Store to save the user's selections in. */
     store: Store,
 
-    /** Array of BookView options. */
+    /** Array of BookViews. */
     bookViews: BookView[],
 
     /** Array of font sizes in pixels sorted from smallest to largest. */
