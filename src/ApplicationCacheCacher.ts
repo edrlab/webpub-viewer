@@ -1,6 +1,10 @@
 import Cacher from "./Cacher";
 import { CacheStatus } from "./Cacher";
 
+export interface ApplicationCacheCacherConfig {
+    bookCacheUrl: URL
+}
+
 /** Class that caches files using the (deprecated) application cache API. 
     This is necessary until Service Worker support improves.
     
@@ -21,8 +25,8 @@ export default class ApplicationCacheCacher implements Cacher {
     private statusUpdateCallback: (status: CacheStatus) => void = () => {};
     private status: CacheStatus = CacheStatus.Uncached;
 
-    public constructor(bookCacheUrl: URL) {
-        this.bookCacheUrl = bookCacheUrl;
+    public constructor(config: ApplicationCacheCacherConfig) {
+        this.bookCacheUrl = config.bookCacheUrl;
     }
 
     public async enable(): Promise<void> {

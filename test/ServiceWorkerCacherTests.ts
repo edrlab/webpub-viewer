@@ -59,7 +59,10 @@ describe('ServiceWorkerCacher', () => {
         it("should do nothing if the Cache API is not supported and there's no fallback URL", async () => {
             (window as any).caches = null;
 
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            const cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json")
+            });
             await cacher.enable();
             expect(register.callCount).to.equal(0);
         });
@@ -69,7 +72,11 @@ describe('ServiceWorkerCacher', () => {
 
             const appCacheEnableStub = stub(ApplicationCacheCacher.prototype, "enable");
 
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"), "sw.js", new URL("https://example.com/fallback.html"));
+            const cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json"),
+                fallbackBookCacheUrl: new URL("https://example.com/fallback.html")
+            });
             await cacher.enable();
             expect(register.callCount).to.equal(0);
             expect(appCacheEnableStub.callCount).to.equal(1);
@@ -79,15 +86,23 @@ describe('ServiceWorkerCacher', () => {
 
         it("should register the service worker", async () => {
             mockCacheAPI("i'm in the cache");
-            let cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            let cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json")
+            });
             await cacher.enable();
             expect(register.callCount).to.equal(1);
-            expect(register.args[0][0]).to.equal("sw.js");
+            expect(register.args[0][0]).to.equal("https://example.com/sw.js");
 
-            cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"), "../../../sw.js", new URL("https://example.com/fallback.html"));
+            cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json"),
+                serviceWorkerUrl: new URL("../../../sw.js", "https://example.com/1/2/3/4/"),
+                fallbackBookCacheUrl: new URL("https://example.com/fallback.html")
+            });
             await cacher.enable();
             expect(register.callCount).to.equal(2);
-            expect(register.args[1][0]).to.equal("../../../sw.js");
+            expect(register.args[1][0]).to.equal("https://example.com/1/sw.js");
         });
 
         it("shouldn't cache anything if it has already successfully cached everything", async () => {
@@ -100,7 +115,10 @@ describe('ServiceWorkerCacher', () => {
                 }
             }
 
-            const cacher = new MockCacher(store, new URL("https://example.com/manifest.json"));
+            const cacher = new MockCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json")
+            });
             cacher.setStatus(CacheStatus.Downloaded);
             await cacher.enable();
             // The manifest cache was not opened.
@@ -128,7 +146,14 @@ describe('ServiceWorkerCacher', () => {
             }, new URL("https://example.com/manifest.json"));
 
             await store.set("manifest", JSON.stringify(manifest));
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            const cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json"),
+                staticFileUrls: [
+                    new URL("static-1.html", "https://example.com"),
+                    new URL("static-2.html", "https://example.com")
+                ]
+            });
             await cacher.enable();
             let urlsThatWereCached: Array<string> = [];
             // Go through each call to addAll and aggregate the cached URLs.
@@ -138,7 +163,8 @@ describe('ServiceWorkerCacher', () => {
                 urlsThatWereCached = urlsThatWereCached.concat(urls);
             });
             expect(urlsThatWereCached).to.contain("https://example.com/manifest.json");
-            expect(urlsThatWereCached).to.contain("https://example.com/index.html");
+            expect(urlsThatWereCached).to.contain("https://example.com/static-1.html");
+            expect(urlsThatWereCached).to.contain("https://example.com/static-2.html");
             expect(urlsThatWereCached).to.contain("https://example.com/spine-item-1.html");
             expect(urlsThatWereCached).to.contain("https://example.com/spine-item-2.html");
             expect(urlsThatWereCached).to.contain("https://example.com/resource-1.html");
@@ -152,7 +178,11 @@ describe('ServiceWorkerCacher', () => {
 
             const appCacheOnStatusUpdateStub = stub(ApplicationCacheCacher.prototype, "onStatusUpdate");
 
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"), "sw.js", new URL("https://example.com/fallback.html"));
+            const cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json"),
+                fallbackBookCacheUrl: new URL("https://example.com/fallback.html")
+            });
             const callback = stub();
             cacher.onStatusUpdate(callback);
             expect(appCacheOnStatusUpdateStub.callCount).to.equal(1);
@@ -176,7 +206,10 @@ describe('ServiceWorkerCacher', () => {
 
             await store.set("manifest", JSON.stringify(manifest));
 
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            const cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json")
+            });
 
             const callback = stub();
             cacher.onStatusUpdate(callback);
@@ -196,7 +229,10 @@ describe('ServiceWorkerCacher', () => {
         it("should provide status updates when there's an error", async () => {
             mockCacheAPI("i'm in the cache");
             open.returns(new Promise<void>((_, reject) => reject()));
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            const cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json")
+            });
 
             const callback = stub();
             cacher.onStatusUpdate(callback);
@@ -230,7 +266,10 @@ describe('ServiceWorkerCacher', () => {
 
             await store.set("manifest", JSON.stringify(manifest));
 
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            const cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json")
+            });
 
             expect(cacher.getStatus()).to.equal(CacheStatus.Uncached);
 
@@ -244,7 +283,10 @@ describe('ServiceWorkerCacher', () => {
         it("should provide status updates when there's an error", async () => {
             mockCacheAPI("i'm in the cache");
             open.returns(new Promise<void>((_, reject) => reject()));
-            const cacher = new ServiceWorkerCacher(store, new URL("https://example.com/manifest.json"));
+            const cacher = new ServiceWorkerCacher({
+                store,
+                manifestUrl: new URL("https://example.com/manifest.json")
+            });
 
             expect(cacher.getStatus()).to.equal(CacheStatus.Uncached);
 

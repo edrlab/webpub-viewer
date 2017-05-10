@@ -42,6 +42,20 @@ const checkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 32" pr
 </svg>
 `;
 
+export interface BookSettingsConfig {
+    /** Store to save the user's selections in. */
+    store: Store,
+
+    /** Array of BookViews. */
+    bookViews: BookView[],
+
+    /** Array of font sizes in pixels sorted from smallest to largest. */
+    fontSizesInPixels: number[],
+
+    /** Initial font size to use until the user makes a selection. */
+    defaultFontSizeInPixels?: number;
+}
+
 export default class BookSettings {
     private readonly store: Store;
     private readonly bookViews: BookView[];
@@ -60,14 +74,10 @@ export default class BookSettings {
     private static readonly SELECTED_VIEW_KEY = "settings-selected-view";
     private static readonly SELECTED_FONT_SIZE_KEY = "settings-selected-font-size";
 
-    /** @param store Store to save the user's selections in. */
-    /** @param bookViews Array of BookView options. */
-    /** @param fontSizesInPixels Array of font sizes in pixels sorted from smallest to largest. */
-    /** @param defaultFontSizeInPixels Initial font size to use until the user makes a selection. */
-    public static async create(store: Store, bookViews: BookView[], fontSizesInPixels: number[], defaultFontSizeInPixels?: number) {
-        const fontSizes = fontSizesInPixels.map(fontSize => fontSize + "px");
-        const settings = new this(store, bookViews, fontSizes);
-        await settings.initializeSelections(defaultFontSizeInPixels ? defaultFontSizeInPixels + "px" : undefined);
+    public static async create(config: BookSettingsConfig) {
+        const fontSizes = config.fontSizesInPixels.map(fontSize => fontSize + "px");
+        const settings = new this(config.store, config.bookViews, fontSizes);
+        await settings.initializeSelections(config.defaultFontSizeInPixels ? config.defaultFontSizeInPixels + "px" : undefined);
         return settings;
     }
 

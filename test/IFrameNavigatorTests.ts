@@ -226,7 +226,11 @@ describe("IFrameNavigator", () => {
         getSelectedView = stub().returns(paginator);
         getSelectedFontSize = stub().returns("14px");
         getOfflineStatusElement = stub().returns(offlineStatusElement);
-        settings = await MockSettings.create(store, [paginator, scroller], [14, 16]);
+        settings = await MockSettings.create({
+            store,
+            bookViews: [paginator, scroller],
+            fontSizesInPixels: [14, 16]
+        });
 
         setupEvents = stub();
         eventHandler = new MockEventHandler();
@@ -248,7 +252,17 @@ describe("IFrameNavigator", () => {
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
         (window as any).innerWidth = 1024;
-        navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
+        navigator = await IFrameNavigator.create({
+            element,
+            manifestUrl: new URL("http://example.com/manifest.json"),
+            store,
+            cacher,
+            settings,
+            annotator,
+            paginator,
+            scroller,
+            eventHandler
+        });
     });
 
     describe("#start", () => {
@@ -485,7 +499,21 @@ describe("IFrameNavigator", () => {
             // The up link isn't shown if it's not configured.
             expect(noUpLink).not.to.be.ok;
 
-            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler, new URL("http://up.com"), "Up Text");
+            navigator = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler,
+                upLink: {
+                    url: new URL("http://up.com"),
+                    label: "Up Text"
+                }
+            });
             
             const upLink = element.querySelector("a[rel=up]") as HTMLAnchorElement;
             expect(upLink).to.be.ok;
@@ -848,9 +876,9 @@ describe("IFrameNavigator", () => {
             iframe.src = "http://example.com/item-1.html";
             await pause();
             click(next);
-            await pause(250);
+            await pause(200);
             expect(loading.style.display).not.to.equal("none");
-            await pause(100);
+            await pause(150);
             expect(loading.style.display).to.equal("none");
         });
 
@@ -896,7 +924,17 @@ describe("IFrameNavigator", () => {
             }, new URL("http://example.com/manifest.json"));
             store.set("manifest", JSON.stringify(manifest));
 
-            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
+            navigator = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler
+            });
             const toc = element.querySelector(".contents-view") as HTMLDivElement;
             expect(toc.parentElement.style.display).to.equal("none");
         });
@@ -1371,7 +1409,17 @@ describe("IFrameNavigator", () => {
             expect(scrollingSuggestion.style.display).not.to.equal("none");
 
             getSelectedView.returns(scroller);            
-            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
+            navigator = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler
+            });
             scrollingSuggestion = element.querySelector(".scrolling-suggestion") as HTMLAnchorElement;
             
             expect(scrollingSuggestion.style.display).to.equal("none");

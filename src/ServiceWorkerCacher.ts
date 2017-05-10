@@ -4,10 +4,28 @@ import Store from "./Store";
 import Manifest from "./Manifest";
 import ApplicationCacheCacher from "./ApplicationCacheCacher";
 
+export interface ServiceWorkerCacherConfig {
+    /** Store to cache the manifest in. */
+    store: Store;
+
+    /** URL to the webpub's manifest. */
+    manifestUrl: URL;
+
+    /** Location of the service worker js file. Default: sw.js */
+    serviceWorkerUrl?: URL;
+
+    /** Static files for the service worker to cache. (JS and CSS used by the application) */
+    staticFileUrls?: URL[];
+
+    /** URL to give the ApplicationCacheCacher if service workers aren't supported. */
+    fallbackBookCacheUrl?: URL;
+}
+
 /** Class that caches responses using ServiceWorker's Cache API, and optionally
     falls back to the application cache if service workers aren't available. */
 export default class ServiceWorkerCacher implements Cacher {
-    private readonly serviceWorkerPath: string;
+    private readonly serviceWorkerUrl: URL;
+    private readonly staticFileUrls: URL[];
     private readonly store: Store;
     private readonly manifestUrl: URL;
     private readonly areServiceWorkersSupported: boolean;
@@ -16,19 +34,16 @@ export default class ServiceWorkerCacher implements Cacher {
     private statusUpdateCallback: (status: CacheStatus) => void = () => {};
 
     /** Create a ServiceWorkerCacher. */
-    /** @param store Store to cache the manifest in. */
-    /** @param manifestUrl URL to the webpub's manifest. */
-    /** @param serviceWorkerPath Location of the service worker js file. */
-    /** @param fallbackBookCacheUrl URL to give the ApplicationCacheCacher if service workers aren't supported. */
-    public constructor(store: Store, manifestUrl: URL, serviceWorkerPath: string = "sw.js", fallbackBookCacheUrl?: URL) {
-        this.serviceWorkerPath = serviceWorkerPath;
-        this.store = store;
-        this.manifestUrl = manifestUrl;
+    public constructor(config: ServiceWorkerCacherConfig) {
+        this.serviceWorkerUrl = config.serviceWorkerUrl || new URL("sw.js", config.manifestUrl.href);
+        this.staticFileUrls = config.staticFileUrls || [];
+        this.store = config.store;
+        this.manifestUrl = config.manifestUrl;
 
         const protocol = window.location.protocol;
         this.areServiceWorkersSupported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
-        if (!this.areServiceWorkersSupported && fallbackBookCacheUrl) {
-            this.fallbackCacher = new ApplicationCacheCacher(fallbackBookCacheUrl);
+        if (!this.areServiceWorkersSupported && config.fallbackBookCacheUrl) {
+            this.fallbackCacher = new ApplicationCacheCacher({ bookCacheUrl: config.fallbackBookCacheUrl });
         }
     }
 
@@ -39,7 +54,7 @@ export default class ServiceWorkerCacher implements Cacher {
         } else if (this.areServiceWorkersSupported && (this.cacheStatus !== CacheStatus.Downloaded)) {
             this.cacheStatus = CacheStatus.Downloading;
             this.updateStatus();
-            navigator.serviceWorker.register(this.serviceWorkerPath);
+            navigator.serviceWorker.register(this.serviceWorkerUrl.href);
 
             try {
                 await this.verifyAndCacheManifest(this.manifestUrl);
@@ -58,7 +73,11 @@ export default class ServiceWorkerCacher implements Cacher {
         await navigator.serviceWorker.ready;
         try {
             // Invoke promises concurrently...
-            const promises = [this.cacheManifest(manifestUrl), this.cacheUrls(["index.html", manifestUrl.href], manifestUrl)];
+            const urlsToCache = [manifestUrl.href];
+            for (const url of this.staticFileUrls) {
+                urlsToCache.push(url.href);
+            }
+            const promises = [this.cacheManifest(manifestUrl), this.cacheUrls(urlsToCache, manifestUrl)];
             // then wait for all of them to resolve.
             for (const promise of promises) {
                 await promise;

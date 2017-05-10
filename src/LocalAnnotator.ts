@@ -1,13 +1,17 @@
 import Annotator from "./Annotator";
 import Store from "./Store";
 
+export interface LocalAnnotatorConfig {
+    store: Store;
+}
+
 /** Annotator that stores annotations locally, in the browser. */
 export default class LocalAnnotator implements Annotator {
     private readonly store: Store;
     private static readonly LAST_READING_POSITION = "last-reading-position";
 
-    public constructor(store: Store) {
-        this.store = store;
+    public constructor(config: LocalAnnotatorConfig) {
+        this.store = config.store;
     }
 
     public async getLastReadingPosition(): Promise<any> {
