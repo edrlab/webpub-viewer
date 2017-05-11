@@ -11,8 +11,8 @@ import BookSettings from "./BookSettings";
 import EventHandler from "./EventHandler";
 import * as HTMLUtilities from "./HTMLUtilities";
 
-const upLinkTemplate = (href: string, label: string) => `
-  <a rel="up" href='${href}' aria-label="${label}">
+const upLinkTemplate = (href: string, label: string, ariaLabel: string) => `
+  <a rel="up" href='${href}' aria-label="${ariaLabel}">
     <svg width="16" height="25" viewBox="0 0 16 25" aria-labelledby="up-label" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
       <title id="up-label">${label}</title>
       <polygon points="16 1.741 13.9 0 0 12.5 13.9 25 16 23.258 4.036 12.499 16 1.741" />
@@ -121,6 +121,12 @@ interface ReadingPosition {
     position: number;
 }
 
+export interface UpLinkConfig {
+    url?: URL;
+    label?: string;
+    ariaLabel?: string;
+}
+
 export interface IFrameNavigatorConfig {
     element: HTMLElement;
     manifestUrl: URL;
@@ -131,10 +137,7 @@ export interface IFrameNavigatorConfig {
     paginator?: PaginatedBookView;
     scroller?: ScrollingBookView;
     eventHandler?: EventHandler;
-    upLink?:  {
-        url?: URL;
-        label?: string;
-    };
+    upLink?:  UpLinkConfig;
 }
 
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
@@ -147,8 +150,7 @@ export default class IFrameNavigator implements Navigator {
     private annotator: Annotator | null;
     private settings: BookSettings;
     private eventHandler: EventHandler;
-    private upUrl: URL | null;
-    private upLabel: string | null;
+    private upLinkConfig: UpLinkConfig | null;
     private iframe: HTMLIFrameElement;
     private scrollingSuggestion: HTMLAnchorElement;
     private upLink: HTMLAnchorElement | null = null;
@@ -176,8 +178,7 @@ export default class IFrameNavigator implements Navigator {
         const navigator = new this(
             config.store, config.cacher, config.settings, config.annotator || null,
             config.paginator || null, config.scroller || null, config.eventHandler || null,
-            config.upLink ? config.upLink.url || null : null,
-            config.upLink ? config.upLink.label || null : null
+            config.upLink || null
         );
 
         await navigator.start(config.element, config.manifestUrl);
@@ -192,8 +193,7 @@ export default class IFrameNavigator implements Navigator {
         paginator: PaginatedBookView | null = null,
         scroller: ScrollingBookView | null = null,
         eventHandler: EventHandler | null = null,
-        upUrl: URL | null = null,
-        upLabel: string | null = null
+        upLinkConfig: UpLinkConfig | null = null
         ) {
 
         this.store = store;
@@ -203,8 +203,7 @@ export default class IFrameNavigator implements Navigator {
         this.annotator = annotator;
         this.settings = settings;
         this.eventHandler = eventHandler || new EventHandler();
-        this.upUrl = upUrl;
-        this.upLabel = upLabel;
+        this.upLinkConfig = upLinkConfig;
     }
 
     protected async start(element: HTMLElement, manifestUrl: URL): Promise<void> {
@@ -471,8 +470,11 @@ export default class IFrameNavigator implements Navigator {
             this.contentsControl.parentElement.style.display = "none";
         }
 
-        if (this.upUrl) {
-            const upHTML = upLinkTemplate(this.upUrl.href, this.upLabel || "");
+        if (this.upLinkConfig && this.upLinkConfig.url) {
+            const upUrl = this.upLinkConfig.url;
+            const upLabel = this.upLinkConfig.label || "";
+            const upAriaLabel = this.upLinkConfig.ariaLabel || upLabel;
+            const upHTML = upLinkTemplate(upUrl.href, upLabel, upAriaLabel);
             const upParent : HTMLLIElement = document.createElement("li");
             upParent.innerHTML = upHTML;
             this.links.insertBefore(upParent, this.links.firstChild);

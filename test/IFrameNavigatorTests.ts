@@ -511,14 +511,39 @@ describe("IFrameNavigator", () => {
                 eventHandler,
                 upLink: {
                     url: new URL("http://up.com"),
+                    label: "Up Text",
+                    ariaLabel: "Up Aria Text"
+                }
+            });
+            
+            let upLink = element.querySelector("a[rel=up]") as HTMLAnchorElement;
+            expect(upLink).to.be.ok;
+            expect(upLink.href).to.equal("http://up.com/");
+            expect(upLink.innerHTML).to.contain("Up Text");
+            expect(upLink.getAttribute("aria-label")).to.equal("Up Aria Text");
+
+            // If there's no separate aria label, it uses the label.
+            navigator = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler,
+                upLink: {
+                    url: new URL("http://up.com"),
                     label: "Up Text"
                 }
             });
             
-            const upLink = element.querySelector("a[rel=up]") as HTMLAnchorElement;
+            upLink = element.querySelector("a[rel=up]") as HTMLAnchorElement;
             expect(upLink).to.be.ok;
             expect(upLink.href).to.equal("http://up.com/");
             expect(upLink.innerHTML).to.contain("Up Text");
+            expect(upLink.getAttribute("aria-label")).to.equal("Up Text");
         });
 
         it("should navigate to the previous spine item", async () => {
