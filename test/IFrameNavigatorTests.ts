@@ -226,7 +226,11 @@ describe("IFrameNavigator", () => {
         getSelectedView = stub().returns(paginator);
         getSelectedFontSize = stub().returns("14px");
         getOfflineStatusElement = stub().returns(offlineStatusElement);
-        settings = await MockSettings.create(store, [paginator, scroller], [14, 16]);
+        settings = await MockSettings.create({
+            store,
+            bookViews: [paginator, scroller],
+            fontSizesInPixels: [14, 16]
+        });
 
         setupEvents = stub();
         eventHandler = new MockEventHandler();
@@ -248,7 +252,17 @@ describe("IFrameNavigator", () => {
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
         (document.documentElement as any).clientWidth = 1024;
-        navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
+        navigator = await IFrameNavigator.create({
+            element,
+            manifestUrl: new URL("http://example.com/manifest.json"),
+            store,
+            cacher,
+            settings,
+            annotator,
+            paginator,
+            scroller,
+            eventHandler
+        });
     });
 
     describe("#start", () => {
@@ -485,12 +499,51 @@ describe("IFrameNavigator", () => {
             // The up link isn't shown if it's not configured.
             expect(noUpLink).not.to.be.ok;
 
-            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler, new URL("http://up.com"), "Up Text");
+            navigator = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler,
+                upLink: {
+                    url: new URL("http://up.com"),
+                    label: "Up Text",
+                    ariaLabel: "Up Aria Text"
+                }
+            });
             
-            const upLink = element.querySelector("a[rel=up]") as HTMLAnchorElement;
+            let upLink = element.querySelector("a[rel=up]") as HTMLAnchorElement;
             expect(upLink).to.be.ok;
             expect(upLink.href).to.equal("http://up.com/");
             expect(upLink.innerHTML).to.contain("Up Text");
+            expect(upLink.getAttribute("aria-label")).to.equal("Up Aria Text");
+
+            // If there's no separate aria label, it uses the label.
+            navigator = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler,
+                upLink: {
+                    url: new URL("http://up.com"),
+                    label: "Up Text"
+                }
+            });
+            
+            upLink = element.querySelector("a[rel=up]") as HTMLAnchorElement;
+            expect(upLink).to.be.ok;
+            expect(upLink.href).to.equal("http://up.com/");
+            expect(upLink.innerHTML).to.contain("Up Text");
+            expect(upLink.getAttribute("aria-label")).to.equal("Up Text");
         });
 
         it("should navigate to the previous spine item", async () => {
@@ -848,9 +901,9 @@ describe("IFrameNavigator", () => {
             iframe.src = "http://example.com/item-1.html";
             await pause();
             click(next);
-            await pause(250);
+            await pause(200);
             expect(loading.style.display).not.to.equal("none");
-            await pause(100);
+            await pause(150);
             expect(loading.style.display).to.equal("none");
         });
 
@@ -896,7 +949,17 @@ describe("IFrameNavigator", () => {
             }, new URL("http://example.com/manifest.json"));
             store.set("manifest", JSON.stringify(manifest));
 
-            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
+            navigator = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler
+            });
             const toc = element.querySelector(".contents-view") as HTMLDivElement;
             expect(toc.parentElement.style.display).to.equal("none");
         });
@@ -934,6 +997,8 @@ describe("IFrameNavigator", () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const toc = element.querySelector(".contents-view") as HTMLDivElement; 
             const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
+            const openIcon = contentsControl.querySelector(".icon.open") as SVGElement;
+            const closeIcon = contentsControl.querySelector(".icon.close") as SVGElement;
             getSelectedView.returns(scroller);
 
             const links = toc.querySelectorAll("li > a");
@@ -951,6 +1016,8 @@ describe("IFrameNavigator", () => {
             expect(link3.tabIndex).to.equal(-1);
             expect(link4.tabIndex).to.equal(-1);
             expect(document.body.style.overflow).not.to.equal("hidden");
+            expect(openIcon.getAttribute("class")).not.to.contain(" inactive");
+            expect(closeIcon.getAttribute("class")).to.contain(" inactive");
 
             click(contentsControl);
             expect(toc.className).to.contain(" active");
@@ -962,6 +1029,8 @@ describe("IFrameNavigator", () => {
             expect(link3.tabIndex).to.equal(0);
             expect(link4.tabIndex).to.equal(0);
             expect(document.body.style.overflow).to.equal("hidden");
+            expect(openIcon.getAttribute("class")).to.contain(" inactive");
+            expect(closeIcon.getAttribute("class")).not.to.contain(" inactive");
 
             click(contentsControl);
             expect(toc.className).to.contain(" inactive");
@@ -973,6 +1042,8 @@ describe("IFrameNavigator", () => {
             expect(link3.tabIndex).to.equal(-1);
             expect(link4.tabIndex).to.equal(-1);
             expect(document.body.style.overflow).not.to.equal("hidden");
+            expect(openIcon.getAttribute("class")).not.to.contain(" inactive");
+            expect(closeIcon.getAttribute("class")).to.contain(" inactive");
         });
 
         it("should hide when other navigation links are clicked", async () => {
@@ -1113,6 +1184,93 @@ describe("IFrameNavigator", () => {
             expect(link1.className).to.equal("");
             expect(link2.className).to.equal("active");
         });
+
+        it("should close when escape is pressed", () => {
+            const toc = element.querySelector(".contents-view") as HTMLDivElement; 
+            const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
+
+            click(contentsControl);
+            expect(toc.className).not.to.contain(" inactive");
+            expect(toc.className).to.contain(" active");
+
+            // Press a key that's not escape.
+            let event = new KeyboardEvent("keydown", { keyCode: 19 } as any);
+            toc.dispatchEvent(event);
+            expect(toc.className).not.to.contain(" inactive");
+            expect(toc.className).to.contain(" active");
+
+            // Press escape.
+            event = new KeyboardEvent("keydown", { keyCode: 27 } as any);
+            toc.dispatchEvent(event);
+            expect(toc.className).to.contain(" inactive");
+            expect(toc.className).not.to.contain(" active");
+        });
+
+        it("should hide rest of page from screen readers when open", () => {
+            const main = element.querySelector("main") as HTMLElement;
+            const navs = element.querySelectorAll("nav");
+            const topNav = navs[0] as HTMLElement;
+            const bottomNav = navs[1] as HTMLElement;
+
+            const toc = element.querySelector(".contents-view") as HTMLDivElement; 
+            const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
+
+            click(contentsControl);
+
+            // TOC and contents controls should be shown.
+            expect(toc.getAttribute("aria-hidden")).to.equal("false");
+            expect(contentsControl.getAttribute("aria-hidden")).to.equal("false");
+
+            // Every child of main should be hidden.
+            for (const child of Array.prototype.slice.call(main.children)) {
+                expect(child.getAttribute("aria-hidden")).to.equal("true");
+            }
+
+            // Every button and link in the top nav other than the toc button should be hidden.
+            for (const button of Array.prototype.slice.call(topNav.querySelectorAll(".controls > button, .controls > li button"))) {
+                if (button !== contentsControl) {
+                    expect(button.getAttribute("aria-hidden")).to.equal("true");
+                }
+            }
+            for (const link of Array.prototype.slice.call(topNav.querySelectorAll(".controls > a, .controls > li a"))) {
+                expect(link.getAttribute("aria-hidden")).to.equal("true");
+            }
+
+            // Every controls view except the toc should be hidden.
+            for (const view of Array.prototype.slice.call(topNav.querySelectorAll(".controls-view"))) {
+                if (view !== toc) {
+                    expect(view.getAttribute("aria-hidden")).to.equal("true");
+                }
+            }
+
+            // The bottom links should be hidden.
+            for (const bottomLinks of Array.prototype.slice.call(bottomNav.querySelectorAll(".links"))) {
+                expect(bottomLinks.getAttribute("aria-hidden")).to.equal("true");
+            }
+
+            click(contentsControl);
+
+            // Hidden elements should be restored, except the toc view.
+
+            for (const child of Array.prototype.slice.call(main.children)) {
+                expect(child.getAttribute("aria-hidden")).to.equal("false");
+            }
+
+            for (const button of Array.prototype.slice.call(topNav.querySelectorAll(".controls > button, .controls > li button"))) {
+                expect(button.getAttribute("aria-hidden")).to.equal("false");
+            }
+            for (const link of Array.prototype.slice.call(topNav.querySelectorAll(".controls > a, .controls > li a"))) {
+                expect(link.getAttribute("aria-hidden")).to.equal("false");
+            }
+
+            for (const view of Array.prototype.slice.call(topNav.querySelectorAll(".controls-view"))) {
+                expect(view.getAttribute("aria-hidden")).to.equal("true");
+            }
+
+            for (const bottomLinks of Array.prototype.slice.call(bottomNav.querySelectorAll(".links"))) {
+                expect(bottomLinks.getAttribute("aria-hidden")).to.equal("false");
+            }
+        });
     });
 
     describe("settings", () => {
@@ -1120,6 +1278,8 @@ describe("IFrameNavigator", () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const settings = element.querySelector(".settings-view") as HTMLDivElement;
             const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
+            const openIcon = settingsControl.querySelector(".icon.open") as SVGElement;
+            const closeIcon = settingsControl.querySelector(".icon.close") as SVGElement;
 
             settings.innerHTML = "<button tabindex=-1>Test</button>";
             const button = settings.querySelector("button") as HTMLButtonElement;
@@ -1128,6 +1288,8 @@ describe("IFrameNavigator", () => {
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/start.html");
             expect(button.tabIndex).to.equal(-1);
+            expect(openIcon.getAttribute("class")).not.to.contain(" inactive");
+            expect(closeIcon.getAttribute("class")).to.contain(" inactive");
 
             click(settingsControl);
             expect(settings.className).to.contain(" active");
@@ -1135,6 +1297,8 @@ describe("IFrameNavigator", () => {
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("true");
             expect(iframe.src).to.equal("http://example.com/start.html");
             expect(button.tabIndex).to.equal(0);
+            expect(openIcon.getAttribute("class")).to.contain(" inactive");
+            expect(closeIcon.getAttribute("class")).not.to.contain(" inactive");
 
             click(settingsControl);
             expect(settings.className).to.contain(" inactive");
@@ -1142,6 +1306,8 @@ describe("IFrameNavigator", () => {
             expect(settingsControl.getAttribute("aria-expanded")).to.equal("false");
             expect(iframe.src).to.equal("http://example.com/start.html");
             expect(button.tabIndex).to.equal(-1);
+            expect(openIcon.getAttribute("class")).not.to.contain(" inactive");
+            expect(closeIcon.getAttribute("class")).to.contain(" inactive");
         });
 
         it("should hide settings and nav when settings view is clicked", async () => {
@@ -1173,6 +1339,93 @@ describe("IFrameNavigator", () => {
             expect(links.className).not.to.contain(" active");
             expect(links.className).to.contain(" inactive");
         });
+
+        it("should close when escape is pressed", () => {
+            const settings = element.querySelector(".settings-view") as HTMLDivElement; 
+            const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
+
+            click(settingsControl);
+            expect(settings.className).not.to.contain(" inactive");
+            expect(settings.className).to.contain(" active");
+
+            // Press a key that's not escape.
+            let event = new KeyboardEvent("keydown", { keyCode: 19 } as any);
+            settings.dispatchEvent(event);
+            expect(settings.className).not.to.contain(" inactive");
+            expect(settings.className).to.contain(" active");
+
+            // Press escape.
+            event = new KeyboardEvent("keydown", { keyCode: 27 } as any);
+            settings.dispatchEvent(event);
+            expect(settings.className).to.contain(" inactive");
+            expect(settings.className).not.to.contain(" active");
+        });
+
+        it("should hide rest of page from screen readers when open", () => {
+            const main = element.querySelector("main") as HTMLElement;
+            const navs = element.querySelectorAll("nav");
+            const topNav = navs[0] as HTMLElement;
+            const bottomNav = navs[1] as HTMLElement;
+
+            const settings = element.querySelector(".settings-view") as HTMLDivElement; 
+            const settingsControl = element.querySelector("button.settings") as HTMLButtonElement;
+
+            click(settingsControl);
+
+            // Settings and its controls should be shown.
+            expect(settings.getAttribute("aria-hidden")).to.equal("false");
+            expect(settingsControl.getAttribute("aria-hidden")).to.equal("false");
+
+            // Every child of main should be hidden.
+            for (const child of Array.prototype.slice.call(main.children)) {
+                expect(child.getAttribute("aria-hidden")).to.equal("true");
+            }
+
+            // Every button and link in the top nav other than the settings button should be hidden.
+            for (const button of Array.prototype.slice.call(topNav.querySelectorAll(".controls > button, .controls > li button"))) {
+                if (button !== settingsControl) {
+                    expect(button.getAttribute("aria-hidden")).to.equal("true");
+                }
+            }
+            for (const link of Array.prototype.slice.call(topNav.querySelectorAll(".controls > a, .controls > li a"))) {
+                expect(link.getAttribute("aria-hidden")).to.equal("true");
+            }
+
+            // Every controls view except the settings should be hidden.
+            for (const view of Array.prototype.slice.call(topNav.querySelectorAll(".controls-view"))) {
+                if (view !== settings) {
+                    expect(view.getAttribute("aria-hidden")).to.equal("true");
+                }
+            }
+
+            // The bottom links should be hidden.
+            for (const bottomLinks of Array.prototype.slice.call(bottomNav.querySelectorAll(".links"))) {
+                expect(bottomLinks.getAttribute("aria-hidden")).to.equal("true");
+            }
+
+            click(settingsControl);
+
+            // Hidden elements should be restored, except the settings view.
+
+            for (const child of Array.prototype.slice.call(main.children)) {
+                expect(child.getAttribute("aria-hidden")).to.equal("false");
+            }
+
+            for (const button of Array.prototype.slice.call(topNav.querySelectorAll(".controls > button, .controls > li button"))) {
+                expect(button.getAttribute("aria-hidden")).to.equal("false");
+            }
+            for (const link of Array.prototype.slice.call(topNav.querySelectorAll(".controls > a, .controls > li a"))) {
+                expect(link.getAttribute("aria-hidden")).to.equal("false");
+            }
+
+            for (const view of Array.prototype.slice.call(topNav.querySelectorAll(".controls-view"))) {
+                expect(view.getAttribute("aria-hidden")).to.equal("true");
+            }
+
+            for (const bottomLinks of Array.prototype.slice.call(bottomNav.querySelectorAll(".links"))) {
+                expect(bottomLinks.getAttribute("aria-hidden")).to.equal("false");
+            }
+        });
     });
 
     describe("scrolling suggestion", () => {
@@ -1181,7 +1434,17 @@ describe("IFrameNavigator", () => {
             expect(scrollingSuggestion.style.display).not.to.equal("none");
 
             getSelectedView.returns(scroller);            
-            navigator = await IFrameNavigator.create(element, new URL("http://example.com/manifest.json"), store, cacher, settings, annotator, paginator, scroller, eventHandler);
+            navigator = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler
+            });
             scrollingSuggestion = element.querySelector(".scrolling-suggestion") as HTMLAnchorElement;
             
             expect(scrollingSuggestion.style.display).to.equal("none");
