@@ -1,3 +1,5 @@
+import * as BrowserUtilities from "./BrowserUtilities";
+
 export default class EventHandler {
     private pendingMouseEventStart: MouseEvent | null = null;
     private pendingMouseEventEnd: MouseEvent | null = null;
@@ -43,16 +45,12 @@ export default class EventHandler {
         return !!('ontouchstart' in window || navigator.maxTouchPoints);
     }
 
-    private isZoomed() {
-        return (window.innerWidth !== document.documentElement.clientWidth);
-    }
-
     private handleMouseEventStart = (event: MouseEvent): void => {
         this.pendingMouseEventStart = event;
     }
 
     private handleTouchEventStart = (event: TouchEvent): void => {
-        if (this.isZoomed()) {
+        if (BrowserUtilities.isZoomed()) {
             return;
         }
 
@@ -99,7 +97,7 @@ export default class EventHandler {
     }
 
     private handleTouchEventEnd = (event: TouchEvent): void => {
-        if (this.isZoomed()) {
+        if (BrowserUtilities.isZoomed()) {
             return;
         }
 

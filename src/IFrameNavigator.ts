@@ -9,6 +9,7 @@ import Manifest from "./Manifest";
 import { Link } from "./Manifest";
 import BookSettings from "./BookSettings";
 import EventHandler from "./EventHandler";
+import * as BrowserUtilities from "./BrowserUtilities";
 import * as HTMLUtilities from "./HTMLUtilities";
 
 const upLinkTemplate = (href: string, label: string, ariaLabel: string) => `
@@ -810,8 +811,8 @@ export default class IFrameNavigator implements Navigator {
         const fontSizeNumber = parseInt(fontSize.slice(0, -2));
         let sideMargin = fontSizeNumber * 2;
 
-        if (document.documentElement.clientWidth > fontSizeNumber * 45) {
-            const extraMargin = Math.floor((document.documentElement.clientWidth - fontSizeNumber * 40) / 2);
+        if (BrowserUtilities.getWidth() > fontSizeNumber * 45) {
+            const extraMargin = Math.floor((BrowserUtilities.getWidth() - fontSizeNumber * 40) / 2);
             sideMargin = sideMargin + extraMargin;
         }
         if (this.paginator) {
@@ -850,10 +851,10 @@ export default class IFrameNavigator implements Navigator {
         }
 
         if (this.paginator) {
-            this.paginator.height = (document.documentElement.clientHeight - topHeight - bottomHeight - 10);
+            this.paginator.height = (BrowserUtilities.getHeight() - topHeight - bottomHeight - 10);
         }
         if (this.scroller) {
-            this.scroller.height = (document.documentElement.clientHeight - topHeight - bottomHeight - 10);
+            this.scroller.height = (BrowserUtilities.getHeight() - topHeight - bottomHeight - 10);
         }
 
         selectedView.goToPosition(oldPosition);
