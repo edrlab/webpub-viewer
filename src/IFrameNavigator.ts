@@ -58,7 +58,7 @@ const template = `
           <div class="contents-view controls-view inactive" aria-hidden="true"></div>
         </li>
         <li>
-          <button class="settings" aria-labelledby="settings" aria-expanded="false" aria-haspopup="true">
+          <button id="settings-control" class="settings" aria-labelledby="settings" aria-expanded="false" aria-haspopup="true">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 186.47158 186.4716" aria-labelledby="settings" preserveAspectRatio="xMidYMid meet" role="img" class="icon open">
               <title id="settings">Settings</title>
               <path d="M183.29465,117.36676l3.17693-24.131-23.52051-9.17834-4.75089-17.73081,15.78033-19.70844L159.1637,27.30789,136.04194,37.44974,120.145,28.2714,117.36676,3.17693,93.2358,0,84.05746,23.52051,66.32665,28.2714,46.61759,12.49107,27.30789,27.30789,37.44974,50.42966l-9.17834,15.897L3.17693,69.10484,0,93.2358l23.52051,9.17834L28.2714,120.145,12.49107,139.854l14.81682,19.3097,23.12177-10.14185,15.897,9.17834,2.77819,25.09447,24.131,3.17693,9.17834-23.52051L120.145,158.2002l19.70844,15.78033,19.31031-14.81682-10.14185-23.12177,9.17834-15.897ZM93.2358,129.84856A36.61276,36.61276,0,1,1,129.84856,93.2358,36.61267,36.61267,0,0,1,93.2358,129.84856Z"/>
