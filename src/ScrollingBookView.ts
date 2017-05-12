@@ -1,4 +1,5 @@
 import BookView from "./BookView";
+import * as BrowserUtilities from "./BrowserUtilities";
 import * as HTMLUtilities from "./HTMLUtilities";
 
 export default class ScrollingBookView implements BookView {
@@ -12,11 +13,11 @@ export default class ScrollingBookView implements BookView {
     private setIFrameSize(): void {
         // Remove previous iframe height so body scroll height will be accurate.
         this.bookElement.style.height = "";
-        this.bookElement.style.width = window.innerWidth + "px";
+        this.bookElement.style.width = BrowserUtilities.getWidth() + "px";
 
         const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
 
-        body.style.width = (window.innerWidth - this.sideMargin * 2) + "px";
+        body.style.width = (BrowserUtilities.getWidth() - this.sideMargin * 2) + "px";
         body.style.marginLeft = this.sideMargin + "px";
         body.style.marginRight = this.sideMargin + "px";
 
@@ -44,7 +45,7 @@ export default class ScrollingBookView implements BookView {
     }
 
     public atBottom(): boolean {
-        return (document.body.scrollHeight - document.body.scrollTop) === window.innerHeight;
+        return (document.body.scrollHeight - document.body.scrollTop) === BrowserUtilities.getHeight();
     }
 
     public goToPosition(position: number) {

@@ -38,7 +38,7 @@ describe("ColumnsPaginatedBookView", () => {
         });
 
         it("should set iframe and iframe body width and height and column width based on window width and set height", () => {
-            (window as any).innerWidth = 100;
+            (document.documentElement as any).clientWidth = 100;
             paginator.start(0);
             const body = iframe.contentDocument.body;
             expect(iframe.style.height).to.equal("200px");
@@ -50,7 +50,7 @@ describe("ColumnsPaginatedBookView", () => {
         });
 
         it("should set max width and height on image in iframe", () => {
-            (window as any).innderWidth = 100;
+            (document.documentElement as any).clientWidth = 100;
             const body = iframe.contentDocument.body;
             const image  = window.document.createElement("img");
             body.appendChild(image);

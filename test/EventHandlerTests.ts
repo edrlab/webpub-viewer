@@ -93,6 +93,7 @@ describe("EventHandler", () => {
 
         (window as any).devicePixelRatio = 2;
         (window as any).innerWidth = 1024;
+        (document.documentElement as any).clientWidth = 1024;
     });
 
     describe("#setupEvents", () => {
@@ -224,6 +225,16 @@ describe("EventHandler", () => {
                 window.ontouchstart = () => {};
 
                 eventHandler.setupEvents(element);
+            });
+
+            it("should do nothing if the window is zoomed in", async () => {
+                (window as any).innerWidth = 2048;
+                event("touchstart");
+                event("touchend");
+
+                await pause(250);
+
+                expect(onLeftTap.callCount).to.equal(0);
             });
 
             it("should do nothing if there's an end event without a start event", async () => {
