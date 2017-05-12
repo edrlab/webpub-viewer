@@ -21,6 +21,7 @@ describe("EventHandler", () => {
     let span: HTMLSpanElement;
     let link: HTMLAnchorElement;
     let parentLink: HTMLAnchorElement;
+    let linkWithNoHref: HTMLAnchorElement;
 
     let linkClicked: Sinon.SinonStub;
     let parentLinkClicked: Sinon.SinonStub;
@@ -91,6 +92,9 @@ describe("EventHandler", () => {
         parentLink.appendChild(child);
         element.appendChild(parentLink);
 
+        linkWithNoHref = window.document.createElement("a");
+        element.appendChild(linkWithNoHref);
+
         (window as any).devicePixelRatio = 2;
         (window as any).innerWidth = 1024;
         (document.documentElement as any).clientWidth = 1024;
@@ -138,6 +142,15 @@ describe("EventHandler", () => {
                 await pause(250);
 
                 expect(onLeftTap.callCount).to.equal(0);
+            });
+
+            it("should handle single click on a link with no href", async () => {
+                event("mousedown", 10, 0, linkWithNoHref);
+                event("mouseup", 10, 0, linkWithNoHref);
+
+                await pause(250);
+
+                expect(onLeftTap.callCount).to.equal(1);
             });
 
             it("should handle single click on left", async () => {
@@ -331,6 +344,16 @@ describe("EventHandler", () => {
                 expect(onLeftTap.callCount).to.equal(0);
             });
 
+            it("should handle single tap on a link with no href", async () => {
+                event("touchstart", 10, 0, linkWithNoHref);
+                event("touchend", 10, 0, linkWithNoHref);
+
+                await pause(250);
+
+                expect(onLeftTap.callCount).to.equal(1);
+            });
+
+
             it("should handle single tap on left", async () => {
                 event("touchstart", 10);
                 event("touchend", 10);
@@ -431,6 +454,14 @@ describe("EventHandler", () => {
             it("should do nothing on a single click on an internal link", async () => {
                 jsdom.changeURL(window, "http://example.com");
                 event("click", 10, 0, link);
+
+                await pause(250);
+
+                expect(openStub.callCount).to.equal(0);
+            });
+
+            it("should do nothing on a single click on a link with no href", async () => {
+                event("click", 10, 0, linkWithNoHref);
 
                 await pause(250);
 

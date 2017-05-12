@@ -234,7 +234,7 @@ export default class EventHandler {
     private checkForLink = (event: MouseEvent | TouchEvent): HTMLAnchorElement | null => {
         let nextElement = event.target as Element;
         while (nextElement && nextElement.tagName.toLowerCase() !== "body") {
-            if (nextElement.tagName.toLowerCase() === "a") {
+            if (nextElement.tagName.toLowerCase() === "a" && (nextElement as HTMLAnchorElement).href) {
                 return (nextElement as HTMLAnchorElement);
             } else {
                 nextElement = nextElement.parentElement;
