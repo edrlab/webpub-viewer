@@ -10,6 +10,8 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
     public sideMargin: number = 0;
     public height: number = 0;
 
+    protected hasFixedScrollWidth: boolean = false;
+
     public start(position: number): void {
         document.body.style.overflow = "hidden";
         // This prevents overscroll/bouncing on iOS.
@@ -38,7 +40,22 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         if (head) {
             head.appendChild(viewportElement);
         }
+
+        this.checkForFixedScrollWidth();
+
         this.goToPosition(position);
+    }
+
+    protected checkForFixedScrollWidth(): void {
+        // Determine if the scroll width changes when the left position
+        // changes. This differs across browsers and sometimes across
+        // books in the same browser.
+        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as any;
+        const originalLeft = (body.style.left || "0px").slice(0, -2);
+        const originalScrollWidth = body.scrollWidth;
+        body.style.left = (originalLeft - 1) + "px";
+        this.hasFixedScrollWidth = (body.scrollWidth === originalScrollWidth);
+        body.style.left = originalLeft + "px";
     }
 
     private setSize(): void {
@@ -130,17 +147,15 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
     /** Returns the total width of the columns that are currently
         positioned to the right of the iframe viewport. */
     private getRightColumnsWidth(): number {
-        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') !== -1;
-        const isIE = navigator.userAgent.toLowerCase().indexOf('trident') !== -1;
-
         // scrollWidth includes the column in the iframe viewport as well as
         // columns to the right.
         const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
         const scrollWidth = body.scrollWidth;
         const width = this.getColumnWidth();
         let rightWidth = scrollWidth + this.sideMargin - width;
-        if (isFirefox || isIE) {
-            // In Firefox and IE, scrollWidth doesn't change when some columns
+        if (this.hasFixedScrollWidth) {
+            // In some browsers (IE and Firefox with certain books), 
+            // scrollWidth doesn't change when some columns
             // are off to the left, so we need to subtract them.
             const leftWidth = this.getLeftColumnsWidth();
             rightWidth = rightWidth - leftWidth;

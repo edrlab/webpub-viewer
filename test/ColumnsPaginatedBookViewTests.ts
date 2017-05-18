@@ -8,13 +8,21 @@ describe("ColumnsPaginatedBookView", () => {
     let height: number = 200;
     let sideMargin: number = 11;
     let paginator: ColumnsPaginatedBookView;
+    let fixedScrollWidth: boolean;
 
     beforeEach(() => {
         iframe = window.document.createElement("iframe");
         // The element must be in a document for the iframe to have a contentDocument.
         window.document.body.appendChild(iframe);
 
-        paginator = new ColumnsPaginatedBookView();
+        class MockColumnsPaginatedBookView extends ColumnsPaginatedBookView {
+            checkForFixedScrollWidth(): void {
+                this.hasFixedScrollWidth = fixedScrollWidth;
+            }
+        }
+
+        fixedScrollWidth = false;
+        paginator = new MockColumnsPaginatedBookView();
         paginator.bookElement = iframe;
         paginator.sideMargin = sideMargin;
         paginator.height = height;
@@ -92,74 +100,158 @@ describe("ColumnsPaginatedBookView", () => {
     });
 
     describe("#getCurrentPosition", () => {
-        it("should get first page", () => {
-            paginator.start(0);
+        describe("without fixed scroll width", () => {
+            it("should get first page", () => {
+                paginator.start(0);
 
-            iframe.contentDocument.body.style.left = "0px";
-            (iframe.contentDocument.body as any).offsetWidth = 100;
-            (iframe.contentDocument.body as any).scrollWidth = 477;
+                iframe.contentDocument.body.style.left = "0px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 477;
 
-            expect(paginator.getCurrentPosition()).to.equal(0);
+                expect(paginator.getCurrentPosition()).to.equal(0);
+            });
+
+            it("should get middle page", () => {
+                paginator.start(0);
+
+                iframe.contentDocument.body.style.left = "-122px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 355;
+
+                expect(paginator.getCurrentPosition()).to.equal(0.25);
+
+                iframe.contentDocument.body.style.left = "-244px";
+                (iframe.contentDocument.body as any).scrollWidth = 233;
+                expect(paginator.getCurrentPosition()).to.equal(0.5);
+            });
+
+            it("should get last page", () => {
+                paginator.start(0);
+
+                iframe.contentDocument.body.style.left = "-366px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 111;
+
+                expect(paginator.getCurrentPosition()).to.equal(0.75);
+            });
         });
 
-        it("should get middle page", () => {
-            paginator.start(0);
+        describe("with fixed scroll width", () => {
+            beforeEach(() => {
+                fixedScrollWidth = true;
+            });
 
-            iframe.contentDocument.body.style.left = "-122px";
-            (iframe.contentDocument.body as any).offsetWidth = 100;
-            (iframe.contentDocument.body as any).scrollWidth = 355;
+            it("should get first page", () => {
+                paginator.start(0);
 
-            expect(paginator.getCurrentPosition()).to.equal(0.25);
+                iframe.contentDocument.body.style.left = "0px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 477;
 
-            iframe.contentDocument.body.style.left = "-244px";
-            (iframe.contentDocument.body as any).scrollWidth = 233;
-            expect(paginator.getCurrentPosition()).to.equal(0.5);
-        });
+                expect(paginator.getCurrentPosition()).to.equal(0);
+            });
 
-        it("should get last page", () => {
-            paginator.start(0);
+            it("should get middle page", () => {
+                paginator.start(0);
 
-            iframe.contentDocument.body.style.left = "-366px";
-            (iframe.contentDocument.body as any).offsetWidth = 100;
-            (iframe.contentDocument.body as any).scrollWidth = 111;
+                iframe.contentDocument.body.style.left = "-122px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 477;
 
-            expect(paginator.getCurrentPosition()).to.equal(0.75);
+                expect(paginator.getCurrentPosition()).to.equal(0.25);
+
+                iframe.contentDocument.body.style.left = "-244px";
+                (iframe.contentDocument.body as any).scrollWidth = 477;
+                expect(paginator.getCurrentPosition()).to.equal(0.5);
+            });
+
+            it("should get last page", () => {
+                paginator.start(0);
+
+                iframe.contentDocument.body.style.left = "-366px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 477;
+
+                expect(paginator.getCurrentPosition()).to.equal(0.75);
+            });
         });
     });
 
     describe("#getCurrentPage", () => {
-        it("should get first page", () => {
-            paginator.start(0);
+        describe("without fixed scroll width", () => {
+            it("should get first page", () => {
+                paginator.start(0);
 
-            iframe.contentDocument.body.style.left = "0px";
-            (iframe.contentDocument.body as any).offsetWidth = 100;
-            (iframe.contentDocument.body as any).scrollWidth = 477;
+                iframe.contentDocument.body.style.left = "0px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 477;
 
-            expect(paginator.getCurrentPage()).to.equal(1);
+                expect(paginator.getCurrentPage()).to.equal(1);
+            });
+
+            it("should get middle page", () => {
+                paginator.start(0);
+
+                iframe.contentDocument.body.style.left = "-122px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 355;
+
+                expect(paginator.getCurrentPage()).to.equal(2);
+
+                iframe.contentDocument.body.style.left = "-244px";
+                (iframe.contentDocument.body as any).scrollWidth = 233;
+                expect(paginator.getCurrentPage()).to.equal(3);
+            });
+
+            it("should get last page", () => {
+                paginator.start(0);
+
+                iframe.contentDocument.body.style.left = "-366px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 111;
+
+                expect(paginator.getCurrentPage()).to.equal(4);
+            });
         });
 
-        it("should get middle page", () => {
-            paginator.start(0);
+        describe("with fixed scroll width", () => {
+            beforeEach(() => {
+                fixedScrollWidth = true;
+            });
 
-            iframe.contentDocument.body.style.left = "-122px";
-            (iframe.contentDocument.body as any).offsetWidth = 100;
-            (iframe.contentDocument.body as any).scrollWidth = 355;
+            it("should get first page", () => {
+                paginator.start(0);
 
-            expect(paginator.getCurrentPage()).to.equal(2);
+                iframe.contentDocument.body.style.left = "0px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 477;
 
-            iframe.contentDocument.body.style.left = "-244px";
-            (iframe.contentDocument.body as any).scrollWidth = 233;
-            expect(paginator.getCurrentPage()).to.equal(3);
-        });
+                expect(paginator.getCurrentPage()).to.equal(1);
+            });
 
-        it("should get last page", () => {
-            paginator.start(0);
+            it("should get middle page", () => {
+                paginator.start(0);
 
-            iframe.contentDocument.body.style.left = "-366px";
-            (iframe.contentDocument.body as any).offsetWidth = 100;
-            (iframe.contentDocument.body as any).scrollWidth = 111;
+                iframe.contentDocument.body.style.left = "-122px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 477;
 
-            expect(paginator.getCurrentPage()).to.equal(4);
+                expect(paginator.getCurrentPage()).to.equal(2);
+
+                iframe.contentDocument.body.style.left = "-244px";
+                (iframe.contentDocument.body as any).scrollWidth = 477;
+                expect(paginator.getCurrentPage()).to.equal(3);
+            });
+
+            it("should get last page", () => {
+                paginator.start(0);
+
+                iframe.contentDocument.body.style.left = "-366px";
+                (iframe.contentDocument.body as any).offsetWidth = 100;
+                (iframe.contentDocument.body as any).scrollWidth = 477;
+
+                expect(paginator.getCurrentPage()).to.equal(4);
+            });
         });
     });
 
