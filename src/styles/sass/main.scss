@@ -181,6 +181,10 @@ a {
       position: fixed;
       width: 100%;
 
+      &.inactive {
+        height: 0;
+      }
+
       @media (min-width: 30rem) {
         padding-top: 0;
         }
@@ -299,6 +303,10 @@ a {
 
   &.active {
     transition: opacity 300ms cubic-bezier(0, 0.03, 0.63, 0.99);
+  }
+
+  > ul {
+    padding-bottom: 1rem;
   }
 }
 // /controls-view
