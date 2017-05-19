@@ -54,6 +54,19 @@ describe("ScrollingBookView", () => {
             expect(iframe.contentDocument.body.style.marginLeft).to.equal("11px");
             expect(iframe.contentDocument.body.style.marginRight).to.equal("11px");
         });
+
+        it("should set max width and but not height on image in iframe", () => {
+            scroller.sideMargin = 11;
+            scroller.height = 70;
+            (document.documentElement as any).clientWidth = 50;
+            const body = iframe.contentDocument.body;
+            const image  = window.document.createElement("img");
+            body.appendChild(image);
+
+            scroller.start(0);
+            expect(image.style.maxWidth).to.equal("28px");
+            expect(image.style.maxHeight).not.to.be.ok;
+        });
     });
 
     describe("#stop", () => {

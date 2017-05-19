@@ -17,13 +17,19 @@ export default class ScrollingBookView implements BookView {
 
         const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
 
-        body.style.width = (BrowserUtilities.getWidth() - this.sideMargin * 2) + "px";
+        const width = (BrowserUtilities.getWidth() - this.sideMargin * 2) + "px";
+        body.style.width = width;
         body.style.marginLeft = this.sideMargin + "px";
         body.style.marginRight = this.sideMargin + "px";
 
         const minHeight = this.height;
         const bodyHeight = body.scrollHeight;
         this.bookElement.style.height = Math.max(minHeight, bodyHeight) + "px";
+
+        const images = Array.prototype.slice.call(body.querySelectorAll("img"));
+        for (const image of images) {
+            image.style.maxWidth = width;
+        }
     }
 
     public start(position: number): void {
@@ -38,6 +44,11 @@ export default class ScrollingBookView implements BookView {
         body.style.width = "";
         body.style.marginLeft = "";
         body.style.marginRight = "";
+
+        const images = Array.prototype.slice.call(body.querySelectorAll("img"));
+        for (const image of images) {
+            image.style.maxWidth = "";
+        }
     }
 
     public getCurrentPosition(): number {
