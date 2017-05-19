@@ -125,6 +125,18 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         this.bookElement.contentDocument.documentElement.style.height = "";
         this.bookElement.style.height = "";
         this.bookElement.style.width = "";
+
+        const images = body.querySelectorAll("img");
+        for (const image of images) {
+            image.style.maxWidth = "";
+            image.style.maxHeight = "";
+
+            // Without this, an image at the end of a resource can end up
+            // with an extra empty column after it.
+            image.style.display = "";
+            image.style.marginLeft = "";
+            image.style.marginRight = "";
+        }
     }
 
     /** Returns the total width of the columns that are currently
