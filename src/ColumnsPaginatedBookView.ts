@@ -130,9 +130,6 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         for (const image of images) {
             image.style.maxWidth = "";
             image.style.maxHeight = "";
-
-            // Without this, an image at the end of a resource can end up
-            // with an extra empty column after it.
             image.style.display = "";
             image.style.marginLeft = "";
             image.style.marginRight = "";
