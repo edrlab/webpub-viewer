@@ -1163,6 +1163,61 @@ describe("IFrameNavigator", () => {
             expect(saveLastReadingPosition.callCount).to.equal(3);
         });
 
+        it("should navigate to a toc item that points to an anchor in a resource", async () => {
+            const manifest = new Manifest({
+                metadata: {
+                    title: "Title"
+                },
+                spine: [
+                    { href: "item-1.html" },
+                    { href: "item-2.html" } 
+                ],
+                toc: [
+                    { href: "item-1.html" },
+                    { href: "item-2.html#chapter1" },
+                    { href: "item-2.html#chapter2" } 
+                ]
+            }, new URL("http://example.com/manifest.json"));
+            store.set("manifest", JSON.stringify(manifest));
+
+            navigator = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler
+            });
+            const toc = element.querySelector(".contents-view") as HTMLDivElement;
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            expect(iframe.src).to.equal("http://example.com/item-1.html");
+            const contentsControl = element.querySelector("button.contents") as HTMLButtonElement;
+            click(contentsControl);
+
+            const links = toc.querySelectorAll("li > a");
+            const link2 = links[1] as HTMLAnchorElement;
+            const link3 = links[2] as HTMLAnchorElement;
+
+            // Click a link that goes to an anchor in a different resource.
+            click(link2);
+
+            await pause();
+            expect(iframe.src).to.equal("http://example.com/item-2.html");
+            expect(paginatorGoToElement.callCount).to.equal(1);
+            expect(paginatorGoToElement.args[0][0]).to.equal("chapter1");
+
+            // Click a link that goes to another anchor in the same resource.
+            click(link3);
+
+            await pause();
+            expect(iframe.src).to.equal("http://example.com/item-2.html");
+            expect(paginatorGoToElement.callCount).to.equal(2);
+            expect(paginatorGoToElement.args[1][0]).to.equal("chapter2");
+        });
+
         it("should set class on the active toc item", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const toc = element.querySelector(".contents-view") as HTMLDivElement;

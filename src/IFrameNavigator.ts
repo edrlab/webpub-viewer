@@ -956,7 +956,24 @@ export default class IFrameNavigator implements Navigator {
     private navigate(readingPosition: ReadingPosition): void {
         this.showLoadingMessageAfterDelay();
         this.newPosition = readingPosition;
-        this.iframe.src = readingPosition.resource;
+        if (readingPosition.resource.indexOf("#") === -1) {
+            this.iframe.src = readingPosition.resource;
+        } else {
+            // We're navigating to an anchor within the resource,
+            // rather than the resource itself. Go to the resource
+            // first, then go to the anchor.
+            this.newElementId = readingPosition.resource.slice(readingPosition.resource.indexOf("#") + 1)
+
+            const newResource = readingPosition.resource.slice(0, readingPosition.resource.indexOf("#"))
+            if (newResource === this.iframe.src) {
+                // The resource isn't changing, but handle it like a new
+                // iframe load to hide the menus and popups and go to the 
+                // new element.
+                this.handleIFrameLoad();
+            } else {
+                this.iframe.src = newResource;
+            }
+        }
     }
 
     private showLoadingMessageAfterDelay() {
