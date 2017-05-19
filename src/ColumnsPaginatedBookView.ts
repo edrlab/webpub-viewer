@@ -63,7 +63,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         // all the vendor-prefixed attributes.
         const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as any;
 
-        const width = (BrowserUtilities.getWidth() - this.sideMargin * 2) + "px"
+        const width = (BrowserUtilities.getWidth() - this.sideMargin * 2) + "px";
         body.style.columnWidth = width;
         body.style.WebkitColumnWidth = width;
         body.style.MozColumnWidth = width;
@@ -83,7 +83,21 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         const images = body.querySelectorAll("img");
         for (const image of images) {
             image.style.maxWidth = width;
-            image.style.maxHeight = this.height + "px";
+
+            // Determine how much vertical space there is for the image.
+            let nextElement = image;
+            let totalMargins = 0;
+            while (nextElement !== body) {
+                const computedStyle = window.getComputedStyle(nextElement);
+                if (computedStyle.marginTop) {
+                    totalMargins += parseInt(computedStyle.marginTop.slice(0, -2), 10)
+                }
+                if (computedStyle.marginBottom) {
+                    totalMargins += parseInt(computedStyle.marginBottom.slice(0, -2), 10)
+                }
+                nextElement = nextElement.parentElement;
+            }
+            image.style.maxHeight = (this.height - totalMargins) + "px";
 
             // Without this, an image at the end of a resource can end up
             // with an extra empty column after it.
@@ -167,7 +181,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
             // scrollWidth doesn't change when some columns
             // are off to the left, so we need to subtract them.
             const leftWidth = this.getLeftColumnsWidth();
-            rightWidth = rightWidth - leftWidth;
+            rightWidth = Math.max(0, rightWidth - leftWidth);
         }
         
         if (rightWidth === this.sideMargin) {
