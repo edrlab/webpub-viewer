@@ -68,6 +68,26 @@ describe("ColumnsPaginatedBookView", () => {
             expect(image.style.maxHeight).to.equal("200px");
         });
 
+        it("should set max height on image using parent element margins", () => {
+            const body = iframe.contentDocument.body;
+
+            const parent1 = window.document.createElement("p");
+            parent1.style.marginTop = "5px";
+
+            const parent2 = window.document.createElement("span");
+            parent2.style.marginTop = "6px";
+            parent2.style.marginBottom = "3px";
+
+            const image  = window.document.createElement("img");
+
+            parent2.appendChild(image);
+            parent1.appendChild(parent2);
+            body.appendChild(parent1);
+
+            paginator.start(0);
+            expect(image.style.maxHeight).to.equal("186px");
+        });
+
         it("should set initial position to first or last page", () => {
             // Set read-only properties.
             (iframe.contentDocument.body as any).offsetWidth = 100;
