@@ -13,14 +13,6 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
     protected hasFixedScrollWidth: boolean = false;
 
     public start(position: number): void {
-        document.body.style.overflow = "hidden";
-        // This prevents overscroll/bouncing on iOS.
-        document.body.style.position = "fixed";
-        document.body.style.left = "0";
-        document.body.style.right = "0";
-        document.body.style.top = "0";
-        document.body.style.bottom = "0";
-
         // any is necessary because CSSStyleDeclaration type does not include
         // all the vendor-prefixed attributes.
         const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as any;
@@ -44,6 +36,18 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         this.checkForFixedScrollWidth();
 
         this.goToPosition(position);
+
+        // This is delayed to prevent a bug in iOS 10.3 that causes
+        // the top links to be displayed in the middle of the page.
+        setTimeout(() => {
+            document.body.style.overflow = "hidden";
+            // This prevents overscroll/bouncing on iOS.
+            document.body.style.position = "fixed";
+            document.body.style.left = "0";
+            document.body.style.right = "0";
+            document.body.style.top = "0";
+            document.body.style.bottom = "0";
+        }, 0);
     }
 
     protected checkForFixedScrollWidth(): void {
