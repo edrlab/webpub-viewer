@@ -10,6 +10,10 @@ describe("ColumnsPaginatedBookView", () => {
     let paginator: ColumnsPaginatedBookView;
     let fixedScrollWidth: boolean;
 
+    const pause = (ms = 0): Promise<void> => {
+        return new Promise<void>(resolve => setTimeout(resolve, ms));
+    };
+
     beforeEach(() => {
         iframe = window.document.createElement("iframe");
         // The element must be in a document for the iframe to have a contentDocument.
@@ -29,8 +33,9 @@ describe("ColumnsPaginatedBookView", () => {
     });
 
     describe("#start", () => {
-        it("should set up document body to prevent overscroll on ios", () => {
+        it("should set up document body to prevent overscroll on ios", async () => {
             paginator.start(0);
+            await pause();
             expect(document.body.style.overflow).to.equal("hidden");
             expect(document.body.style.position).to.equal("fixed");
         });
