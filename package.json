@@ -1,6 +1,6 @@
 {
   "name": "nypl-simplified-webpub-viewer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "NYPL",
   "description": "A viewer application for web publications.",
   "repository": "https://github.com/NYPL-Simplified/webpub-viewer.git",
