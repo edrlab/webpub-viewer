@@ -1,10 +1,13 @@
 .DS_Store
 *~
 node_modules
-typings
 lib
 dist
 
 #css~sass ignoring
-dist/styles/css/*.css.map
+dist*.css.map
 src/styles/.sass-cache
+
+viewer/webpub-viewer.js
+viewer/sw.js
+viewer/main.css

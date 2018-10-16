@@ -8,10 +8,10 @@
   "main": "src/index.js",
   "typings": "src/index.ts",
   "scripts": {
-    "prepublish": "tsc --p . && tsc --p tsconfig-sw.json && npm run sass",
+    "prepublish": "tsc --p . && tsc --p tsconfig-sw.json && npm run sass && cpx 'dist/*.{css,js}' viewer/",
     "test": "rimraf lib && tsc --p tsconfig-test.json && mocha --require jsdom-global/register --recursive lib/test",
     "clean": "rimraf node_modules lib dist",
-    "sass": "node-sass --source-map true src/styles/sass/ -o dist/styles/css/",
+    "sass": "node-sass --source-map true src/styles/sass/ -o dist/",
     "about": "echo 'Do not update @types/parse5 to version 5 or else it will break jsdom typings!'"
   },
   "dependencies": {
@@ -29,6 +29,7 @@
     "@types/promise-polyfill": "^6.0.0",
     "@types/sinon": "^5.0.1",
     "chai": "^4.1.2",
+    "cpx": "^1.5.0",
     "jsdom": "^9.8.3",
     "jsdom-global": "^2.1.0",
     "mocha": "^5.2.0",
