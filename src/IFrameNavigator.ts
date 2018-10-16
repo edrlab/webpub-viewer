@@ -18,6 +18,11 @@ import EventHandler from "./EventHandler";
 import * as BrowserUtilities from "./BrowserUtilities";
 import * as HTMLUtilities from "./HTMLUtilities";
 
+const epubReadingSystemObject: EpubReadingSystemObject = {
+    name: "Webpub viewer",
+    version: "0.0.4"
+};
+
 const upLinkTemplate = (href: string, label: string, ariaLabel: string) => `
   <a rel="up" href='${href}' aria-label="${ariaLabel}">
     <svg width="16" height="25" viewBox="0 0 16 25" aria-labelledby="up-label" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
@@ -670,6 +675,9 @@ export default class IFrameNavigator implements Navigator {
                 await this.saveCurrentReadingPosition();
             }
             this.hideLoadingMessage();
+
+            ((this.iframe.contentWindow as any).navigator as EpubReadingSystem).epubReadingSystem = epubReadingSystemObject;
+
             return new Promise<void>(resolve => resolve());
         } catch (err) {
             this.errorMessage.style.display = "block";

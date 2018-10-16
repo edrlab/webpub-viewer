@@ -1091,6 +1091,31 @@ describe("IFrameNavigator", () => {
             expect(loading.style.display).to.equal("none");
         });
 
+        it("should change the iframe’s opacity once it is loaded and users settings are applied", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
+
+            // Slow down annotator so the loading message has time to appear.
+            saveLastReadingPosition.returns(new Promise<void>(async (resolve) => {
+                await pause(300);
+                resolve();
+            }));
+
+            iframe.src = "http://example.com/item-1.html";
+            expect(iframe.style.opacity).to.equal("0");
+            await pause(200);
+            expect(iframe.style.opacity).to.equal("1");
+            click(next);
+            expect(iframe.style.opacity).to.equal("0");
+        });
+
+        it("should inject the epubReadingSystem object into the iframe’s window.navigator", async () => {
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem).to.include.all.keys("name", "version");
+            expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem.name).to.equal("Webpub Viewer");
+            expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem.version).to.have.string("0.0.");
+        });
+
         it("should show error message when iframe fails to load", async () => {
             process.on('unhandledRejection', (reason) => {
                 console.log('REJECTION', reason)
