@@ -6,7 +6,6 @@ export * from "./BookSettings";
 export * from "./Navigator";
 export * from "./MemoryStore";
 export * from "./LocalStorageStore";
-export * from "./ApplicationCacheCacher";
 export * from "./ServiceWorkerCacher";
 export * from "./LocalAnnotator";
 export * from "./PaginatedBookView";

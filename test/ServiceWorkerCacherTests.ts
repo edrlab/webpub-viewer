@@ -5,7 +5,6 @@ import * as jsdom from "jsdom";
 import ServiceWorkerCacher from "../src/ServiceWorkerCacher";
 import MemoryStore from "../src/MemoryStore";
 import Manifest from "../src/Manifest";
-import ApplicationCacheCacher from "../src/ApplicationCacheCacher";
 import { CacheStatus } from "../src/Cacher";
 
 describe('ServiceWorkerCacher', () => {
@@ -65,23 +64,6 @@ describe('ServiceWorkerCacher', () => {
             });
             await cacher.enable();
             expect(register.callCount).to.equal(0);
-        });
-
-        it("should fall back to application cache if the Cache API is not supported and fallback URL is provided", async () => {
-            (window as any).caches = null;
-
-            const appCacheEnableStub = stub(ApplicationCacheCacher.prototype, "enable");
-
-            const cacher = new ServiceWorkerCacher({
-                store,
-                manifestUrl: new URL("https://example.com/manifest.json"),
-                fallbackBookCacheUrl: new URL("https://example.com/fallback.html")
-            });
-            await cacher.enable();
-            expect(register.callCount).to.equal(0);
-            expect(appCacheEnableStub.callCount).to.equal(1);
-
-            appCacheEnableStub.restore();
         });
 
         it("should register the service worker", async () => {
@@ -173,24 +155,6 @@ describe('ServiceWorkerCacher', () => {
     });
 
     describe('#onStatusUpdate', () => {
-        it("should fall back to application cache if the Cache API is not supported and fallback URL is provided", async () => {
-            (window as any).caches = null;
-
-            const appCacheOnStatusUpdateStub = stub(ApplicationCacheCacher.prototype, "onStatusUpdate");
-
-            const cacher = new ServiceWorkerCacher({
-                store,
-                manifestUrl: new URL("https://example.com/manifest.json"),
-                fallbackBookCacheUrl: new URL("https://example.com/fallback.html")
-            });
-            const callback = stub();
-            cacher.onStatusUpdate(callback);
-            expect(appCacheOnStatusUpdateStub.callCount).to.equal(1);
-            expect(appCacheOnStatusUpdateStub.args[0][0]).to.equal(callback);
-
-            appCacheOnStatusUpdateStub.restore();
-        });
-
         it("should provide status updates when downloading and when caching is complete", async () => {
             mockCacheAPI("i'm in the cache");
             const manifest = new Manifest({
