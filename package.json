@@ -1,6 +1,6 @@
 {
   "name": "webpub-viewer",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "author": "EDRLab",
   "description": "A viewer application for EPUB files.",
   "repository": "https://github.com/edrlab/webpub-viewer",

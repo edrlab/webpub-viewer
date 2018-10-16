@@ -21,7 +21,7 @@ import * as IconLib from "./IconLib";
 
 const epubReadingSystemObject: EpubReadingSystemObject = {
     name: "Webpub viewer",
-    version: "0.0.4"
+    version: "0.1.0"
 };
 
 const epubReadingSystem = Object.freeze(epubReadingSystemObject);
