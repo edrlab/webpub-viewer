@@ -67,6 +67,30 @@ a {
   width: 0;
 }
 
+.controls-trigger {
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: env(safe-area-inset-top) 0 0;
+  z-index: 10;
+  background-color: $mta-white;
+  color: $mta-green;
+
+  .icon {
+    display: inline-block;
+    color: $mta-green;
+    fill: $mta-green;
+    height: 1.5rem;
+    width: 1.5rem;
+    transition: transform 300ms ease-in-out;
+  }
+
+  .inactive-icon {
+    transition: transform 300ms ease-in-out;
+    transform: rotate(180deg);
+  }
+}
+
 .controls {
   color: $mta-green;
   position: fixed;
@@ -147,8 +171,17 @@ a {
         }
       }
 
+      > li.uplink-wrapper {
+        margin-right: 0;
+      }
+
+      > li.uplink-wrapper + li {
+        margin-right: auto;
+      }
+
       > li:last-child {
         margin-right: 0.625rem;
+        margin-right: 2.85rem;
       }
     } // / .top
 
@@ -264,8 +297,8 @@ a {
   width: 100%;
   height: 100vh;
   z-index: 10;
-  background-color: transparentize($pure-white, 0.1);
-  color: $icon-gray;
+  background-color: transparentize($mta-white, 0.1);
+  color: $mta-gray;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -280,7 +313,7 @@ a {
     width: 5rem;
     height: 5rem;
     transform: translate(-2.5rem, -2.5rem);
-    fill: $icon-gray;
+    fill: $mta-gray;
   }
 }
 
@@ -429,6 +462,16 @@ iframe {
     color: $mta-green;
   }
 
+  .controls-trigger {
+    background: $sepia-mode;
+    color: $mta-green;
+
+    .icon {
+      color: $mta-green;
+      fill: $mta-green;
+    }
+  }
+
   .controls {
     color: $mta-green;
   
@@ -443,7 +486,7 @@ iframe {
 
     &.top {
       background-color: $sepia-mode;
-      border-bottom: 0.0625rem solid $mta-gray;
+      border-bottom: 0.0625rem solid $mta-green;
     }
 
     &.bottom {
@@ -453,7 +496,7 @@ iframe {
   }
 
   .loading {
-    background-color: transparentize($light-cloth, 0.1);
+    background-color: transparentize($sepia-mode, 0.1);
   }
 
   .error {
@@ -471,7 +514,7 @@ iframe {
   }
 
   .info {
-    color: $mta-gray;
+    color: $mta-green;
   }
 
   iframe {
@@ -498,6 +541,16 @@ iframe {
     color: $mta-green;
   }
 
+  .controls-trigger {
+    background: $mta-black;
+    color: invert($mta-green);
+
+    .icon {
+      color: invert($mta-green);
+      fill: invert($mta-green);
+    }
+  }
+
   .controls {
     color: $mta-green;
   
@@ -512,7 +565,7 @@ iframe {
 
     &.top {
       background-color: $mta-black;
-      border-bottom: 0.0625rem solid $mta-gray;
+      border-bottom: 0.0625rem solid $mta-green;
     }
 
     &.bottom {
@@ -546,7 +599,7 @@ iframe {
   }
 
   .info {
-    color: $mta-gray;
+    color: $mta-green;
   }
 
   iframe {

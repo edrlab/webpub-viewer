@@ -389,6 +389,7 @@ describe("IFrameNavigator", () => {
         it("should set element's HTML", async () => {
             expect(element.innerHTML).to.contain("iframe");
             expect(element.innerHTML).to.contain("controls");
+            expect(element.innerHTML).to.contain("controls-trigger");
         });
 
         it("should render the settings controls", async () => {
@@ -914,23 +915,28 @@ describe("IFrameNavigator", () => {
         it("should toggle the navigation links in paginated view", async () => {
             const links = element.querySelector("ul.links.top") as HTMLUListElement;
             const linksBottom = element.querySelector("ul.links.bottom") as HTMLUListElement;
+            const trigger = element.querySelector(".trigger") as HTMLButtonElement;
+            const triggerIcon = trigger.querySelector("svg") as SVGElement;
             
             // Initially, the top navigation links are visible.
             // The bottom links are always hidden in paginated view.
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(triggerIcon.className).to.contain(" inactive");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
-            eventHandler.onMiddleTap(new UIEvent("mouseup"));
+            click(trigger);
             expect(links.className).to.contain(" inactive");
             expect(links.className).not.to.contain(" active");
+            expect(triggerIcon.className).not.to.contain(" inactive");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onMiddleTap(new UIEvent("mouseup"));
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(triggerIcon.className).to.contain(" inactive");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
@@ -938,12 +944,14 @@ describe("IFrameNavigator", () => {
             eventHandler.onLeftTap(new UIEvent("mouseup"));
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(triggerIcon.className).to.contain(" inactive");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
             eventHandler.onRightTap(new UIEvent("mouseup"));
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(triggerIcon.className).to.contain(" inactive");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
         });
@@ -952,6 +960,8 @@ describe("IFrameNavigator", () => {
             const links = element.querySelector("ul.links.top") as HTMLUListElement;
             const linksBottom = element.querySelector("ul.links.bottom") as HTMLUListElement;
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            const trigger = element.querySelector(".trigger") as HTMLButtonElement;
+            const triggerIcon = trigger.querySelector("svg") as SVGElement;
             
             getSelectedView.returns(scroller);
             iframe.src = "http://example.com/item-1.html";
@@ -960,37 +970,48 @@ describe("IFrameNavigator", () => {
             // Initially, the navigation links are visible.
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(triggerIcon.className).to.contain(" inactive");
             expect(linksBottom.className).to.contain(" active");
             expect(linksBottom.className).not.to.contain(" inactive");
 
-            eventHandler.onMiddleTap(new UIEvent("mouseup"));
+            click(trigger);
             expect(links.className).to.contain(" inactive");
             expect(links.className).not.to.contain(" active");
+            expect(triggerIcon.className).not.to.contain(" inactive");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
 
-            eventHandler.onLeftTap(new UIEvent("mouseup"));
+            eventHandler.onMiddleTap(new UIEvent("mouseup")); 
             expect(links.className).to.contain(" active");
             expect(links.className).not.to.contain(" inactive");
+            expect(triggerIcon.className).to.contain(" inactive");
             expect(linksBottom.className).to.contain(" active");
             expect(linksBottom.className).not.to.contain(" inactive");
 
-            eventHandler.onRightTap(new UIEvent("mouseup"));
+            eventHandler.onLeftTap(new UIEvent("mouseup"));
             expect(links.className).to.contain(" inactive");
             expect(links.className).not.to.contain(" active");
+            expect(triggerIcon.className).not.to.contain(" inactive");
             expect(linksBottom.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" active");
+
+            eventHandler.onRightTap(new UIEvent("mouseup")); 
+            expect(links.className).to.contain(" active");
+            expect(links.className).not.to.contain(" inactive");
+            expect(triggerIcon.className).to.contain(" inactive");
+            expect(linksBottom.className).to.contain(" active");
+            expect(linksBottom.className).not.to.contain(" inactive");
 
             // If you're at the bottom, tapping should only toggle the top links.
             scrollerAtBottom.returns(true);
             linksBottom.className = "links bottom active";
 
             eventHandler.onMiddleTap(new UIEvent("mouseup"));
-            expect(links.className).not.to.contain(" inactive");
+            expect(links.className).to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" inactive");
 
             eventHandler.onLeftTap(new UIEvent("mouseup"));
-            expect(links.className).to.contain(" inactive");
+            expect(links.className).not.to.contain(" inactive");
             expect(linksBottom.className).not.to.contain(" inactive");
         });
 

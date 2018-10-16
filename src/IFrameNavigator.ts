@@ -38,6 +38,11 @@ const upLinkTemplate = (href: string, label: string, ariaLabel: string) => `
 
 const template = `
   <nav class="publication">
+    <div class="controls-trigger">
+      <button class="trigger" aria-haspopup="true" aria-expanded="true">
+        ${IconLib.icons.menu}
+      </button>
+    </div>
     <div class="controls">
         ${IconLib.icons.closeOriginal}
         ${IconLib.icons.checkOriginal}
@@ -163,6 +168,7 @@ export default class IFrameNavigator implements Navigator {
     private fullscreen: HTMLButtonElement | null = null;
     private nextChapterLink: HTMLAnchorElement;
     private previousChapterLink: HTMLAnchorElement;
+    private menuControl: HTMLButtonElement;
     private contentsControl: HTMLButtonElement;
     private settingsControl: HTMLButtonElement;
     private links: HTMLUListElement;
@@ -255,6 +261,7 @@ export default class IFrameNavigator implements Navigator {
             this.bookTitle = HTMLUtilities.findRequiredElement(this.infoTop, "span[class=book-title]") as HTMLSpanElement;
             this.chapterTitle = HTMLUtilities.findRequiredElement(this.infoBottom, "span[class=chapter-title]") as HTMLSpanElement;
             this.chapterPosition = HTMLUtilities.findRequiredElement(this.infoBottom, "span[class=chapter-position]") as HTMLSpanElement;
+            this.menuControl = HTMLUtilities.findRequiredElement(element, "button.trigger") as HTMLButtonElement;
             this.newPosition = null;
             this.newElementId = null;
             this.isBeingStyled = true;
@@ -336,6 +343,8 @@ export default class IFrameNavigator implements Navigator {
         this.settingsView.addEventListener("click", this.handleToggleLinksClick.bind(this));
 
         this.tryAgainButton.addEventListener("click", this.tryAgain.bind(this));
+
+        this.menuControl.addEventListener("click", this.handleToggleLinksClick.bind(this));
 
         this.contentsControl.addEventListener("keydown", this.hideTOCOnEscape.bind(this));
 
@@ -572,6 +581,7 @@ export default class IFrameNavigator implements Navigator {
             const upAriaLabel = this.upLinkConfig.ariaLabel || upLabel;
             const upHTML = upLinkTemplate(upUrl.href, upLabel, upAriaLabel);
             const upParent : HTMLLIElement = document.createElement("li");
+            upParent.classList.add("uplink-wrapper");
             upParent.innerHTML = upHTML;
             this.links.insertBefore(upParent, this.links.firstChild);
             this.upLink = HTMLUtilities.findRequiredElement(this.links, "a[rel=up]") as HTMLAnchorElement;
@@ -889,7 +899,7 @@ export default class IFrameNavigator implements Navigator {
     private handleToggleLinksClick(event: MouseEvent | TouchEvent): void {
         this.hideTOC();
         this.hideSettings();
-        this.toggleDisplay(this.links);
+        this.toggleDisplay(this.links, this.menuControl);
         if (this.settings.getSelectedView() === this.scroller) {
             if (!this.scroller.atBottom()) {
                 this.toggleDisplay(this.linksBottom);
