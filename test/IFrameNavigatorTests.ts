@@ -1439,11 +1439,31 @@ describe("IFrameNavigator", () => {
             expect(iframe.style.opacity).to.equal("0");
         });
 
-        it("should inject the epubReadingSystem object into the iframe’s window.navigator", async () => {
+        it("should inject the readonly epubReadingSystem object into the iframe’s window.navigator", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem).to.include.all.keys("name", "version");
             expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem.name).to.equal("Webpub viewer");
-            expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem.version).to.have.string("0.0.");
+            expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem.version).to.have.string("0.");
+
+            let err = "error";
+
+            try {
+                ((iframe.contentWindow as any).navigator as any).epubReadingSystem = {};
+            } catch (_err) {
+                err = _err;
+            }
+
+            expect(err).to.be.an.instanceOf(TypeError);
+            expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem).to.include.all.keys("name", "version");
+
+            try {
+                ((iframe.contentWindow as any).navigator as any).epubReadingSystem.name = "";
+            } catch (_err) {
+                err = _err;
+            }
+
+            expect(err).to.be.an.instanceOf(TypeError);
+            expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem.name).to.equal("Webpub viewer");
         });
 
         it("should show error message when iframe fails to load", async () => {

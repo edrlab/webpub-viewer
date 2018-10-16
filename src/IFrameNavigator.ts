@@ -24,6 +24,8 @@ const epubReadingSystemObject: EpubReadingSystemObject = {
     version: "0.0.4"
 };
 
+const epubReadingSystem = Object.freeze(epubReadingSystemObject);
+
 const upLinkTemplate = (href: string, label: string, ariaLabel: string) => `
   <a rel="up" href='${href}' aria-label="${ariaLabel}">
     <svg xmlns="http://www.w3.org/2000/svg" width="${IconLib.WIDTH_ATTR}" height="${IconLib.HEIGHT_ATTR}" viewBox="${IconLib.VIEWBOX_ATTR}" aria-labelledby="up-label" preserveAspectRatio="xMidYMid meet" role="img" class="icon">
@@ -710,7 +712,7 @@ export default class IFrameNavigator implements Navigator {
             this.hideLoadingMessage();
             this.showIframeContents();
 
-            ((this.iframe.contentWindow as any).navigator as EpubReadingSystem).epubReadingSystem = epubReadingSystemObject;
+            Object.defineProperty(((this.iframe.contentWindow as any).navigator as EpubReadingSystem), "epubReadingSystem", {value: epubReadingSystem, writable: false});
 
             return new Promise<void>(resolve => resolve());
         } catch (err) {
