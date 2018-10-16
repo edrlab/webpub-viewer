@@ -15,6 +15,7 @@ describe("EventHandler", () => {
     let onLeftHover: sinon.SinonStub;
     let onRightHover: sinon.SinonStub;
     let onRemoveHover: sinon.SinonStub;
+    let onInternalLink: sinon.SinonStub;
 
     let faultyIframe: null;
     let element: HTMLElement;
@@ -23,9 +24,11 @@ describe("EventHandler", () => {
     let link: HTMLAnchorElement;
     let parentLink: HTMLAnchorElement;
     let linkWithNoHref: HTMLAnchorElement;
+    let internalLink: HTMLAnchorElement;
 
     let linkClicked: sinon.SinonStub;
     let parentLinkClicked: sinon.SinonStub;
+    let internalLinkClicked: sinon.SinonStub;
 
     const event = (type: string, x: number = 0, y: number = 0, target: HTMLElement = div) => {
         const event = document.createEvent("UIEvent") as any;
@@ -57,6 +60,7 @@ describe("EventHandler", () => {
         onLeftHover = stub();
         onRightHover = stub();
         onRemoveHover = stub();
+        onInternalLink = stub();
 
         eventHandler.onLeftTap = onLeftTap;
         eventHandler.onMiddleTap = onMiddleTap;
@@ -66,6 +70,7 @@ describe("EventHandler", () => {
         eventHandler.onLeftHover = onLeftHover;
         eventHandler.onRightHover = onRightHover;
         eventHandler.onRemoveHover = onRemoveHover;
+        eventHandler.onInternalLink = onInternalLink;
 
         element = window.document.createElement("div");
 
@@ -95,6 +100,15 @@ describe("EventHandler", () => {
 
         linkWithNoHref = window.document.createElement("a");
         element.appendChild(linkWithNoHref);
+
+        internalLink = window.document.createElement("a");
+        internalLink.href = "http://example.com#id";
+        link.protocol = "http";
+        link.port = "";
+        link.hostname = "example.com";
+        internalLinkClicked = stub();
+        internalLink.addEventListener("click", internalLinkClicked);
+        element.appendChild(internalLink);
 
         (window as any).devicePixelRatio = 2;
         (window as any).innerWidth = 1024;
@@ -460,13 +474,22 @@ describe("EventHandler", () => {
                 expect(openStub.args[0][0]).to.equal(link.href);
             });
 
-            it("should do nothing on a single click on an internal link", async () => {
+            it("should do nothing on a single click on an internal link without a #fragment", async () => {
                 jsdom.changeURL(window, "http://example.com");
                 event("click", 10, 0, link);
 
                 await pause(250);
 
                 expect(openStub.callCount).to.equal(0);
+            });
+
+            it("should handle a single click on an internal link with a #fragment", async () => {
+                event("click", 10, 0, internalLink);
+
+                await pause(250);
+
+                expect(openStub.callCount).to.equal(0);
+                expect(onInternalLink.callCount).to.equal(1);
             });
 
             it("should do nothing on a single click on a link with no href", async () => {

@@ -16,12 +16,12 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         // any is necessary because CSSStyleDeclaration type does not include
         // all the vendor-prefixed attributes.
         const body = HTMLUtilities.findRequiredIframeElement(this.bookElement.contentDocument, "body") as any;
-        body.style.columnCount = 1;
-        body.style.webkitColumnCount = 1;
-        body.style.MozColumnCount = 1;
-        body.style.columnFill = "auto";
+        body.style.webkitColumnCount = "1";
+        body.style.MozColumnCount = "1";
+        body.style.columnCount = "1";
         body.style.webkitColumnFill = "auto";
         body.style.MozColumnFill = "auto";
+        body.style.columnFill = "auto";
         body.style.overflow = "hidden";
         body.style.position = "relative";
         body.style.webkitFontSmoothing = "subpixel-antialiased";
@@ -87,7 +87,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
 
         const images = body.querySelectorAll("img");
         for (const image of images) {
-            image.style.maxWidth = width;
+            image.style.maxWidth = "100%";
 
             // Determine how much vertical space there is for the image.
             let nextElement = image;
@@ -106,9 +106,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
 
             // Without this, an image at the end of a resource can end up
             // with an extra empty column after it.
-            image.style.display = "block";
-            image.style.marginLeft = "auto";
-            image.style.marginRight = "auto";
+            image.style.verticalAlign = "top";
         }
     }
 
@@ -291,8 +289,8 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
 
         // Round the new left width so it's a multiple of the column width.
 
-        let roundedLeftWidth = Math.floor(newLeftWidth / width) * width;
-        if (roundedLeftWidth === totalWidth) {
+        let roundedLeftWidth = Math.round(newLeftWidth / width) * width;
+        if (roundedLeftWidth >= totalWidth) {
             // We've gone too far and all the columns are off to the left.
             // Move one column back into the viewport.
             roundedLeftWidth = roundedLeftWidth - width;
@@ -300,7 +298,7 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         this.setLeftColumnsWidth(roundedLeftWidth);
     }
 
-    public goToElement(elementId: string) {
+    public goToElement(elementId: string, relative?: boolean) {
         const element = (this.bookElement.contentDocument as any).getElementById(elementId);
         if (element) {
             // Get the element's position in the iframe, and
@@ -315,7 +313,11 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
 
             const left = element.getBoundingClientRect().left;
             const width = this.getColumnWidth();
-            const roundedLeftWidth = Math.floor(left / width) * width;
+            let roundedLeftWidth = Math.floor(left / width) * width;
+            if (relative) {
+                const origin = this.getLeftColumnsWidth();
+                roundedLeftWidth = (Math.floor(left / width) * width) + origin;
+            }
 
             // Restore element's original height.
             element.style.height = originalHeight;

@@ -16,6 +16,8 @@ export default class EventHandler {
     public onRightHover: () => void = () => {};
     public onRemoveHover: () => void = () => {};
 
+    public onInternalLink: (event: UIEvent) => void = () => {};
+
     private static readonly CLICK_PIXEL_TOLERANCE = 10;
     private static readonly TAP_PIXEL_TOLERANCE = 10;
     private static readonly DOUBLE_CLICK_MS = 200;
@@ -25,28 +27,21 @@ export default class EventHandler {
 
     public setupEvents(element: HTMLElement | Document | null) {
         if (element !== null) {
-            if (this.isTouchDevice()) {
-                element.addEventListener("touchstart", this.handleTouchEventStart.bind(this));
-                element.addEventListener("touchend", this.handleTouchEventEnd.bind(this));
-            } else {
-                element.addEventListener("mousedown", this.handleMouseEventStart.bind(this));
-                element.addEventListener("mouseup", this.handleMouseEventEnd.bind(this));
-                element.addEventListener("mouseenter", this.handleMouseMove.bind(this));
-                element.addEventListener("mousemove", this.handleMouseMove.bind(this));
-                element.addEventListener("mouseleave", this.handleMouseLeave.bind(this));
-            }
+            element.addEventListener("touchstart", this.handleTouchEventStart.bind(this));
+            element.addEventListener("touchend", this.handleTouchEventEnd.bind(this));
+            element.addEventListener("mousedown", this.handleMouseEventStart.bind(this));
+            element.addEventListener("mouseup", this.handleMouseEventEnd.bind(this));
+            element.addEventListener("mouseenter", this.handleMouseMove.bind(this));
+            element.addEventListener("mousemove", this.handleMouseMove.bind(this));
+            element.addEventListener("mouseleave", this.handleMouseLeave.bind(this));
 
             // Most click handling is done in the touchend and mouseup event handlers,
             // but if there's a click on an external link we need to cancel the click
             // event to prevent it from opening in the iframe.
-            element.addEventListener("click", this.handleExternalLinks.bind(this));
+            element.addEventListener("click", this.handleLinks.bind(this));
         } else {
             throw "cannot setup events for null";
         }
-    }
-
-    private isTouchDevice() {
-        return !!('ontouchstart' in window || navigator.maxTouchPoints);
     }
 
     private handleMouseEventStart = (event: MouseEvent): void => {
@@ -101,6 +96,7 @@ export default class EventHandler {
     }
 
     private handleTouchEventEnd = (event: TouchEvent): void => {
+        event.preventDefault();
         if (BrowserUtilities.isZoomed()) {
             return;
         }
@@ -210,6 +206,8 @@ export default class EventHandler {
         }
 
         if (this.checkForLink(this.pendingTouchEventEnd)) {
+            this.handleLinks(this.pendingTouchEventEnd);
+            
             // This was a single tap on a link. Do nothing.
             this.pendingTouchEventEnd = null;
             return;
@@ -263,7 +261,7 @@ export default class EventHandler {
         this.onRemoveHover();
     }
 
-    private handleExternalLinks = (event: MouseEvent | TouchEvent) : void => {
+    private handleLinks = (event: MouseEvent | TouchEvent) : void => {
         const link = this.checkForLink(event);
         if (link) {
             // Open external links in new tabs.
@@ -272,10 +270,15 @@ export default class EventHandler {
                 window.location.port === link.port &&
                 window.location.hostname === link.hostname
             );
+            const isInternal = (link.href.indexOf("#"));
             if (!isSameOrigin) {
                 window.open(link.href, "_blank");
                 event.preventDefault();
                 event.stopPropagation();
+            } else if (isSameOrigin && isInternal !== -1) {
+                this.onInternalLink(event);
+            } else if (isSameOrigin && isInternal === -1) {
+                link.click();
             }
         }
     }

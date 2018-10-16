@@ -366,11 +366,15 @@ a {
   .chapter-position,
   .chapter-title {
     font-size: 0.85rem;
+    font-variant-numeric: lining-nums tabular-nums;
   }
 }
 // /info
 
 iframe {
+  opacity: 0;
+//  transition: opacity 100ms ease-in; /* This forces relayout, which makes the TOC flash */
+
   &.left-hover {
     background: linear-gradient(to right, $transparent-mta-gray, $transparent-mta-gray 28%, $mta-white 30%, $mta-white);
   }

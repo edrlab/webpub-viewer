@@ -534,47 +534,6 @@ describe("IFrameNavigator", () => {
             expect(linksBottom.className).not.to.contain(" inactive");
         });
 
-        it("should give the settings a function to call when the font size changes", async () => {
-            // If the window is wide enough, the view gets a large margin.
-            // This should've been set before the test started.
-            expect(document.documentElement.clientWidth).to.equal(1024);
-
-            expect(onFontSizeChange.callCount).to.equal(1);
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-
-            await pause();
-            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("14px");
-            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(260);
-
-            const updateFontSize = onFontSizeChange.args[0][0];
-
-            getSelectedFontSize.returns("16px");
-            updateFontSize();
-
-            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("16px");
-            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(224);
-            expect(paginatorGoToPosition.callCount).to.equal(2);
-
-            // If the window is small, the view gets a smaller margin, but still based
-            // on the font size.
-            (document.documentElement as any).clientWidth = 100;
-
-            getSelectedFontSize.returns("14px");
-            updateFontSize();
-            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("14px");
-            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(28);
-
-            getSelectedFontSize.returns("16px");
-            updateFontSize();
-
-            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("16px");
-            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(32);
-        });
-
         it("should render the cache status", () => {
            expect(onStatusUpdate.callCount).to.equal(1);
            const callback = onStatusUpdate.args[0][0];
@@ -1041,7 +1000,12 @@ describe("IFrameNavigator", () => {
         it("should maintain paginator position when window is resized", async () => {
             expect(paginatorGoToPosition.callCount).to.equal(2);
             window.dispatchEvent(new Event('resize'));
-            expect(paginatorGoToPosition.callCount).to.equal(3);
+            await pause(200);
+
+            // Note we’re debouncing so the function will be called x times
+            // but ignored until the delay, which is why we can’t know exactly
+            // how many times it will be. So we just check it’s > 2
+            expect(paginatorGoToPosition.callCount).to.be.greaterThan(2);
             expect(paginatorGoToPosition.args[0][0]).to.equal(0.25);
         });
 
@@ -1049,6 +1013,7 @@ describe("IFrameNavigator", () => {
             const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
             paginatorCurrentPage = 3;
             window.dispatchEvent(new Event('resize'));
+            await pause(200);
             expect(chapterPosition.innerHTML).to.equal("Page 3 of 8");
         });
 
@@ -1112,15 +1077,11 @@ describe("IFrameNavigator", () => {
         it("should inject the epubReadingSystem object into the iframe’s window.navigator", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem).to.include.all.keys("name", "version");
-            expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem.name).to.equal("Webpub Viewer");
+            expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem.name).to.equal("Webpub viewer");
             expect(((iframe.contentWindow as any).navigator as any).epubReadingSystem.version).to.have.string("0.0.");
         });
 
         it("should show error message when iframe fails to load", async () => {
-            process.on('unhandledRejection', (reason) => {
-                console.log('REJECTION', reason)
-            })
-            
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const error = element.querySelector("div[class=error]") as HTMLDivElement;
             const tryAgain = element.querySelector(".try-again") as HTMLButtonElement;

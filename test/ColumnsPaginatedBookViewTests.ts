@@ -43,11 +43,17 @@ describe("ColumnsPaginatedBookView", () => {
         it("should set up columns on the iframe body", () => {
             paginator.start(0);
             const body = (iframe.contentDocument as any).body as any;
-            expect(body.style.columnCount).to.equal(1);
-            expect(body.style.WebkitColumnCount).to.equal(1);
-            expect(body.style.MozColumnCount).to.equal(1);
+            expect(body.style.webkitColumnCount).to.equal("1");
+            expect(body.style.MozColumnCount).to.equal("1");
+            expect(body.style.columnCount).to.equal("1");
             expect(body.style.overflow).to.equal("hidden");
             expect(body.style.position).to.equal("relative");
+        });
+
+        it("should normalize font-smoothing to subpixel-antialiased", () => {
+            paginator.start(0);
+            const body = (iframe.contentDocument as any).body;
+            expect(body.style.webkitFontSmoothing).to.equal("subpixel-antialiased");
         });
 
         it("should set iframe and iframe body width and height and column width based on window width and set height", () => {
@@ -69,7 +75,7 @@ describe("ColumnsPaginatedBookView", () => {
             body.appendChild(image);
 
             paginator.start(0);
-            expect(image.style.maxWidth).to.equal("78px");
+            expect(image.style.maxWidth).to.equal("100%");
             expect(image.style.maxHeight).to.equal("200px");
         });
 
@@ -419,7 +425,7 @@ describe("ColumnsPaginatedBookView", () => {
             expect((iframe.contentDocument as any).body.style.left).to.equal("0px");
         });
 
-        it("should round down if going to a position between pages", () => {
+        it("should round if going to a position between pages", () => {
             paginator.start(0);
 
             (iframe.contentDocument as any).body.style.left = "0px";
@@ -427,10 +433,10 @@ describe("ColumnsPaginatedBookView", () => {
             ((iframe.contentDocument as any).body as any).scrollWidth = 477;
 
             paginator.goToPosition(0.2);
-            expect((iframe.contentDocument as any).body.style.left).to.equal("0px");
-
-            paginator.goToPosition(0.3);
             expect((iframe.contentDocument as any).body.style.left).to.equal("-122px");
+
+            paginator.goToPosition(0.95);
+            expect((iframe.contentDocument as any).body.style.left).to.equal("-366px");
         });
     });
 
@@ -489,6 +495,21 @@ describe("ColumnsPaginatedBookView", () => {
 
             paginator.goToElement("element");
             expect((iframe.contentDocument as any).body.style.left).to.equal("-366px");
+        });
+
+        it("should go to element relative to the current position", () => {
+            paginator.start(0);
+
+            const element = document.createElement("a");
+            element.id = "element";
+            element.getBoundingClientRect = stub().returns({ left: 488 });
+            (iframe.contentDocument as any).body.appendChild(element);
+            (iframe.contentDocument as any).body.style.left = "-244px";
+            ((iframe.contentDocument as any).body as any).offsetWidth = 100;
+            ((iframe.contentDocument as any).body as any).scrollWidth = 477;
+
+            paginator.goToElement("element", true);
+            expect((iframe.contentDocument as any).body.style.left).to.equal("-732px");
         });
     });
 });

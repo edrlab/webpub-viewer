@@ -196,6 +196,7 @@ export default class IFrameNavigator implements Navigator {
     private chapterPosition: HTMLSpanElement;
     private newPosition: ReadingPosition | null;
     private newElementId: string | null;
+    private isBeingStyled: boolean;
     private isLoading: boolean;
 
     public static async create(config: IFrameNavigatorConfig) {
@@ -269,6 +270,7 @@ export default class IFrameNavigator implements Navigator {
             this.chapterPosition = HTMLUtilities.findRequiredElement(this.infoBottom, "span[class=chapter-position]") as HTMLSpanElement;
             this.newPosition = null;
             this.newElementId = null;
+            this.isBeingStyled = true;
             this.isLoading = true;
             this.setupEvents();
 
@@ -319,14 +321,20 @@ export default class IFrameNavigator implements Navigator {
         } catch (err) {
             // There's a mismatch between the template and the selectors above,
             // or we weren't able to insert the template in the element.
-            return new Promise<void>((_, reject) => reject(err));
+            return new Promise<void>((_, reject) => reject(err)).catch(() => {});
         }
     }
 
     private setupEvents(): void {
         this.iframe.addEventListener("load", this.handleIFrameLoad.bind(this));
 
-        window.onresize = this.handleResize.bind(this);
+        const delay: number = 200;
+        let timeout: any;
+
+        window.addEventListener('resize', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(this.handleResize.bind(this), delay);
+        });
 
         this.previousChapterLink.addEventListener("click", this.handlePreviousChapterClick.bind(this));
 
@@ -404,6 +412,7 @@ export default class IFrameNavigator implements Navigator {
                 this.eventHandler.onLeftHover = this.handleLeftHover.bind(this);
                 this.eventHandler.onRightHover = this.handleRightHover.bind(this);
                 this.eventHandler.onRemoveHover = this.handleRemoveHover.bind(this);
+                this.eventHandler.onInternalLink = this.handleInternalLink.bind(this);
             }
             if (this.isDisplayed(this.linksBottom)) {
                 this.toggleDisplay(this.linksBottom);
@@ -437,6 +446,7 @@ export default class IFrameNavigator implements Navigator {
                 this.eventHandler.onLeftHover = doNothing;
                 this.eventHandler.onRightHover = doNothing;
                 this.eventHandler.onRemoveHover = doNothing;
+                this.eventHandler.onInternalLink = doNothing;
                 this.handleRemoveHover();
             }
             if (this.isDisplayed(this.links) && !this.isDisplayed(this.linksBottom)) {
@@ -675,13 +685,14 @@ export default class IFrameNavigator implements Navigator {
                 await this.saveCurrentReadingPosition();
             }
             this.hideLoadingMessage();
+            this.showIframeContents();
 
             ((this.iframe.contentWindow as any).navigator as EpubReadingSystem).epubReadingSystem = epubReadingSystemObject;
 
             return new Promise<void>(resolve => resolve());
         } catch (err) {
             this.errorMessage.style.display = "block";
-            return new Promise<void>((_, reject) => reject());
+            return new Promise<void>((_, reject) => reject(err)).catch(() => {});
         }
     }
 
@@ -876,6 +887,26 @@ export default class IFrameNavigator implements Navigator {
         this.iframe.className = "";
     }
 
+    private handleInternalLink(event: MouseEvent | TouchEvent) {
+        const element = event.target;
+
+        let currentLocation = this.iframe.src.split("#")[0];
+        if (this.iframe.contentDocument && this.iframe.contentDocument.location && this.iframe.contentDocument.location.href) {
+            currentLocation = this.iframe.contentDocument.location.href.split("#")[0];
+        }
+
+        if (element && (element as HTMLElement).tagName.toLowerCase() === "a") {
+            if ((element as HTMLAnchorElement).href.split("#")[0] === currentLocation) {
+                const elementId = (element as HTMLAnchorElement).href.split("#")[1];
+                this.settings.getSelectedView().goToElement(elementId, true);
+                this.updatePositionInfo();
+                this.saveCurrentReadingPosition();
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }
+    }
+
     private handleResize(): void {
         const selectedView = this.settings.getSelectedView();
         const oldPosition = selectedView.getCurrentPosition();
@@ -884,6 +915,12 @@ export default class IFrameNavigator implements Navigator {
         const body = HTMLUtilities.findRequiredIframeElement(this.iframe.contentDocument, "body") as HTMLBodyElement;
         body.style.fontSize = fontSize;
         body.style.lineHeight = "1.5";
+
+        // Disable text selection as we can’t handle this correctly anyway
+        body.style.webkitUserSelect = "none";
+        (body as any).style.MozUserSelect = "none";
+        body.style.msUserSelect = "none";
+        body.style.userSelect = "none";
 
         const fontSizeNumber = parseInt(fontSize.slice(0, -2));
         let sideMargin = fontSizeNumber * 2;
@@ -1031,6 +1068,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private navigate(readingPosition: ReadingPosition): void {
+        this.hideIframeContents();
         this.showLoadingMessageAfterDelay();
         this.newPosition = readingPosition;
         if (readingPosition.resource.indexOf("#") === -1) {
@@ -1053,6 +1091,16 @@ export default class IFrameNavigator implements Navigator {
         }
     }
 
+    private showIframeContents() {
+        this.isBeingStyled = false;
+        // We set a timeOut so that settings can be applied when opacity is still 0
+        setTimeout(() => {
+            if (!this.isBeingStyled) {
+                this.iframe.style.opacity = "1";
+            }
+        }, 150);
+    }
+
     private showLoadingMessageAfterDelay() {
         this.isLoading = true;
         setTimeout(() => {
@@ -1060,6 +1108,11 @@ export default class IFrameNavigator implements Navigator {
                 this.loadingMessage.style.display = "block";
             }
         }, 200);
+    }
+
+    private hideIframeContents() {
+        this.isBeingStyled = true;
+        this.iframe.style.opacity = "0";
     }
 
     private hideLoadingMessage() {
