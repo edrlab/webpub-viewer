@@ -76,6 +76,8 @@ describe("IFrameNavigator", () => {
     let setupEvents: sinon.SinonStub;
     let eventHandler: EventHandler;
 
+    let onFullScreenChange: sinon.SinonStub;
+
     let element: HTMLElement;
     let navigator: IFrameNavigator;
 
@@ -345,6 +347,8 @@ describe("IFrameNavigator", () => {
 
         setupEvents = stub();
         eventHandler = new MockEventHandler();
+
+        onFullScreenChange = stub();
 
         const window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
@@ -720,6 +724,127 @@ describe("IFrameNavigator", () => {
             expect(upLink.href).to.equal("http://up.com/");
             expect(upLink.innerHTML).to.contain("Up Text");
             expect(upLink.getAttribute("aria-label")).to.equal("Up Text");
+        });
+
+        it("should enable the fullscreen mode if supported and configured", async () => {
+            let noFsm = element.querySelector(".fullscreen");
+            // The button isn't created if it's not configured.
+            expect(noFsm).not.to.be.ok;
+
+            // Let’s force the value to be null to simulate no support
+            Object.defineProperty(document, "fullscreenEnabled", {
+                value: null,
+                writable: true
+            });
+
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                settings,
+                annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
+                paginator,
+                scroller,
+                eventHandler,
+                allowFullscreen: true
+            });
+            
+            noFsm = element.querySelector(".fullscreen");
+            // The button isn't created if it's not supported.
+            expect(noFsm).not.to.be.ok;
+
+            // Let’s force the value to be true to simulate support
+            Object.defineProperty(document, "webkitFullscreenEnabled", {
+                value: true
+            });
+
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                settings,
+                annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
+                paginator,
+                scroller,
+                eventHandler,
+                allowFullscreen: true
+            });
+            
+            const fsm = element.querySelector(".fullscreen") as HTMLButtonElement;
+            expect(fsm).to.be.ok;
+        });
+
+        it("should go into fullscreen mode and exit it", async () => {
+
+            // Mocking Fullscreen API properties
+
+            Object.defineProperties(document, {
+                "fullscreenEnabled": {
+                    value: true
+                },
+                "fullscreenElement": {
+                    // On launch, this will always be null
+                    value: null,
+                    writable: true
+                }
+            });
+
+            // Mocking Fullscreen API methods (/!\ Tied to our own toggleFullscreen() implementation)
+
+            document.documentElement.requestFullscreen = () => {
+                document.dispatchEvent(new Event("fullscreenchange"));
+                return onFullScreenChange();
+            }
+            document.exitFullscreen = () => {
+                document.dispatchEvent(new Event("fullscreenchange"));
+                return onFullScreenChange();
+            }
+
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                settings,
+                annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
+                paginator,
+                scroller,
+                eventHandler,
+                allowFullscreen: true
+            });
+            
+            const fsm = element.querySelector(".fullscreen") as HTMLButtonElement;
+            expect(fsm).to.be.ok;
+
+            let fsmIcon = fsm.querySelector(".active-icon") as SVGElement;
+            expect(fsmIcon.getAttribute("aria-labelledby")).to.contain("expand-icon");
+
+            click(fsm);
+            fsmIcon = fsm.querySelector(".active-icon") as SVGElement;
+            expect(fsmIcon.getAttribute("aria-labelledby")).to.contain("minimize-icon");
+            expect(onFullScreenChange.callCount).to.equal(1);
+
+            click(fsm);
+            fsmIcon = fsm.querySelector(".active-icon") as SVGElement;
+            expect(fsmIcon.getAttribute("aria-labelledby")).to.contain("expand-icon");
+            expect(onFullScreenChange.callCount).to.equal(2);
         });
 
         it("should navigate to the previous spine item", async () => {

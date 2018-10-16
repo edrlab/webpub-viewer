@@ -134,6 +134,7 @@ export interface IFrameNavigatorConfig {
     scroller?: ScrollingBookView;
     eventHandler?: EventHandler;
     upLink?:  UpLinkConfig;
+    allowFullscreen?: boolean;
 }
 
 /** Class that shows webpub resources in an iframe, with navigation controls outside the iframe. */
@@ -153,9 +154,11 @@ export default class IFrameNavigator implements Navigator {
     private scroller: ScrollingBookView | null;
     private eventHandler: EventHandler;
     private upLinkConfig: UpLinkConfig | null;
+    private allowFullscreen: boolean | null;
     private iframe: HTMLIFrameElement;
     private scrollingSuggestion: HTMLAnchorElement;
     private upLink: HTMLAnchorElement | null = null;
+    private fullscreen: HTMLButtonElement | null = null;
     private nextChapterLink: HTMLAnchorElement;
     private previousChapterLink: HTMLAnchorElement;
     private contentsControl: HTMLButtonElement;
@@ -176,6 +179,7 @@ export default class IFrameNavigator implements Navigator {
     private newElementId: string | null;
     private isBeingStyled: boolean;
     private isLoading: boolean;
+    private canFullscreen: boolean = (document as any).fullscreenEnabled || (document as any).webkitFullscreenEnabled || (document as any).mozFullScreenEnabled || (document as any).msFullscreenEnabled;
 
     public static async create(config: IFrameNavigatorConfig) {
         const navigator = new this(
@@ -184,7 +188,8 @@ export default class IFrameNavigator implements Navigator {
             config.day || null, config.sepia || null, config.night || null,
             config.paginator || null, config.scroller || null,
             config.eventHandler || null,
-            config.upLink || null
+            config.upLink || null,
+            config.allowFullscreen || null
         );
 
         await navigator.start(config.element, config.manifestUrl);
@@ -205,7 +210,8 @@ export default class IFrameNavigator implements Navigator {
         paginator: PaginatedBookView | null = null,
         scroller: ScrollingBookView | null = null,
         eventHandler: EventHandler | null = null,
-        upLinkConfig: UpLinkConfig | null = null
+        upLinkConfig: UpLinkConfig | null = null,
+        allowFullscreen: boolean | null = null
         ) {
 
         this.store = store;
@@ -222,6 +228,7 @@ export default class IFrameNavigator implements Navigator {
         this.scroller = scroller;
         this.eventHandler = eventHandler || new EventHandler();
         this.upLinkConfig = upLinkConfig;
+        this.allowFullscreen = allowFullscreen
     }
 
     protected async start(element: HTMLElement, manifestUrl: URL): Promise<void> {
@@ -337,6 +344,13 @@ export default class IFrameNavigator implements Navigator {
         this.settingsView.addEventListener("keydown", this.hideSettingsOnEscape.bind(this));
 
         window.addEventListener("keydown", this.handleKeyboardNavigation.bind(this));
+
+        if (this.allowFullscreen && this.canFullscreen) {
+            document.addEventListener("fullscreenchange", this.toggleFullscreenIcon.bind(this));
+            document.addEventListener("webkitfullscreenchange", this.toggleFullscreenIcon.bind(this));
+            document.addEventListener("mozfullscreenchange", this.toggleFullscreenIcon.bind(this));
+            document.addEventListener("MSFullscreenChange", this.toggleFullscreenIcon.bind(this));
+        }
     }
 
     private setupModalFocusTrap(modal: HTMLDivElement, closeButton: HTMLButtonElement, lastFocusableElement: HTMLButtonElement | HTMLAnchorElement): void {
@@ -561,6 +575,15 @@ export default class IFrameNavigator implements Navigator {
             this.upLink = HTMLUtilities.findRequiredElement(this.links, "a[rel=up]") as HTMLAnchorElement;
         }
 
+        if (this.allowFullscreen && this.canFullscreen) {
+            const fullscreenHTML = `<button id="fullscreen-control" class="fullscreen" aria-hidden="false">${IconLib.icons.expand} ${IconLib.icons.minimize}</button>`;
+            const fullscreenParent : HTMLLIElement = document.createElement("li");
+            fullscreenParent.innerHTML = fullscreenHTML;
+            this.links.appendChild(fullscreenParent);
+            this.fullscreen = HTMLUtilities.findRequiredElement(this.links, "#fullscreen-control") as HTMLButtonElement;
+            this.fullscreen.addEventListener("click", this.toggleFullscreen.bind(this));
+        }
+
         let lastReadingPosition: ReadingPosition | null = null;
         if (this.annotator) {
             lastReadingPosition = await this.annotator.getLastReadingPosition() as ReadingPosition | null;
@@ -774,6 +797,9 @@ export default class IFrameNavigator implements Navigator {
         if (this.upLink) {
             this.upLink.setAttribute("aria-hidden", "true");
         }
+        if (this.fullscreen) {
+            this.fullscreen.setAttribute("aria-hidden", "true");
+        }
         this.contentsControl.setAttribute("aria-hidden", "true");
         this.settingsControl.setAttribute("aria-hidden", "true");
         this.linksBottom.setAttribute("aria-hidden", "true");
@@ -795,6 +821,9 @@ export default class IFrameNavigator implements Navigator {
         if (this.upLink) {
             this.upLink.setAttribute("aria-hidden", "false");
         }
+        if (this.fullscreen) {
+            this.fullscreen.setAttribute("aria-hidden", "false");
+        }
         this.contentsControl.setAttribute("aria-hidden", "false");
         this.settingsControl.setAttribute("aria-hidden", "false");
         this.linksBottom.setAttribute("aria-hidden", "false");
@@ -804,6 +833,39 @@ export default class IFrameNavigator implements Navigator {
         this.infoBottom.setAttribute("aria-hidden", "false");
 
         this.hideElement(modal, control);
+    }
+
+    private toggleFullscreenIcon(): void {
+        if (this.fullscreen) {
+            const activeIcon = this.fullscreen.querySelector(".icon.active-icon");
+            const inactiveIcon = this.fullscreen.querySelector(".icon.inactive-icon");
+
+            if (activeIcon && (activeIcon.getAttribute("class") || "").indexOf(" inactive-icon") === -1) {
+                const newIconClass = "icon inactive-icon";
+                activeIcon.setAttribute("class", newIconClass);
+            }
+        
+            if (inactiveIcon) {
+                const newIconClass = "icon active-icon";
+                inactiveIcon.setAttribute("class", newIconClass);
+            }
+        }
+    }
+
+    private toggleFullscreen(): void {
+        if (this.fullscreen) {
+            const doc = document as any;
+            const docEl = document.documentElement as any;
+
+            const requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            const cancelFullScreen = doc.exitFullscreen || doc.mozCancelFullScreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+
+            if (!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                requestFullScreen.call(docEl);
+            } else {
+                cancelFullScreen.call(doc);
+            }
+        }
     }
 
     private toggleDisplay(element: HTMLDivElement | HTMLUListElement, control?: HTMLAnchorElement | HTMLButtonElement): void {
