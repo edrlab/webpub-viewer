@@ -143,7 +143,7 @@ export interface IFrameNavigatorConfig {
     element: HTMLElement;
     manifestUrl: URL;
     store: Store;
-    cacher: Cacher;
+    cacher?: Cacher;
     settings: BookSettings;
     annotator?: Annotator;
     publisher?: PublisherFont;
@@ -162,7 +162,7 @@ export interface IFrameNavigatorConfig {
 export default class IFrameNavigator implements Navigator {
     private manifestUrl: URL;
     private store: Store;
-    private cacher: Cacher;
+    private cacher: Cacher | null;
     private settings: BookSettings;
     private annotator: Annotator | null;
     private publisher: PublisherFont | null;
@@ -201,7 +201,7 @@ export default class IFrameNavigator implements Navigator {
 
     public static async create(config: IFrameNavigatorConfig) {
         const navigator = new this(
-            config.store, config.cacher, config.settings, config.annotator || null,
+            config.store, config.cacher || null, config.settings, config.annotator || null,
             config.publisher || null, config.serif || null, config.sans || null,
             config.day || null, config.sepia || null, config.night || null,
             config.paginator || null, config.scroller || null,
@@ -215,7 +215,7 @@ export default class IFrameNavigator implements Navigator {
 
     protected constructor(
         store: Store,
-        cacher: Cacher,
+        cacher: Cacher | null = null,
         settings: BookSettings,
         annotator: Annotator | null = null,
         publisher: PublisherFont | null = null,
@@ -310,8 +310,10 @@ export default class IFrameNavigator implements Navigator {
                 this.setupModalFocusTrap(this.settingsView, this.settingsControl, lastSettingsButton);
             }
 
-            this.cacher.onStatusUpdate(this.updateOfflineCacheStatus.bind(this));
-            this.enableOffline();
+            if (this.cacher) {
+                this.cacher.onStatusUpdate(this.updateOfflineCacheStatus.bind(this));
+                this.enableOffline();
+            }
 
             if (this.scroller && (this.settings.getSelectedView() !== this.scroller)) {
                 this.scrollingSuggestion.style.display = "block";
@@ -457,7 +459,7 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private enableOffline(): void {
-        if (this.cacher.getStatus() !== CacheStatus.Downloaded) {
+        if (this.cacher && this.cacher.getStatus() !== CacheStatus.Downloaded) {
             this.cacher.enable();
         }
     }

@@ -367,7 +367,6 @@ describe("IFrameNavigator", () => {
             element,
             manifestUrl: new URL("http://example.com/manifest.json"),
             store,
-            cacher,
             settings,
             annotator,
             publisher,
@@ -534,7 +533,25 @@ describe("IFrameNavigator", () => {
             expect(linksBottom.className).not.to.contain(" inactive");
         });
 
-        it("should render the cache status", () => {
+        it("should render the cache status if the cacher is configured", async () => {
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
+                paginator,
+                scroller,
+                eventHandler
+            });
+
            expect(onStatusUpdate.callCount).to.equal(1);
            const callback = onStatusUpdate.args[0][0];
 
@@ -557,7 +574,25 @@ describe("IFrameNavigator", () => {
            expect(offlineStatusElement.innerHTML).to.contain("Error");
         });
 
-        it("should enable the cacher on load", async () => {
+        it("should enable the cacher on load if it is configured", async () => {
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
+                paginator,
+                scroller,
+                eventHandler
+            });
+
             expect(enable.callCount).to.equal(1);
         });
 
@@ -634,7 +669,6 @@ describe("IFrameNavigator", () => {
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
-                cacher,
                 settings,
                 annotator,
                 publisher,
@@ -664,7 +698,6 @@ describe("IFrameNavigator", () => {
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
-                cacher,
                 settings,
                 annotator,
                 publisher,
@@ -1127,7 +1160,6 @@ describe("IFrameNavigator", () => {
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
-                cacher,
                 settings,
                 annotator,
                 publisher,
@@ -1202,7 +1234,6 @@ describe("IFrameNavigator", () => {
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
-                cacher,
                 settings,
                 annotator,
                 publisher,
@@ -1436,7 +1467,6 @@ describe("IFrameNavigator", () => {
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
-                cacher,
                 settings,
                 annotator,
                 publisher,
@@ -1505,7 +1535,6 @@ describe("IFrameNavigator", () => {
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
-                cacher,
                 settings,
                 annotator,
                 publisher,
@@ -1793,7 +1822,6 @@ describe("IFrameNavigator", () => {
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
-                cacher,
                 settings,
                 annotator,
                 publisher,
