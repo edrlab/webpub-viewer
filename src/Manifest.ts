@@ -61,7 +61,7 @@ export default class Manifest {
     public constructor(manifestJSON: any, manifestUrl: URL) {
         this.metadata = manifestJSON.metadata || {};
         this.links = manifestJSON.links || [];
-        this.spine = manifestJSON.spine || [];
+        this.spine = (manifestJSON.readingOrder || manifestJSON.spine) || [];
         this.resources = manifestJSON.resources || [];
         this.toc = manifestJSON.toc || [];
         this.manifestUrl = manifestUrl;
