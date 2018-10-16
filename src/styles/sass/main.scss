@@ -73,6 +73,7 @@ a {
   right: 0;
   top: 0;
   width: 100%;
+  padding: env(safe-area-inset-top) 0 0;
 
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -126,7 +127,6 @@ a {
       border-bottom: 0.0625rem solid $mta-gray-tint;
       height: 2.9rem;
       padding: 0.5rem 0 0;
-      padding: env(safe-area-inset-top) 0 0;
       display: flex;
 
       &.inactive {
@@ -367,6 +367,7 @@ a {
   &.top {
     line-height: 3;
     padding-top: env(safe-area-inset-top);
+    min-height: 3.6rem;
   }
 
   &.bottom {
