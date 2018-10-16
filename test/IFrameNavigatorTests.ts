@@ -6,6 +6,12 @@ import IFrameNavigator from "../src/IFrameNavigator";
 import Store from "../src/Store";
 import Cacher from "../src/Cacher";
 import { CacheStatus } from "../src/Cacher";
+import PublisherFont from "../src/PublisherFont";
+import SerifFont from "../src/SerifFont";
+import SansFont from "../src/SansFont";
+import DayTheme from "../src/DayTheme";
+import SepiaTheme from "../src/SepiaTheme";
+import NightTheme from "../src/NightTheme";
 import PaginatedBookView from "../src/PaginatedBookView";
 import ScrollingBookView from "../src/ScrollingBookView";
 import Annotator from "../src/Annotator";
@@ -21,6 +27,20 @@ describe("IFrameNavigator", () => {
     let onStatusUpdate: sinon.SinonStub;
     let getStatus: sinon.SinonStub;
     let cacher: Cacher;
+
+    let publisherStart: sinon.SinonStub;
+    let serifStart: sinon.SinonStub;
+    let sansStart: sinon.SinonStub;
+    let publisher: PublisherFont;
+    let serif: SerifFont;
+    let sans: SansFont;
+
+    let dayStart: sinon.SinonStub;
+    let sepiaStart: sinon.SinonStub;
+    let nightStart: sinon.SinonStub;
+    let day: DayTheme;
+    let sepia: SepiaTheme;
+    let night: NightTheme;
 
     let paginatorStart: sinon.SinonStub;
     let onFirstPage: sinon.SinonStub;
@@ -42,10 +62,14 @@ describe("IFrameNavigator", () => {
 
     let offlineStatusElement: HTMLElement;
     let renderControls: sinon.SinonStub;
-    let onViewChange: sinon.SinonStub;
+    let onFontChange: sinon.SinonStub;
     let onFontSizeChange: sinon.SinonStub;
-    let getSelectedView: sinon.SinonStub;
+    let onThemeChange: sinon.SinonStub;
+    let onViewChange: sinon.SinonStub;
+    let getSelectedFont: sinon.SinonStub;
     let getSelectedFontSize: sinon.SinonStub;
+    let getSelectedTheme: sinon.SinonStub;
+    let getSelectedView: sinon.SinonStub;
     let getOfflineStatusElement: sinon.SinonStub;
     let settings: BookSettings;
 
@@ -66,6 +90,57 @@ describe("IFrameNavigator", () => {
         public getStatus(): CacheStatus {
             return getStatus();
         }
+    }
+
+    class MockPublisherFont extends PublisherFont {
+        public bookElement: HTMLIFrameElement;
+        public start() {
+            publisherStart();
+        };
+        public stop() {};
+    }
+
+    class MockSerifFont extends SerifFont {
+        public bookElement: HTMLIFrameElement;
+        public start() {
+            serifStart();
+        };
+        public stop() {};
+    }
+
+    class MockSansFont extends SansFont {
+        public bookElement: HTMLIFrameElement;
+        public start() {
+            sansStart();
+        };
+        public stop() {};
+    }
+
+    class MockDayTheme extends DayTheme {
+        public rootElement: HTMLHtmlElement;
+        public bookElement: HTMLIFrameElement;
+        public start() {
+            dayStart();
+        };
+        public stop() {};
+    }
+
+    class MockSepiaTheme extends SepiaTheme {
+        public rootElement: HTMLHtmlElement;
+        public bookElement: HTMLIFrameElement;
+        public start() {
+            sepiaStart();
+        };
+        public stop() {};
+    }
+
+    class MockNightTheme extends NightTheme {
+        public rootElement: HTMLHtmlElement;
+        public bookElement: HTMLIFrameElement;
+        public start() {
+            nightStart();
+        };
+        public stop() {};
     }
 
     class MockPaginator implements PaginatedBookView {
@@ -137,17 +212,29 @@ describe("IFrameNavigator", () => {
         public renderControls(element: HTMLElement) {
             renderControls(element);
         }
-        public onViewChange(callback: () => void) {
-            onViewChange(callback);
+        public onFontChange(callback: () => void) {
+            onFontChange(callback);
         }
         public onFontSizeChange(callback: () => void) {
             onFontSizeChange(callback);
         }
-        public getSelectedView() {
-            return getSelectedView();
+        public onThemeChange(callback: () => void) {
+            onThemeChange(callback);
+        }
+        public onViewChange(callback: () => void) {
+            onViewChange(callback);
+        }
+        public getSelectedFont() {
+            return getSelectedFont();
         }
         public getSelectedFontSize() {
             return getSelectedFontSize();
+        }
+        public getSelectedTheme() {
+            return getSelectedTheme();
+        }
+        public getSelectedView() {
+            return getSelectedView();
         }
         public getOfflineStatusElement() {
             return getOfflineStatusElement();
@@ -201,6 +288,20 @@ describe("IFrameNavigator", () => {
         getStatus = stub();
         cacher = new MockCacher();
 
+        publisherStart = stub();
+        serifStart = stub();
+        sansStart = stub();
+        publisher = new MockPublisherFont();
+        serif = new MockSerifFont();
+        sans = new MockSansFont();
+
+        dayStart = stub();
+        sepiaStart = stub();
+        nightStart = stub();
+        day = new MockDayTheme();
+        sepia = new MockSepiaTheme();
+        night = new MockNightTheme();
+
         paginatorStart = stub();
         onFirstPage = stub().returns(false);
         onLastPage = stub().returns(false);
@@ -221,15 +322,21 @@ describe("IFrameNavigator", () => {
 
         offlineStatusElement = document.createElement("div");
         renderControls = stub();
-        onViewChange = stub();
+        onFontChange = stub();
         onFontSizeChange = stub();
-        getSelectedView = stub().returns(paginator);
+        onThemeChange = stub();
+        onViewChange = stub();
+        getSelectedFont = stub().returns(serif);
         getSelectedFontSize = stub().returns("14px");
+        getSelectedTheme = stub().returns(sepia);
+        getSelectedView = stub().returns(paginator);
         getOfflineStatusElement = stub().returns(offlineStatusElement);
         settings = await MockSettings.create({
             store,
-            bookViews: [paginator, scroller],
-            fontSizesInPixels: [14, 16]
+            bookFonts: [publisher, serif, sans],
+            fontSizesInPixels: [14, 16],
+            bookThemes: [day, sepia, night],
+            bookViews: [paginator, scroller]
         });
 
         setupEvents = stub();
@@ -259,6 +366,12 @@ describe("IFrameNavigator", () => {
             cacher,
             settings,
             annotator,
+            publisher,
+            serif,
+            sans,
+            day,
+            sepia,
+            night,
             paginator,
             scroller,
             eventHandler
@@ -311,6 +424,47 @@ describe("IFrameNavigator", () => {
             const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
             await pause();
             expect(chapterPosition.innerHTML).to.equal("Page 2 of 8");
+        });
+
+        it("should give the settings a function to call when the font size changes", async () => {
+            // If the window is wide enough, the view gets a large margin.
+            // This should've been set before the test started.
+            expect(document.documentElement.clientWidth).to.equal(1024);
+
+            expect(onFontSizeChange.callCount).to.equal(1);
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+
+            await pause();
+            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("14px");
+            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(260);
+
+            const updateFontSize = onFontSizeChange.args[0][0];
+
+            getSelectedFontSize.returns("16px");
+            updateFontSize();
+
+            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("16px");
+            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(224);
+            expect(paginatorGoToPosition.callCount).to.equal(3);
+
+            // If the window is small, the view gets a smaller margin, but still based
+            // on the font size.
+            (document.documentElement as any).clientWidth = 100;
+
+            getSelectedFontSize.returns("14px");
+            updateFontSize();
+            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("14px");
+            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(28);
+
+            getSelectedFontSize.returns("16px");
+            updateFontSize();
+
+            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("16px");
+            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(32);
         });
 
         it("should give the settings a function to update the book view when a new view is selected", async () => {
@@ -376,47 +530,6 @@ describe("IFrameNavigator", () => {
             expect(linksBottom.className).not.to.contain(" inactive");
         });
 
-        it("should give the settings a function to call when the font size changes", async () => {
-            // If the window is wide enough, the view gets a large margin.
-            // This should've been set before the test started.
-            expect(document.documentElement.clientWidth).to.equal(1024);
-
-            expect(onFontSizeChange.callCount).to.equal(1);
-            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
-
-            await pause();
-            expect(iframe.contentDocument.body.style.fontSize).to.equal("14px");
-            expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(260);
-
-            const updateFontSize = onFontSizeChange.args[0][0];
-
-            getSelectedFontSize.returns("16px");
-            updateFontSize();
-
-            expect(iframe.contentDocument.body.style.fontSize).to.equal("16px");
-            expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(224);
-            expect(paginatorGoToPosition.callCount).to.equal(2);
-
-            // If the window is small, the view gets a smaller margin, but still based
-            // on the font size.
-            (document.documentElement as any).clientWidth = 100;
-
-            getSelectedFontSize.returns("14px");
-            updateFontSize();
-            expect(iframe.contentDocument.body.style.fontSize).to.equal("14px");
-            expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(28);
-
-            getSelectedFontSize.returns("16px");
-            updateFontSize();
-
-            expect(iframe.contentDocument.body.style.fontSize).to.equal("16px");
-            expect(iframe.contentDocument.body.style.lineHeight).to.equal("1.5");
-            expect(paginator.sideMargin).to.equal(32);
-        });
-
         it("should render the cache status", () => {
            expect(onStatusUpdate.callCount).to.equal(1);
            const callback = onStatusUpdate.args[0][0];
@@ -442,6 +555,20 @@ describe("IFrameNavigator", () => {
 
         it("should enable the cacher on load", async () => {
             expect(enable.callCount).to.equal(1);
+        });
+
+        it("should start the selected book font", async () => {
+            await pause();
+            expect(publisherStart.callCount).to.equal(0);
+            expect(serifStart.callCount).to.equal(1);
+            expect(sansStart.callCount).to.equal(0);
+        });
+
+        it("should start the selected book theme", async () => {
+            await pause();
+            expect(dayStart.callCount).to.equal(0);
+            expect(sepiaStart.callCount).to.equal(1);
+            expect(nightStart.callCount).to.equal(0);
         });
 
         it("should start the selected book view", async () => {
@@ -506,6 +633,12 @@ describe("IFrameNavigator", () => {
                 cacher,
                 settings,
                 annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
                 paginator,
                 scroller,
                 eventHandler,
@@ -530,6 +663,12 @@ describe("IFrameNavigator", () => {
                 cacher,
                 settings,
                 annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
                 paginator,
                 scroller,
                 eventHandler,
@@ -855,9 +994,9 @@ describe("IFrameNavigator", () => {
         });
 
         it("should maintain paginator position when window is resized", async () => {
-            expect(paginatorGoToPosition.callCount).to.equal(1);
-            window.dispatchEvent(new Event('resize'));
             expect(paginatorGoToPosition.callCount).to.equal(2);
+            window.dispatchEvent(new Event('resize'));
+            expect(paginatorGoToPosition.callCount).to.equal(3);
             expect(paginatorGoToPosition.args[0][0]).to.equal(0.25);
         });
 
@@ -956,6 +1095,12 @@ describe("IFrameNavigator", () => {
                 cacher,
                 settings,
                 annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
                 paginator,
                 scroller,
                 eventHandler
@@ -1025,6 +1170,12 @@ describe("IFrameNavigator", () => {
                 cacher,
                 settings,
                 annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
                 paginator,
                 scroller,
                 eventHandler
@@ -1253,6 +1404,12 @@ describe("IFrameNavigator", () => {
                 cacher,
                 settings,
                 annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
                 paginator,
                 scroller,
                 eventHandler
@@ -1562,6 +1719,12 @@ describe("IFrameNavigator", () => {
                 cacher,
                 settings,
                 annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
                 paginator,
                 scroller,
                 eventHandler

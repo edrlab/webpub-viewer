@@ -1,6 +1,12 @@
 import LocalStorageStore from "./LocalStorageStore";
 import ServiceWorkerCacher from "./ServiceWorkerCacher";
 import IFrameNavigator from "./IFrameNavigator";
+import PublisherFont from "./PublisherFont";
+import SerifFont from "./SerifFont";
+import SansFont from "./SansFont";
+import DayTheme from "./DayTheme";
+import SepiaTheme from "./SepiaTheme";
+import NightTheme from "./NightTheme";
 import ColumnsPaginatedBookView from "./ColumnsPaginatedBookView";
 import ScrollingBookView from "./ScrollingBookView";
 import BookSettings from "./BookSettings";
@@ -10,15 +16,23 @@ const app = async (element: HTMLElement, manifestUrl: URL): Promise<IFrameNaviga
     const bookStore = new LocalStorageStore({ prefix: manifestUrl.href });
     const cacher = new ServiceWorkerCacher({ store: bookStore, manifestUrl });
     const annotator = new LocalAnnotator({ store: bookStore });
+    const publisher = new PublisherFont();
+    const serif = new SerifFont();
+    const sans = new SansFont();
+    const fontSizes = [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32 ];
+    const day = new DayTheme();
+    const sepia = new SepiaTheme();
+    const night = new NightTheme();
     const paginator = new ColumnsPaginatedBookView();
     const scroller = new ScrollingBookView();
-    const settingsStore = new LocalStorageStore({ prefix: "all-books" });
-    const fontSizes = [ 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32 ];
+    const settingsStore = new LocalStorageStore({ prefix: "cassis-reader" });
     const settings = await BookSettings.create({
         store: settingsStore,
-        bookViews: [paginator, scroller],
+        bookFonts: [publisher, serif, sans],
         fontSizesInPixels: fontSizes,
-        defaultFontSizeInPixels: 16
+        defaultFontSizeInPixels: 20,
+        bookThemes: [day, sepia, night],
+        bookViews: [paginator, scroller]
     });
     return await IFrameNavigator.create({
         element,
@@ -27,6 +41,12 @@ const app = async (element: HTMLElement, manifestUrl: URL): Promise<IFrameNaviga
         cacher,
         settings,
         annotator,
+        publisher,
+        serif,
+        sans,
+        day,
+        sepia,
+        night,
         paginator,
         scroller
     });

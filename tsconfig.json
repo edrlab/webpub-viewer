@@ -12,7 +12,7 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outFile": "dist/webpub-viewer.js",
     "preserveConstEnums": true,

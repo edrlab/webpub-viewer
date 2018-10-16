@@ -2,6 +2,12 @@ import Navigator from "./Navigator";
 import Store from "./Store";
 import Cacher from "./Cacher";
 import { CacheStatus } from "./Cacher";
+import PublisherFont from "./PublisherFont";
+import SerifFont from "./SerifFont";
+import SansFont from "./SansFont";
+import DayTheme from "./DayTheme";
+import SepiaTheme from "./SepiaTheme";
+import NightTheme from "./NightTheme";
 import PaginatedBookView from "./PaginatedBookView";
 import ScrollingBookView from "./ScrollingBookView";
 import Annotator from "./Annotator";
@@ -83,7 +89,7 @@ const template = `
     <div class="info top">
       <span class="book-title"></span>
     </div>
-    <iframe title="book text" style="border:0; overflow: hidden;"></iframe>
+    <iframe allowtransparency="true" title="book text" style="border:0; overflow: hidden;"></iframe>
     <div class="info bottom">
       <span class="chapter-position"></span>
       <span class="chapter-title"></span>
@@ -135,6 +141,12 @@ export interface IFrameNavigatorConfig {
     cacher: Cacher;
     settings: BookSettings;
     annotator?: Annotator;
+    publisher?: PublisherFont;
+    serif?: SerifFont;
+    sans?: SansFont;
+    day?: DayTheme;
+    sepia?: SepiaTheme;
+    night?: NightTheme;
     paginator?: PaginatedBookView;
     scroller?: ScrollingBookView;
     eventHandler?: EventHandler;
@@ -146,10 +158,16 @@ export default class IFrameNavigator implements Navigator {
     private manifestUrl: URL;
     private store: Store;
     private cacher: Cacher;
+    private settings: BookSettings;
+    private annotator: Annotator | null;
+    private publisher: PublisherFont | null;
+    private serif: SerifFont | null;
+    private sans: SansFont | null;
+    private day: DayTheme | null;
+    private sepia: SepiaTheme | null;
+    private night: NightTheme | null;
     private paginator: PaginatedBookView | null;
     private scroller: ScrollingBookView | null;
-    private annotator: Annotator | null;
-    private settings: BookSettings;
     private eventHandler: EventHandler;
     private upLinkConfig: UpLinkConfig | null;
     private iframe: HTMLIFrameElement;
@@ -178,7 +196,10 @@ export default class IFrameNavigator implements Navigator {
     public static async create(config: IFrameNavigatorConfig) {
         const navigator = new this(
             config.store, config.cacher, config.settings, config.annotator || null,
-            config.paginator || null, config.scroller || null, config.eventHandler || null,
+            config.publisher || null, config.serif || null, config.sans || null,
+            config.day || null, config.sepia || null, config.night || null,
+            config.paginator || null, config.scroller || null,
+            config.eventHandler || null,
             config.upLink || null
         );
 
@@ -191,6 +212,12 @@ export default class IFrameNavigator implements Navigator {
         cacher: Cacher,
         settings: BookSettings,
         annotator: Annotator | null = null,
+        publisher: PublisherFont | null = null,
+        serif: SerifFont | null = null,
+        sans: SansFont | null = null,
+        day: DayTheme | null = null,
+        sepia: SepiaTheme | null = null,
+        night: NightTheme | null = null,
         paginator: PaginatedBookView | null = null,
         scroller: ScrollingBookView | null = null,
         eventHandler: EventHandler | null = null,
@@ -199,10 +226,16 @@ export default class IFrameNavigator implements Navigator {
 
         this.store = store;
         this.cacher = cacher;
+        this.settings = settings;
+        this.annotator = annotator;
+        this.publisher = publisher;
+        this.serif = serif;
+        this.sans = sans;
+        this.day = day;
+        this.sepia = sepia;
+        this.night = night;
         this.paginator = paginator;
         this.scroller = scroller;
-        this.annotator = annotator;
-        this.settings = settings;
         this.eventHandler = eventHandler || new EventHandler();
         this.upLinkConfig = upLinkConfig;
     }
@@ -234,6 +267,24 @@ export default class IFrameNavigator implements Navigator {
             this.isLoading = true;
             this.setupEvents();
 
+            if (this.publisher) {
+                this.publisher.bookElement = this.iframe;
+            }
+            if (this.serif) {
+                this.serif.bookElement = this.iframe;
+            }
+            if (this.sans) {
+                this.sans.bookElement = this.iframe;
+            }
+            if (this.day) {
+                this.day.bookElement = this.iframe;
+            }
+            if (this.sepia) {
+                this.sepia.bookElement = this.iframe;
+            }
+            if (this.night) {
+                this.night.bookElement = this.iframe;
+            }
             if (this.paginator) {
                 this.paginator.bookElement = this.iframe;
             }
@@ -241,8 +292,9 @@ export default class IFrameNavigator implements Navigator {
                 this.scroller.bookElement = this.iframe;
             }
             this.settings.renderControls(this.settingsView);
-            this.settings.onViewChange(this.updateBookView.bind(this));
+            this.settings.onFontChange(this.updateFont.bind(this));
             this.settings.onFontSizeChange(this.updateFontSize.bind(this));
+            this.settings.onViewChange(this.updateBookView.bind(this));
 
             // Trap keyboard focus inside the settings view when it's displayed.
             const settingsButtons = this.settingsView.querySelectorAll("button");
@@ -323,6 +375,14 @@ export default class IFrameNavigator implements Navigator {
         });
     }
 
+    private updateFont(): void {
+        this.handleResize();
+    }
+
+    private updateFontSize(): void {
+        this.handleResize();
+    }
+
     private updateBookView(): void {
         const doNothing = () => {};
         if (this.settings.getSelectedView() === this.paginator) {
@@ -379,10 +439,6 @@ export default class IFrameNavigator implements Navigator {
             }
         }
         this.updatePositionInfo();
-    }
-
-    private updateFontSize(): void {
-        this.handleResize();
     }
 
     private enableOffline(): void {
@@ -526,9 +582,13 @@ export default class IFrameNavigator implements Navigator {
                 bookViewPosition = this.newPosition.position;
                 this.newPosition = null;
             }
-            this.updateBookView();
+            this.updateFont();
             this.updateFontSize();
+            this.updateBookView();
+            this.settings.getSelectedFont().start();
+            this.settings.getSelectedTheme().start();
             this.settings.getSelectedView().start(bookViewPosition);
+
 
             if (this.newElementId) {
                 this.settings.getSelectedView().goToElement(this.newElementId);

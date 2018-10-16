@@ -11,6 +11,11 @@
 // Global styles           //
 //////////////////////////////
 
+:root {
+  -webkit-text-size-adjust: 100%;
+  zoom: reset;
+}
+
 body {
   font-family: $sans-serif-stack;
   font-size: $basefont;
@@ -62,6 +67,12 @@ a {
   right: 0;
   top: 0;
   width: 100%;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
 
   ul li,
   ol li {
@@ -149,7 +160,6 @@ a {
 
       @media screen and (min-width: 30rem) {
         > li:nth-child(1) {
-          background-color: $mta-white;
           display: inline-block;
           margin-top: 0.175rem;
           margin-left: 0.625rem;
@@ -320,6 +330,12 @@ a {
   text-overflow: ellipsis;
   white-space: nowrap;
 
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
+
   &.top {
     line-height: 3;
   }
@@ -363,6 +379,141 @@ iframe {
     height: auto;
     overflow: visible;
     top: 0.3125rem;
+  }
+}
+
+[data-viewer-theme="sepia"] {
+  background-color: $sepia-mode;
+
+  button {
+    background: $sepia-mode;
+    color: $mta-green;
+  }
+
+  a {
+    color: $mta-green;
+  }
+
+  .controls {
+    color: $mta-green;
+  
+    .links {
+      background-color: $sepia-mode;
+  
+      .icon {
+        color: $mta-green;
+        fill: $mta-green;
+      }
+    }
+
+    &.top {
+      background-color: $sepia-mode;
+      border-bottom: 0.0625rem solid $mta-gray;
+    }
+
+    &.bottom {
+      background-color: darken($sepia-mode, 2.5%);
+      border-top: 0.16rem solid $mta-green;
+    }
+  }
+
+  .error {
+    background-color: transparentize($sepia-mode, 0.125);
+  
+    button {
+      background-color: $mta-white;
+      color: $error-red;
+      border: 0.125rem solid $error-red;
+    }
+  }
+
+  .scrolling-suggestion {
+    background-color: $sepia-mode;
+  }
+
+  .info {
+    color: $mta-gray;
+  }
+
+  iframe {
+    &.left-hover {
+      background: linear-gradient(to right, darken($sepia-mode, 10%), darken($sepia-mode, 10%) 28%, $sepia-mode 30%, $sepia-mode);
+    }
+  
+    &.right-hover {
+      background: linear-gradient(to left, darken($sepia-mode, 10%), darken($sepia-mode, 10%) 28%, $sepia-mode 30%, $sepia-mode);
+    }
+  }
+}
+
+[data-viewer-theme="night"] {
+  background-color: $mta-black;
+  color: $mta-white;
+
+  button {
+    background: $mta-black;
+    color: $mta-green;
+  }
+
+  a {
+    color: $mta-green;
+  }
+
+  .controls {
+    color: $mta-green;
+  
+    .links {
+      background-color: $mta-black;
+  
+      .icon {
+        color: $mta-green;
+        fill: $mta-green;
+      }
+    }
+
+    &.top {
+      background-color: $mta-black;
+      border-bottom: 0.0625rem solid $mta-gray;
+    }
+
+    &.bottom {
+      background-color: lighten($mta-black, 2.5%);
+      border-top: 0.16rem solid $mta-green;
+    }
+  }
+
+  .loading {
+    background-color: lighten($mta-black, 10%);
+    border: 0.0625rem solid $mta-green;
+    color: $sample-green;
+  }
+
+  .error {
+    background-color: transparentize($mta-black, 0.125);
+  
+    button {
+      background-color: lighten($mta-black, 10%);
+      color: $error-red;
+      border: 0.125rem solid $error-red;
+    }
+  }
+
+  .scrolling-suggestion {
+    background-color: $mta-black;
+  }
+
+  .info {
+    color: $mta-gray;
+  }
+
+  iframe {
+    &.left-hover {
+      background: linear-gradient(to right, lighten($mta-black, 10%), lighten($mta-black, 10%) 28%, $mta-black 30%, $mta-black);
+    }
+  
+    &.right-hover {
+      background: linear-gradient(to left, lighten($mta-black, 10%), lighten($mta-black, 10%) 28%, $mta-black 30%, $mta-black);
+    }
   }
 }
 

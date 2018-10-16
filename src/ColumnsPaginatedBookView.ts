@@ -17,13 +17,14 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
         // all the vendor-prefixed attributes.
         const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as any;
         body.style.columnCount = 1;
-        body.style.WebkitColumnCount = 1;
+        body.style.webkitColumnCount = 1;
         body.style.MozColumnCount = 1;
         body.style.columnFill = "auto";
-        body.style.WebkitColumnFill = "auto";
+        body.style.webkitColumnFill = "auto";
         body.style.MozColumnFill = "auto";
         body.style.overflow = "hidden";
         body.style.position = "relative";
+        body.style.webkitFontSmoothing = "subpixel-antialiased";
         this.setSize();
         const viewportElement = document.createElement("meta");
         viewportElement.name = "viewport";
@@ -69,10 +70,10 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
 
         const width = (BrowserUtilities.getWidth() - this.sideMargin * 2) + "px";
         body.style.columnWidth = width;
-        body.style.WebkitColumnWidth = width;
+        body.style.webkitColumnWidth = width;
         body.style.MozColumnWidth = width;
         body.style.columnGap = this.sideMargin * 2 + "px";
-        body.style.WebkitColumnGap = this.sideMargin * 2 + "px";
+        body.style.webkitColumnGap = this.sideMargin * 2 + "px";
         body.style.MozColumnGap = this.sideMargin * 2 + "px";
         body.style.height = this.height + "px";
         body.style.width = width;
@@ -121,18 +122,19 @@ export default class ColumnsPaginatedBookView implements PaginatedBookView {
 
         const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as any;
         body.style.columnCount = "";
-        body.style.WebkitColumnCount = "";
+        body.style.webkitColumnCount = "";
         body.style.MozColumnCount = "";
         body.style.columnGap = "";
-        body.style.WebkitColumnGap = "";
+        body.style.webkitColumnGap = "";
         body.style.MozColumnGap = "";
         body.style.columnFill = "";
-        body.style.WebkitColumnFill = "";
+        body.style.webkitColumnFill = "";
         body.style.MozColumnFill = "";
         body.style.overflow = "";
         body.style.position = "";
+        body.style.webkitFontSmoothing = "";
         body.style.columnWidth = "";
-        body.style.WebkitColumnWidth = "";
+        body.style.webkitColumnWidth = "";
         body.style.MozColumnWidth = "";
         body.style.height = "";
         body.style.width = "";
