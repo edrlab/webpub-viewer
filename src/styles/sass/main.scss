@@ -272,6 +272,11 @@ a {
   text-align: center;
   top: calc(50% - 6.25rem);
   width: 12.5rem;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
 }
 
 .error {
@@ -282,6 +287,11 @@ a {
   position: fixed;
   text-align: center;
   width: 100%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
 
   span {
     display: block;
