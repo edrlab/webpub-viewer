@@ -2,7 +2,7 @@ import { expect } from "chai";
 
 import * as BrowserUtilities from "../src/BrowserUtilities";
 
-describe("HTMLUtilities", () => {
+describe("BrowserUtilities", () => {
     beforeEach(() => {
         (window as any).innerWidth = 50;
         (window as any).innerHeight = 10;

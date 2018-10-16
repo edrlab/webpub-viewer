@@ -17,7 +17,7 @@
     "outFile": "dist/webpub-viewer.js",
     "preserveConstEnums": true,
     "sourceMap": true,
-    "strictNullChecks": false,
+    "strictNullChecks": true,
     "target": "es5",
     "lib": [
       "dom",

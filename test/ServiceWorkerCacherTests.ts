@@ -13,7 +13,6 @@ describe('ServiceWorkerCacher', () => {
     let addAll: sinon.SinonStub;
     let open: sinon.SinonStub;
     let store: MemoryStore;
-    let element: HTMLElement;
 
     const mockNavigatorAPI = () => {
         register = stub();
@@ -26,17 +25,13 @@ describe('ServiceWorkerCacher', () => {
     };
 
     const mockCacheAPI = (matchResult: any) => {
-        match = stub().returns(new Promise((resolve) => {
-            resolve(matchResult);
-        }));
-        addAll = stub().returns(new Promise(resolve => resolve()));
+        match = stub().resolves(matchResult);
+        addAll = stub().resolves();
         const cache = ({
             match: match,
             addAll: addAll
         } as any);
-        open = stub().returns(new Promise((resolve) => {
-            resolve(cache);
-        }));
+        open = stub().resolves(cache);
         (window as any).caches = ({
             open: open,
             match: match
@@ -51,7 +46,6 @@ describe('ServiceWorkerCacher', () => {
         jsdom.changeURL(window, "https://example.com");
         mockNavigatorAPI();
         store = new MemoryStore();
-        element = document.createElement("div");
     });
 
     describe('#enable', () => {
@@ -191,8 +185,11 @@ describe('ServiceWorkerCacher', () => {
         });
 
         it("should provide status updates when there's an error", async () => {
-            mockCacheAPI("i'm in the cache");
-            open.returns(new Promise<void>((_, reject) => reject()));
+            process.on('unhandledRejection', (reason) => {
+                console.log('REJECTION', reason)
+            })
+            mockCacheAPI("I'm in the cache");
+            open.returns(new Promise<void>((_, reject) => reject(new Error('Status failure'))).catch(error => {console.log('Caught', error.message)}));
             const cacher = new ServiceWorkerCacher({
                 store,
                 manifestUrl: new URL("https://example.com/manifest.json")
@@ -216,7 +213,7 @@ describe('ServiceWorkerCacher', () => {
 
     describe('#getStatus', () => {
         it("should provide status updates when downloading and when caching is complete", async () => {
-            mockCacheAPI("i'm in the cache");
+            mockCacheAPI("I'm in the cache");
             const manifest = new Manifest({
               spine: [
                   { href: "spine-item-1.html" },
@@ -245,8 +242,11 @@ describe('ServiceWorkerCacher', () => {
         });
 
         it("should provide status updates when there's an error", async () => {
+            process.on('unhandledRejection', (reason) => {
+                console.log('REJECTION', reason)
+            })
             mockCacheAPI("i'm in the cache");
-            open.returns(new Promise<void>((_, reject) => reject()));
+            open.returns(new Promise<void>((_, reject) => reject(new Error('Status failure'))).catch(error => {console.log('Caught', error.message)}));
             const cacher = new ServiceWorkerCacher({
                 store,
                 manifestUrl: new URL("https://example.com/manifest.json")

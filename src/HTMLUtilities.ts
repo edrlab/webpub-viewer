@@ -36,20 +36,6 @@ export function findRequiredIframeElement(parentElement: Document | null, select
     }
 }
 
-/** Sets a property and its value for an HTML element */
-export function setProp(element: HTMLElement, property: string, value: string, important?: boolean): void {
-    if (important) {
-        element.style.setProperty(property, value, "important");
-    } else {
-        element.style.setProperty(property, value);
-    }
-}
-
-/** Removes a property for an HTML element */
-export function removeProp(element: HTMLElement, property: string): void {
-    element.style.removeProperty(property);
-}
-
 /** Sets an attribute and its value for an HTML element */
 export function setAttr(element: HTMLElement, attr: string, value: string): void {
     element.setAttribute(attr, value);
@@ -60,18 +46,7 @@ export function removeAttr(element: HTMLElement, attr: string): void {
     element.removeAttribute(attr);
 }
 
-/** Sets a class and its value for an HTML element */
-export function setClass(element: HTMLElement, cssClass: string): void {
-    element.classList.add(cssClass);
-}
-
-/** Removes a class for an HTML element */
-export function removeClass(element: HTMLElement, cssClass: string): void {
-    element.classList.remove(cssClass);
-}
-
 /** Creates an internal stylesheet in an HTML element */
-
 export function createStylesheet(element: Document | HTMLElement, id: string, cssStyles: string): void {
     const head = element.querySelector("head") as HTMLHeadElement;
     const stylesheet = document.createElement("style")
@@ -80,6 +55,7 @@ export function createStylesheet(element: Document | HTMLElement, id: string, cs
     head.appendChild(stylesheet);
 }
 
+/** Removes an existing internal stylesheet in an HTML element */
 export function removeStylesheet(element: Document | HTMLElement, id: string): void {
     const head = element.querySelector("head") as HTMLHeadElement;
     const stylesheet = head.querySelector("#" + id) as HTMLStyleElement;

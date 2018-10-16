@@ -116,6 +116,10 @@ describe("BookSettings", () => {
         view1 = new MockBookView(1, "view1", "View 1");
         view2 = new MockBookView(2, "view2", "View 2");
 
+        theme1 = new MockBookTheme(1, "theme1", "Theme 1");
+        theme2 = new MockBookTheme(2, "theme2", "Theme 2");
+        theme3 = new MockBookTheme(3, "theme3", "Theme 3");
+
         store = new MemoryStore();
         settings = await BookSettings.create({
             store,
@@ -141,6 +145,22 @@ describe("BookSettings", () => {
 
         it("sets the selected font to the first font if there's no selected font in the store", () => {
             expect(settings.getSelectedFont()).to.equal(font1);
+        });
+
+        it("obtains the selected theme from the store", async () => {
+            await store.set("settings-selected-theme", theme3.name);
+            settings = await BookSettings.create({
+                store,
+                bookFonts: [font1, font2, font3],
+                fontSizesInPixels: [],
+                bookThemes: [theme1, theme2, theme3],
+                bookViews: [view1, view2]
+            });
+            expect(settings.getSelectedTheme()).to.equal(theme3);
+        });
+
+        it("sets the selected theme to the first theme if there's no selected view in the store", () => {
+            expect(settings.getSelectedTheme()).to.equal(theme1);
         });
 
         it("obtains the selected font size from the store", async () => {
@@ -363,7 +383,45 @@ describe("BookSettings", () => {
             expect(view1Button).to.be.null;
         });
 
-        it("changes font when a font button is clicked", async () => {
+        it("renders a button for each theme", async () => {
+            const element = document.createElement("div");
+            settings.renderControls(element);
+
+            let theme1Button = element.querySelector("button[class='theme1 active']") as HTMLButtonElement;
+            expect(theme1Button.getAttribute("aria-label")).to.equal("Theme 1 mode enabled");
+            let theme2Button = element.querySelector("button[class='theme2']") as HTMLButtonElement;
+            expect(theme2Button.getAttribute("aria-label")).to.equal("Theme 2 mode disabled");
+            let theme3Button = element.querySelector("button[class='theme3']") as HTMLButtonElement;
+            expect(theme3Button.getAttribute("aria-label")).to.equal("Theme 3 mode disabled");
+
+            // If there's no views or only 1 theme, themes don't show up in the settings.
+
+            settings = await BookSettings.create({
+                store,
+                bookFonts: [font1, font2, font3],
+                fontSizesInPixels: [12],
+                bookThemes: [theme1],
+                bookViews: [view1, view2]
+            });
+            settings.renderControls(element);
+            theme1Button = element.querySelector("button[class='theme1 active']") as HTMLButtonElement;
+            expect(theme1Button).to.be.null;
+            theme2Button = element.querySelector("button[class='theme2']") as HTMLButtonElement;
+            expect(theme2Button).to.be.null;
+
+            settings = await BookSettings.create({
+                store,
+                bookFonts: [font1, font2, font3],
+                fontSizesInPixels: [12],
+                bookThemes: [],
+                bookViews: [view1, view2]
+            });
+            settings.renderControls(element);
+            theme1Button = element.querySelector("button[class='theme1 active']") as HTMLButtonElement;
+            expect(theme1Button).to.be.null;
+        });
+
+        it("changes view when a view button is clicked", async () => {
             const element = document.createElement("div");
             settings.renderControls(element);
 
@@ -408,6 +466,53 @@ describe("BookSettings", () => {
 
             expect(font1Button.getAttribute("aria-label")).to.equal("Font 1 font enabled");
             expect(font2Button.getAttribute("aria-label")).to.equal("Font 2 font disabled");
+        });
+
+        it("changes theme when a theme button is clicked", async () => {
+            const element = document.createElement("div");
+            settings.renderControls(element);
+
+            const theme1Button = element.querySelector("button[class='theme1 active']") as HTMLButtonElement;
+            const theme2Button = element.querySelector("button[class='theme2']") as HTMLButtonElement;
+
+            click(theme2Button);
+            await pause();
+
+            expect(stop.callCount).to.equal(1);
+            expect(stop.args[0][0]).to.equal(1);
+
+            expect(start.callCount).to.equal(1);
+            expect(start.args[0][0]).to.equal(2);
+
+            expect(settings.getSelectedTheme()).to.equal(theme2);
+            let storedTheme = await store.get("settings-selected-theme")
+            expect(storedTheme).to.equal(theme2.name);
+
+            expect(theme1Button.className).not.to.contain("active");
+            expect(theme2Button.className).to.contain("active");
+
+            expect(theme1Button.getAttribute("aria-label")).to.equal("Theme 1 mode disabled");
+            expect(theme2Button.getAttribute("aria-label")).to.equal("Theme 2 mode enabled");
+
+
+            click(theme1Button);
+            await pause();
+
+            expect(stop.callCount).to.equal(2);
+            expect(stop.args[1][0]).to.equal(2);
+
+            expect(start.callCount).to.equal(2);
+            expect(start.args[1][0]).to.equal(1);
+
+            expect(settings.getSelectedTheme()).to.equal(theme1);
+            storedTheme = await store.get("settings-selected-theme")
+            expect(storedTheme).to.equal(theme1.name);
+
+            expect(theme1Button.className).to.contain("active");
+            expect(theme2Button.className).not.to.contain("active");
+
+            expect(theme1Button.getAttribute("aria-label")).to.equal("Theme 1 mode enabled");
+            expect(theme2Button.getAttribute("aria-label")).to.equal("Theme 2 mode disabled");
         });
 
         it("renders font size increase and decrease buttons", async () => {
@@ -648,6 +753,27 @@ describe("BookSettings", () => {
             click(font1Button);
             await pause();
             expect(fontChanged.callCount).to.equal(2);
+        });
+    });
+
+    describe("#onThemeChange", () => {
+        it("sets up theme change callback", async () => {
+            const element = document.createElement("div");
+            settings.renderControls(element);
+
+            const themeChanged = stub();
+            settings.onThemeChange(themeChanged);
+
+            const theme1Button = element.querySelector("button[class='theme1 active']") as HTMLButtonElement;
+            const theme2Button = element.querySelector("button[class='theme2']") as HTMLButtonElement;
+
+            click(theme2Button);
+            await pause();
+            expect(themeChanged.callCount).to.equal(1);
+
+            click(theme1Button);
+            await pause();
+            expect(themeChanged.callCount).to.equal(2);
         });
     });
 

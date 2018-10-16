@@ -215,11 +215,11 @@ describe("IFrameNavigator", () => {
         public onFontChange(callback: () => void) {
             onFontChange(callback);
         }
-        public onFontSizeChange(callback: () => void) {
-            onFontSizeChange(callback);
-        }
         public onThemeChange(callback: () => void) {
             onThemeChange(callback);
+        }
+        public onFontSizeChange(callback: () => void) {
+            onFontSizeChange(callback);
         }
         public onViewChange(callback: () => void) {
             onViewChange(callback);
@@ -227,11 +227,11 @@ describe("IFrameNavigator", () => {
         public getSelectedFont() {
             return getSelectedFont();
         }
-        public getSelectedFontSize() {
-            return getSelectedFontSize();
-        }
         public getSelectedTheme() {
             return getSelectedTheme();
+        }
+        public getSelectedFontSize() {
+            return getSelectedFontSize();
         }
         public getSelectedView() {
             return getSelectedView();
@@ -316,6 +316,10 @@ describe("IFrameNavigator", () => {
         scrollerAtBottom = stub().returns(false);
         scroller = new MockScroller();
 
+        day = new MockDayTheme();
+        sepia = new MockSepiaTheme();
+        night = new MockNightTheme();
+
         getLastReadingPosition = stub();
         saveLastReadingPosition = stub().returns(new Promise(resolve => resolve()));
         annotator = new MockAnnotator();
@@ -359,7 +363,7 @@ describe("IFrameNavigator", () => {
         // The element must be in a document for iframe load events to work.
         window.document.body.appendChild(element);
         (document.documentElement as any).clientWidth = 1024;
-        navigator = await IFrameNavigator.create({
+        (navigator as IFrameNavigator) = await IFrameNavigator.create({
             element,
             manifestUrl: new URL("http://example.com/manifest.json"),
             store,
@@ -486,7 +490,7 @@ describe("IFrameNavigator", () => {
             expect(linksBottom.className).to.contain(" inactive");
 
             // A scroll event does nothing when the paginator is selected.
-            document.body.onscroll(new UIEvent("scroll"));
+            (document.body as any).onscroll(new UIEvent("scroll"));
             expect(saveLastReadingPosition.callCount).to.equal(1);
 
             getSelectedView.returns(scroller);
@@ -497,7 +501,7 @@ describe("IFrameNavigator", () => {
             expect(linksBottom.className).not.to.contain(" inactive");
 
             // Now a scroll event saves the new reading position.
-            await document.body.onscroll(new UIEvent("scroll"));
+            await (document.body as any).onscroll(new UIEvent("scroll"));
             expect(saveLastReadingPosition.callCount).to.equal(2);
 
             // If the links are hidden, scrolling to the bottom brings up
@@ -506,13 +510,13 @@ describe("IFrameNavigator", () => {
             linksBottom.className = "links bottom inactive";
             scrollerAtBottom.returns(true);
 
-            await document.body.onscroll(new UIEvent("scroll"));
+            await (document.body as any).onscroll(new UIEvent("scroll"));
             expect(linksBottom.className).not.to.contain(" inactive");
 
             // Scrolling back up hides the bottom links again.
             scrollerAtBottom.returns(false);
 
-            await document.body.onscroll(new UIEvent("scroll"));
+            await (document.body as any).onscroll(new UIEvent("scroll"));
             expect(linksBottom.className).to.contain(" inactive");
 
             // But if you brought the links up by tapping, scrolling down and
@@ -521,13 +525,54 @@ describe("IFrameNavigator", () => {
             linksBottom.className = "links bottom active";
             scrollerAtBottom.returns(true);
 
-            await document.body.onscroll(new UIEvent("scroll"));
+            await (document.body as any).onscroll(new UIEvent("scroll"));
             expect(linksBottom.className).not.to.contain(" inactive");
 
             scrollerAtBottom.returns(false);
 
-            await document.body.onscroll(new UIEvent("scroll"));
+            await (document.body as any).onscroll(new UIEvent("scroll"));
             expect(linksBottom.className).not.to.contain(" inactive");
+        });
+
+        it("should give the settings a function to call when the font size changes", async () => {
+            // If the window is wide enough, the view gets a large margin.
+            // This should've been set before the test started.
+            expect(document.documentElement.clientWidth).to.equal(1024);
+
+            expect(onFontSizeChange.callCount).to.equal(1);
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+
+            await pause();
+            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("14px");
+            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(260);
+
+            const updateFontSize = onFontSizeChange.args[0][0];
+
+            getSelectedFontSize.returns("16px");
+            updateFontSize();
+
+            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("16px");
+            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(224);
+            expect(paginatorGoToPosition.callCount).to.equal(2);
+
+            // If the window is small, the view gets a smaller margin, but still based
+            // on the font size.
+            (document.documentElement as any).clientWidth = 100;
+
+            getSelectedFontSize.returns("14px");
+            updateFontSize();
+            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("14px");
+            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(28);
+
+            getSelectedFontSize.returns("16px");
+            updateFontSize();
+
+            expect((iframe.contentDocument as any).body.style.fontSize).to.equal("16px");
+            expect((iframe.contentDocument as any).body.style.lineHeight).to.equal("1.5");
+            expect(paginator.sideMargin).to.equal(32);
         });
 
         it("should render the cache status", () => {
@@ -584,12 +629,12 @@ describe("IFrameNavigator", () => {
 
             await pause();
             expect(setupEvents.callCount).to.equal(1);
-            expect(setupEvents.args[0][0]).to.equal(iframe.contentDocument);
+            expect(setupEvents.args[0][0]).to.equal((iframe.contentDocument as any));
 
             iframe.src = "http://example.com/item-1.html";
             await pause();
             expect(setupEvents.callCount).to.equal(2);
-            expect(setupEvents.args[1][0]).to.equal(iframe.contentDocument);
+            expect(setupEvents.args[1][0]).to.equal((iframe.contentDocument as any));
         });
 
         it("should load first spine item in the iframe", async () => {
@@ -626,7 +671,7 @@ describe("IFrameNavigator", () => {
             // The up link isn't shown if it's not configured.
             expect(noUpLink).not.to.be.ok;
 
-            navigator = await IFrameNavigator.create({
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
@@ -656,7 +701,7 @@ describe("IFrameNavigator", () => {
             expect(upLink.getAttribute("aria-label")).to.equal("Up Aria Text");
 
             // If there's no separate aria label, it uses the label.
-            navigator = await IFrameNavigator.create({
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
@@ -1047,6 +1092,10 @@ describe("IFrameNavigator", () => {
         });
 
         it("should show error message when iframe fails to load", async () => {
+            process.on('unhandledRejection', (reason) => {
+                console.log('REJECTION', reason)
+            })
+            
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const error = element.querySelector("div[class=error]") as HTMLDivElement;
             const tryAgain = element.querySelector(".try-again") as HTMLButtonElement;
@@ -1088,7 +1137,7 @@ describe("IFrameNavigator", () => {
             }, new URL("http://example.com/manifest.json"));
             store.set("manifest", JSON.stringify(manifest));
 
-            navigator = await IFrameNavigator.create({
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
@@ -1106,7 +1155,7 @@ describe("IFrameNavigator", () => {
                 eventHandler
             });
             const toc = element.querySelector(".contents-view") as HTMLDivElement;
-            expect(toc.parentElement.style.display).to.equal("none");
+            expect((toc.parentElement as any).style.display).to.equal("none");
         });
 
         it("should render each link in the manifest toc", async () => {
@@ -1131,7 +1180,7 @@ describe("IFrameNavigator", () => {
             expect(link4.href).to.equal("http://example.com/item-2.html");
             expect(link4.text).to.equal("Item 2");
 
-            const sublinks = link1.parentElement.querySelectorAll("ol > li");
+            const sublinks = (link1.parentElement as any).querySelectorAll("ol > li");
             expect(sublinks.length).to.equal(2);
 
             expect(sublinks[0].childElementCount).to.equal(1);
@@ -1397,7 +1446,7 @@ describe("IFrameNavigator", () => {
             }, new URL("http://example.com/manifest.json"));
             store.set("manifest", JSON.stringify(manifest));
 
-            navigator = await IFrameNavigator.create({
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,
@@ -1442,6 +1491,48 @@ describe("IFrameNavigator", () => {
         });
 
         it("should set class on the active toc item", async () => {
+            const manifest = new Manifest({
+                metadata: {
+                    title: "Title"
+                },
+                spine: [
+                    { href: "start.html", title: "Start" },
+                    { href: "item-1.html", title: "Item 1" },
+                    { href: "item-2.html" },
+                    { href: "item-3.html" }
+                ],
+                toc: [
+                    {
+                        href: "item-1.html#_idParaDest-1",
+                        title: "Item 1",
+                        children: [
+                            { href: "subitem-1.html", title: "Subitem 1" },
+                            { href: "subitem-2.html", title: "Subitem 2" }
+                        ]
+                    },
+                    { href: "item-2.html", "title": "Item 2" }
+                ]
+            }, new URL("http://example.com/manifest.json"));
+            store.set("manifest", JSON.stringify(manifest));
+
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                publisher,
+                serif,
+                sans,
+                day,
+                sepia,
+                night,
+                paginator,
+                scroller,
+                eventHandler
+            });
+
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const toc = element.querySelector(".contents-view") as HTMLDivElement;
 
@@ -1712,7 +1803,7 @@ describe("IFrameNavigator", () => {
             expect(scrollingSuggestion.style.display).not.to.equal("none");
 
             getSelectedView.returns(scroller);            
-            navigator = await IFrameNavigator.create({
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
                 element,
                 manifestUrl: new URL("http://example.com/manifest.json"),
                 store,

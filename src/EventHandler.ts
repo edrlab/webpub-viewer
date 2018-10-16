@@ -23,22 +23,26 @@ export default class EventHandler {
     private static readonly DOUBLE_TAP_MS = 200;
     private static readonly SLOW_SWIPE_MS = 500;
 
-    public setupEvents(element: HTMLElement | Document) {
-        if (this.isTouchDevice()) {
-            element.addEventListener("touchstart", this.handleTouchEventStart.bind(this));
-            element.addEventListener("touchend", this.handleTouchEventEnd.bind(this));
-        } else {
-            element.addEventListener("mousedown", this.handleMouseEventStart.bind(this));
-            element.addEventListener("mouseup", this.handleMouseEventEnd.bind(this));
-            element.addEventListener("mouseenter", this.handleMouseMove.bind(this));
-            element.addEventListener("mousemove", this.handleMouseMove.bind(this));
-            element.addEventListener("mouseleave", this.handleMouseLeave.bind(this));
-        }
+    public setupEvents(element: HTMLElement | Document | null) {
+        if (element !== null) {
+            if (this.isTouchDevice()) {
+                element.addEventListener("touchstart", this.handleTouchEventStart.bind(this));
+                element.addEventListener("touchend", this.handleTouchEventEnd.bind(this));
+            } else {
+                element.addEventListener("mousedown", this.handleMouseEventStart.bind(this));
+                element.addEventListener("mouseup", this.handleMouseEventEnd.bind(this));
+                element.addEventListener("mouseenter", this.handleMouseMove.bind(this));
+                element.addEventListener("mousemove", this.handleMouseMove.bind(this));
+                element.addEventListener("mouseleave", this.handleMouseLeave.bind(this));
+            }
 
-        // Most click handling is done in the touchend and mouseup event handlers,
-        // but if there's a click on an external link we need to cancel the click
-        // event to prevent it from opening in the iframe.
-        element.addEventListener("click", this.handleExternalLinks.bind(this));
+            // Most click handling is done in the touchend and mouseup event handlers,
+            // but if there's a click on an external link we need to cancel the click
+            // event to prevent it from opening in the iframe.
+            element.addEventListener("click", this.handleExternalLinks.bind(this));
+        } else {
+            throw "cannot setup events for null";
+        }
     }
 
     private isTouchDevice() {
@@ -237,7 +241,7 @@ export default class EventHandler {
             if (nextElement.tagName.toLowerCase() === "a" && (nextElement as HTMLAnchorElement).href) {
                 return (nextElement as HTMLAnchorElement);
             } else {
-                nextElement = nextElement.parentElement;
+                (nextElement as any) = nextElement.parentElement;
             }
         }
         return null;

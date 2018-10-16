@@ -16,6 +16,7 @@ describe("EventHandler", () => {
     let onRightHover: sinon.SinonStub;
     let onRemoveHover: sinon.SinonStub;
 
+    let faultyIframe: null;
     let element: HTMLElement;
     let div: HTMLDivElement;
     let span: HTMLSpanElement;
@@ -101,6 +102,14 @@ describe("EventHandler", () => {
     });
 
     describe("#setupEvents", () => {
+        it("should raise exception if iframe is null", () => {
+            faultyIframe = null;
+            const test = () => {
+                eventHandler.setupEvents(faultyIframe);
+            }
+            expect(test).to.throw("cannot setup events for null");
+        });
+
         describe("mouse events", () => {
             beforeEach(() => {
                 eventHandler.setupEvents(element);

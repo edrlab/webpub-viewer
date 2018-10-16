@@ -49,19 +49,14 @@ describe("Manifest", () => {
         const manifest = new Manifest(manifestJSON, new URL("https://example.com/manifest.json"));
         let store: MemoryStore;
 
-        const mockFetchAPI = (response: Promise<any>) => {
-            window.fetch = stub().returns(response);
-        };
-
         beforeEach(() => {
             store = new MemoryStore();
         });
 
         describe("if fetching the manifest fails", () => {
-            const fetchFailure = new Promise((_, reject) => reject());
 
             beforeEach(() => {
-                mockFetchAPI(fetchFailure);
+                window.fetch = stub().rejects();
             })
 
             it("should return cached manifest from local store", async () => {
@@ -89,9 +84,8 @@ describe("Manifest", () => {
                     return new Promise(resolve => resolve(manifestJSON));
                 }
             } as any);
-            const fetchSuccess = new Promise(resolve => resolve(fetchResponse));
 
-            mockFetchAPI(fetchSuccess);
+            window.fetch = stub().resolves(fetchResponse);
 
             const response: Manifest = await Manifest.getManifest(new URL("https://example.com/manifest.json"), store);
             expect(response).to.deep.equal(manifest);

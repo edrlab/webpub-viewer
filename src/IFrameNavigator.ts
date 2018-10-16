@@ -533,7 +533,7 @@ export default class IFrameNavigator implements Navigator {
             }
             createTOC(this.tocView, toc);
         } else {
-            this.contentsControl.parentElement.style.display = "none";
+            (this.contentsControl.parentElement as any).style.display = "none";
         }
 
         if (this.upLinkConfig && this.upLinkConfig.url) {
@@ -873,7 +873,7 @@ export default class IFrameNavigator implements Navigator {
         const oldPosition = selectedView.getCurrentPosition();
 
         const fontSize = this.settings.getSelectedFontSize();
-        const body = HTMLUtilities.findRequiredElement(this.iframe.contentDocument, "body") as HTMLBodyElement;
+        const body = HTMLUtilities.findRequiredIframeElement(this.iframe.contentDocument, "body") as HTMLBodyElement;
         body.style.fontSize = fontSize;
         body.style.lineHeight = "1.5";
 
