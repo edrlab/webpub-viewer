@@ -1131,9 +1131,37 @@ describe("IFrameNavigator", () => {
             });
         });
 
-        it("should set iframe classes on hover", async () => {
+        it("should set iframe classes on hover in the paginated view", async () => {
             await pause();
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+
+            expect(iframe.className).to.equal("");
+
+            // On first page of first chapter, left hover should not be applied
+            paginatorCurrentPage = 1;
+            onFirstPage.returns(true);
+            onLastPage.returns(false);
+
+            await pause();
+
+            expect(iframe.className).to.equal("");
+
+            eventHandler.onLeftHover();
+            expect(iframe.className).to.equal("");
+
+            eventHandler.onRightHover();
+            expect(iframe.className).to.equal("right-hover");
+
+            eventHandler.onRemoveHover();
+            expect(iframe.className).to.equal("");
+
+            // On first page of second chapter, left hover should applied
+            iframe.src = "http://example.com/item-1.html";
+            paginatorCurrentPage = 1;
+            onFirstPage.returns(true);
+            onLastPage.returns(false);
+
+            await pause();
 
             expect(iframe.className).to.equal("");
 
@@ -1146,11 +1174,56 @@ describe("IFrameNavigator", () => {
             eventHandler.onRemoveHover();
             expect(iframe.className).to.equal("");
 
-            // In scrolling view, hover does nothing;
+            // On any other page, left and right hover should applied
+            iframe.src = "http://example.com/item-2.html";
+            paginatorCurrentPage = 3;
+            onFirstPage.returns(false);
+            onLastPage.returns(false);
+
+            await pause();
+
+            expect(iframe.className).to.equal("");
+
+            eventHandler.onLeftHover();
+            expect(iframe.className).to.equal("left-hover");
+
+            eventHandler.onRightHover();
+            expect(iframe.className).to.equal("right-hover");
+
+            eventHandler.onRemoveHover();
+            expect(iframe.className).to.equal("");
+
+            // On last page of last chapter, right hover should not be applied
+            iframe.src = "http://example.com/item-3.html";
+            paginatorCurrentPage = 3;
+            onFirstPage.returns(false);
+            onLastPage.returns(true);
+
+            await pause();
+
+            expect(iframe.className).to.equal("");
+
+            eventHandler.onLeftHover();
+            expect(iframe.className).to.equal("left-hover");
+
+            eventHandler.onRightHover();
+            expect(iframe.className).to.equal("");
+
+            eventHandler.onRemoveHover();
+            expect(iframe.className).to.equal("");
+        });
+
+        it("should do nothing on hover in the scrolled view", async () => {
+            await pause();
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+
+            const updateBookView = onViewChange.args[0][0];
+
             getSelectedView.returns(scroller);
 
-            iframe.src = "http://example.com/item-1.html";
-            await pause();
+            updateBookView();
+
+            expect(iframe.className).to.equal("");
 
             eventHandler.onLeftHover();
             expect(iframe.className).to.equal("");

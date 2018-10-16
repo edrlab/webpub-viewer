@@ -640,6 +640,7 @@ export default class IFrameNavigator implements Navigator {
             } else {
                 this.previousChapterLink.removeAttribute("href");
                 this.previousChapterLink.className = "disabled";
+                this.handleRemoveHover();
             }
 
             const next = manifest.getNextSpineItem(currentLocation);
@@ -649,6 +650,7 @@ export default class IFrameNavigator implements Navigator {
             } else {
                 this.nextChapterLink.removeAttribute("href");
                 this.nextChapterLink.className = "disabled";
+                this.handleRemoveHover();
             }
 
             this.setActiveTOCItem(currentLocation);
@@ -874,11 +876,23 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private handleLeftHover(): void {
-        this.iframe.className = "left-hover";
+        if (this.paginator) { 
+            if (this.paginator.onFirstPage() && !this.previousChapterLink.hasAttribute("href")) {
+                this.iframe.className = ""; 
+            } else {
+                this.iframe.className = "left-hover";
+            }
+        }
     }
 
     private handleRightHover(): void {
-        this.iframe.className = "right-hover";
+        if (this.paginator) { 
+            if (this.paginator.onLastPage() && !this.nextChapterLink.hasAttribute("href")) {
+                this.iframe.className = ""; 
+            } else {
+                this.iframe.className = "right-hover";
+            }
+        }
     }
 
     private handleRemoveHover(): void {
