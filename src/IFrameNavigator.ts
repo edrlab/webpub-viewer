@@ -333,7 +333,7 @@ export default class IFrameNavigator implements Navigator {
         const delay: number = 200;
         let timeout: any;
 
-        window.addEventListener('resize', () => {
+        window.addEventListener("resize", () => {
             clearTimeout(timeout);
             timeout = setTimeout(this.handleResize.bind(this), delay);
         });
@@ -357,6 +357,8 @@ export default class IFrameNavigator implements Navigator {
         this.settingsControl.addEventListener("keydown", this.hideSettingsOnEscape.bind(this));
 
         this.settingsView.addEventListener("keydown", this.hideSettingsOnEscape.bind(this));
+
+        window.addEventListener("keydown", this.handleKeyboardNavigation.bind(this));
     }
 
     private setupModalFocusTrap(modal: HTMLDivElement, closeButton: HTMLButtonElement, lastFocusableElement: HTMLButtonElement | HTMLAnchorElement): void {
@@ -390,6 +392,19 @@ export default class IFrameNavigator implements Navigator {
         });
     }
 
+    private handleKeyboardNavigation(event: KeyboardEvent): void {
+        const LEFT_ARROW = 37;
+        const RIGHT_ARROW = 39;
+
+        if (this.settings.getSelectedView() === this.paginator) {
+            if (event.keyCode === LEFT_ARROW) {
+                this.handlePreviousPageClick(event);
+            } else if (event.keyCode === RIGHT_ARROW) {
+                this.handleNextPageClick(event);
+            }
+        }
+    };
+
     private updateFont(): void {
         this.handleResize();
     }
@@ -415,6 +430,8 @@ export default class IFrameNavigator implements Navigator {
                 this.eventHandler.onRightHover = this.handleRightHover.bind(this);
                 this.eventHandler.onRemoveHover = this.handleRemoveHover.bind(this);
                 this.eventHandler.onInternalLink = this.handleInternalLink.bind(this);
+                this.eventHandler.onLeftArrow = this.handleKeyboardNavigation.bind(this);
+                this.eventHandler.onRightArrow = this.handleKeyboardNavigation.bind(this);
             }
             if (this.isDisplayed(this.linksBottom)) {
                 this.toggleDisplay(this.linksBottom);
@@ -449,6 +466,8 @@ export default class IFrameNavigator implements Navigator {
                 this.eventHandler.onRightHover = doNothing;
                 this.eventHandler.onRemoveHover = doNothing;
                 this.eventHandler.onInternalLink = doNothing;
+                this.eventHandler.onLeftArrow = doNothing;
+                this.eventHandler.onRightArrow = doNothing;
                 this.handleRemoveHover();
             }
             if (this.isDisplayed(this.links) && !this.isDisplayed(this.linksBottom)) {
@@ -678,7 +697,6 @@ export default class IFrameNavigator implements Navigator {
                 this.chapterTitle.innerHTML = "(Current Chapter)";
             }
 
-
             if (this.eventHandler) {
                 this.eventHandler.setupEvents(this.iframe.contentDocument);
             }
@@ -837,7 +855,7 @@ export default class IFrameNavigator implements Navigator {
         event.stopPropagation();
     }
 
-    private handlePreviousPageClick(event: MouseEvent | TouchEvent): void {
+    private handlePreviousPageClick(event: MouseEvent | TouchEvent | KeyboardEvent): void {
         if (this.paginator) {
             if (this.paginator.onFirstPage()) {
                 if (this.previousChapterLink.hasAttribute("href")) {
@@ -857,7 +875,7 @@ export default class IFrameNavigator implements Navigator {
         }
     }
 
-    private handleNextPageClick(event: MouseEvent | TouchEvent) {
+    private handleNextPageClick(event: MouseEvent | TouchEvent | KeyboardEvent) {
         if (this.paginator) {
             if (this.paginator.onLastPage()) {
                 if (this.nextChapterLink.hasAttribute("href")) {

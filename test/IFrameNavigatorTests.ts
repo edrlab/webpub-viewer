@@ -933,6 +933,71 @@ describe("IFrameNavigator", () => {
             });
         });
 
+        it("should go to previous page when using the keyboard", async () => {
+            jsdom.changeURL(window, "http://example.com");
+            const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
+            
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            paginatorCurrentPage = 4;
+
+            // If you're not on the first page, it goes to the previous page.
+            eventHandler.onLeftArrow(new KeyboardEvent("keydown", { keyCode: 37 } as any));
+
+            expect(onFirstPage.callCount).to.equal(1);
+            expect(goToPreviousPage.callCount).to.equal(1);
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(2);
+            expect(saveLastReadingPosition.args[1][0]).to.deep.equal({
+                resource: "http://example.com/start.html",
+                position: 0.25
+            });
+
+            let dispatchedLeftArrow = new KeyboardEvent("keydown", { keyCode: 37 } as any);
+            window.dispatchEvent(dispatchedLeftArrow);
+            expect(goToPreviousPage.callCount).to.equal(2);
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(3);
+            expect(saveLastReadingPosition.args[2][0]).to.deep.equal({
+                resource: "http://example.com/start.html",
+                position: 0.25
+            });
+
+            // If you're on the first page of the first spine item, it does nothing.
+            onFirstPage.returns(true);
+            paginatorCurrentPage = 3;
+
+            eventHandler.onLeftArrow(new KeyboardEvent("keydown", { keyCode: 37 } as any));
+            expect(onFirstPage.callCount).to.equal(3);
+            expect(goToPreviousPage.callCount).to.equal(2);
+            expect(iframe.src).to.equal("http://example.com/start.html");
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
+
+            // If you're on the first page of a later spine item, it goes to the
+            // last page of the previous spine item.
+            iframe.src = "http://example.com/item-2.html";
+            await pause();
+            expect(paginatorStart.callCount).to.equal(2);
+
+            eventHandler.onLeftArrow(new KeyboardEvent("keydown", { keyCode: 37 } as any));
+            expect(onFirstPage.callCount).to.equal(4);
+            expect(goToPreviousPage.callCount).to.equal(2);
+            expect(iframe.src).to.equal("http://example.com/item-1.html");
+
+            await pause();
+            expect(paginatorStart.callCount).to.equal(3);
+            expect(paginatorStart.args[2][0]).to.equal(1);
+
+            expect(saveLastReadingPosition.callCount).to.equal(5);
+            expect(saveLastReadingPosition.args[4][0]).to.deep.equal({
+                resource: "http://example.com/item-1.html",
+                position: 0.25
+            });
+        });
+
         it("should go to next page", async () => {
             jsdom.changeURL(window, "http://example.com");
             const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
@@ -984,6 +1049,73 @@ describe("IFrameNavigator", () => {
             expect(paginatorStart.callCount).to.equal(3);
 
             eventHandler.onRightTap(new UIEvent("mouseup"));
+            expect(onLastPage.callCount).to.equal(4);
+            expect(goToNextPage.callCount).to.equal(2);
+            expect(iframe.src).to.equal("http://example.com/item-2.html");
+
+            await pause();
+            expect(paginatorStart.callCount).to.equal(4);
+            expect(paginatorStart.args[3][0]).to.equal(0);
+
+            expect(saveLastReadingPosition.callCount).to.equal(6);
+            expect(saveLastReadingPosition.args[5][0]).to.deep.equal({
+                resource: "http://example.com/item-2.html",
+                position: 0.25
+            });
+        });
+
+        it("should go to next page when using the keyboard", async () => {
+            jsdom.changeURL(window, "http://example.com");
+            const chapterPosition = element.querySelector(".chapter-position") as HTMLSpanElement;
+            
+            const iframe = element.querySelector("iframe") as HTMLIFrameElement;
+            paginatorCurrentPage = 4;
+
+            // If you're not on the last page, it goes to the next page.
+            eventHandler.onRightArrow(new KeyboardEvent("keydown", { keyCode: 39 } as any));
+            expect(onLastPage.callCount).to.equal(1);
+            expect(goToNextPage.callCount).to.equal(1);
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(2);
+            expect(saveLastReadingPosition.args[1][0]).to.deep.equal({
+                resource: "http://example.com/start.html",
+                position: 0.25
+            });
+
+            let dispatchedRightArrow = new KeyboardEvent("keydown", { keyCode: 39 } as any);
+            window.dispatchEvent(dispatchedRightArrow);
+            expect(onLastPage.callCount).to.equal(2);
+            expect(goToNextPage.callCount).to.equal(2);
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
+
+            await pause();
+            expect(saveLastReadingPosition.callCount).to.equal(3);
+            expect(saveLastReadingPosition.args[1][0]).to.deep.equal({
+                resource: "http://example.com/start.html",
+                position: 0.25
+            });
+
+            // If you're on the last page of the last spine item, it does nothing.
+            iframe.src = "http://example.com/item-3.html";
+            await pause();
+            onLastPage.returns(true);
+            paginatorCurrentPage = 3;
+
+            eventHandler.onRightArrow(new KeyboardEvent("keydown", { keyCode: 39 } as any));
+            expect(onLastPage.callCount).to.equal(3);
+            expect(goToNextPage.callCount).to.equal(2);
+            expect(iframe.src).to.equal("http://example.com/item-3.html");
+            expect(chapterPosition.innerHTML).to.equal("Page 4 of 8");
+
+            // If you're on the last page of an earlier spine item, it goes to the
+            // first page of the next spine item.
+            iframe.src = "http://example.com/item-1.html";
+            await pause();
+            expect(paginatorStart.callCount).to.equal(3);
+
+            eventHandler.onRightArrow(new KeyboardEvent("keydown", { keyCode: 39 } as any));
             expect(onLastPage.callCount).to.equal(4);
             expect(goToNextPage.callCount).to.equal(2);
             expect(iframe.src).to.equal("http://example.com/item-2.html");

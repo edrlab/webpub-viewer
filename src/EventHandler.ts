@@ -12,6 +12,9 @@ export default class EventHandler {
     public onBackwardSwipe: (event: UIEvent) => void = () => {};
     public onForwardSwipe: (event: UIEvent) => void = () => {};
 
+    public onLeftArrow: (event: UIEvent) => void = () => {};
+    public onRightArrow: (event: UIEvent) => void = () => {};
+
     public onLeftHover: () => void = () => {};
     public onRightHover: () => void = () => {};
     public onRemoveHover: () => void = () => {};
@@ -39,6 +42,8 @@ export default class EventHandler {
             // but if there's a click on an external link we need to cancel the click
             // event to prevent it from opening in the iframe.
             element.addEventListener("click", this.handleLinks.bind(this));
+
+            element.addEventListener("keydown", this.handleKeyboard.bind(this));
         } else {
             throw "cannot setup events for null";
         }
@@ -261,7 +266,7 @@ export default class EventHandler {
         this.onRemoveHover();
     }
 
-    private handleLinks = (event: MouseEvent | TouchEvent) : void => {
+    private handleLinks = (event: MouseEvent | TouchEvent): void => {
         const link = this.checkForLink(event);
         if (link) {
             // Open external links in new tabs.
@@ -280,6 +285,20 @@ export default class EventHandler {
             } else if (isSameOrigin && isInternal === -1) {
                 link.click();
             }
+        }
+    }
+
+    private handleKeyboard = (event: KeyboardEvent): void => {
+        const LEFT_ARROW = 37;
+        const RIGHT_ARROW = 39;
+        const TAB_KEY = 9;
+
+        if (event.keyCode === LEFT_ARROW) {
+            this.onLeftArrow(event);
+        } else if (event.keyCode === RIGHT_ARROW) {
+            this.onRightArrow(event);
+        } else if (event.keyCode === TAB_KEY) {
+            event.preventDefault();
         }
     }
 }

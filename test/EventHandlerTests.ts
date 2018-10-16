@@ -12,6 +12,8 @@ describe("EventHandler", () => {
     let onRightTap: sinon.SinonStub;
     let onBackwardSwipe: sinon.SinonStub;
     let onForwardSwipe: sinon.SinonStub;
+    let onLeftArrow: sinon.SinonStub;
+    let onRightArrow: sinon.SinonStub;
     let onLeftHover: sinon.SinonStub;
     let onRightHover: sinon.SinonStub;
     let onRemoveHover: sinon.SinonStub;
@@ -57,6 +59,8 @@ describe("EventHandler", () => {
         onRightTap = stub();
         onBackwardSwipe = stub();
         onForwardSwipe = stub();
+        onLeftArrow = stub();
+        onRightArrow = stub();
         onLeftHover = stub();
         onRightHover = stub();
         onRemoveHover = stub();
@@ -67,6 +71,8 @@ describe("EventHandler", () => {
         eventHandler.onRightTap = onRightTap;
         eventHandler.onBackwardSwipe = onBackwardSwipe;
         eventHandler.onForwardSwipe = onForwardSwipe;
+        eventHandler.onLeftArrow = onLeftArrow;
+        eventHandler.onRightArrow = onRightArrow;
         eventHandler.onLeftHover = onLeftHover;
         eventHandler.onRightHover = onRightHover;
         eventHandler.onRemoveHover = onRemoveHover;
@@ -498,6 +504,38 @@ describe("EventHandler", () => {
                 await pause(250);
 
                 expect(openStub.callCount).to.equal(0);
+            });
+        });
+
+        describe("keyboard events", () => {
+            const keyEvent = (type: string, code: number, target: HTMLElement = div) => {
+                const keyEvent = document.createEvent("UIEvent") as any;
+                keyEvent.initEvent(type, true, true);
+                keyEvent.keyCode = code;
+                
+                target.dispatchEvent(keyEvent);
+            };
+
+            beforeEach(() => {
+                eventHandler.setupEvents(element);
+            });
+
+            it("should do nothing if a non-handled key is pressed", () => {
+                keyEvent("keydown", 8);
+                expect(onLeftArrow.callCount).to.equal(0);
+                expect(onRightArrow.callCount).to.equal(0);
+            });
+
+            it("should handle the left arrow key", () => {
+                keyEvent("keydown", 37);
+                expect(onLeftArrow.callCount).to.equal(1);
+                expect(onRightArrow.callCount).to.equal(0);
+            });
+
+            it("should handle the right arrow key", () => {
+                keyEvent("keydown", 39);
+                expect(onLeftArrow.callCount).to.equal(0);
+                expect(onRightArrow.callCount).to.equal(1);
             });
         });
     });
