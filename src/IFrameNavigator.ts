@@ -420,37 +420,24 @@ export default class IFrameNavigator implements Navigator {
             this.contentsControl.className = "contents";
 
             const createTOC = (parentElement: Element, links: Array<Link>) => {
-                const listElement: HTMLUListElement = document.createElement("ul");
+                const listElement: HTMLOListElement = document.createElement("ol");
                 let lastLink: HTMLAnchorElement | null = null;
                 for (const link of links) {
                     const listItemElement : HTMLLIElement = document.createElement("li");
                     const linkElement: HTMLAnchorElement = document.createElement("a");
+                    const spanElement: HTMLSpanElement = document.createElement("span");
                     linkElement.tabIndex = -1;
                     let href = "";
                     if (link.href) {
                         href = new URL(link.href, this.manifestUrl.href).href;
+                    
+                        linkElement.href = href;
+                        linkElement.innerHTML = link.title || "";
+                        listItemElement.appendChild(linkElement);
+                    } else {
+                        spanElement.innerHTML = link.title || "";
+                        listItemElement.appendChild(spanElement);
                     }
-                    linkElement.href = href;
-                    linkElement.innerHTML = link.title || "";
-                    linkElement.addEventListener("click", (event: Event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        if ((event.currentTarget as HTMLAnchorElement).className.indexOf("active") !== -1) {
-                            // This TOC item is already loaded. Hide the TOC
-                            // but don't navigate.
-                            this.hideTOC();
-                        } else {
-                            // Set focus back to the contents toggle button so screen readers
-                            // don't get stuck on a hidden link.
-                            this.contentsControl.focus();
-                            this.navigate({
-                                resource: linkElement.href,
-                                position: 0
-                            });
-                        }
-                    });
-                    listItemElement.appendChild(linkElement);
-
                     if (link.children && link.children.length > 0) {
                         createTOC(listItemElement, link.children);
                     }
@@ -463,6 +450,28 @@ export default class IFrameNavigator implements Navigator {
                 if (lastLink) {
                     this.setupModalFocusTrap(this.tocView, this.contentsControl, lastLink);
                 }
+
+                listElement.addEventListener("click", (event:Event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if(event.target && (event.target as HTMLElement).tagName.toLowerCase() === "a") {
+                        let linkElement = event.target as HTMLAnchorElement;
+
+                        if (linkElement.className.indexOf("active") !== -1) {
+                            // This TOC item is already loaded. Hide the TOC
+                            // but don't navigate.
+                            this.hideTOC();
+                        } else {
+                            // Set focus back to the contents toggle button so screen readers
+                            // don't get stuck on a hidden link.
+                            this.contentsControl.focus();
+                            this.navigate({
+                                resource: linkElement.href,
+                                position: 0
+                            });
+                        }
+                    }
+                });
 
                 parentElement.appendChild(listElement);
             }
@@ -925,14 +934,14 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private setActiveTOCItem(resource: string): void {
-       const allItems = Array.prototype.slice.call(this.tocView.querySelectorAll("li > a"));
-       for (const item of allItems) {
-           item.className = "";
-       }
-       const activeItem = this.tocView.querySelector('li > a[href="' + resource  + '"]');
-       if (activeItem) {
-           activeItem.className = "active";
-       }
+        const allItems = Array.prototype.slice.call(this.tocView.querySelectorAll("li > a"));
+        for (const item of allItems) {
+            item.className = "";
+        }
+        const activeItem = this.tocView.querySelector('li > a[href^="' + resource  + '"]');
+        if (activeItem) {
+            activeItem.className = "active";
+        }
     }
 
     private handleSettingsClick(event: MouseEvent): void {

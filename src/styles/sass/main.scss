@@ -17,7 +17,8 @@ body {
   margin: 0 auto;
 }
 
-ul li {
+ul li,
+ol li {
   list-style: none;
 }
 
@@ -62,7 +63,8 @@ a {
   top: 0;
   width: 100%;
 
-  ul li {
+  ul li,
+  ol li {
     display: inline-block;
   }
 

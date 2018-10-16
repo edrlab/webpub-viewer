@@ -185,7 +185,7 @@ describe("IFrameNavigator", () => {
 
     const click = (element: any) => {
         const event = document.createEvent("HTMLEvents");
-        event.initEvent("click", false, true);
+        event.initEvent("click", true, true);
         element.dispatchEvent(event);
     };
 
@@ -967,8 +967,8 @@ describe("IFrameNavigator", () => {
         it("should render each link in the manifest toc", async () => {
             const toc = element.querySelector(".contents-view") as HTMLDivElement;
 
-            const list = toc.querySelector("ul") as HTMLUListElement;
-            expect(list.tagName.toLowerCase()).to.equal("ul");
+            const list = toc.querySelector("ol") as HTMLOListElement;
+            expect(list.tagName.toLowerCase()).to.equal("ol");
 
             const links = list.querySelectorAll("li > a");
             expect(links.length).to.equal(4);
@@ -986,11 +986,77 @@ describe("IFrameNavigator", () => {
             expect(link4.href).to.equal("http://example.com/item-2.html");
             expect(link4.text).to.equal("Item 2");
 
-            const sublinks = link1.parentElement.querySelectorAll("ul > li > a");
+            const sublinks = link1.parentElement.querySelectorAll("ol > li");
             expect(sublinks.length).to.equal(2);
 
-            expect(sublinks[0]).to.equal(link2);
-            expect(sublinks[1]).to.equal(link3);
+            expect(sublinks[0].childElementCount).to.equal(1);
+            expect(sublinks[0].children[0]).to.equal(link2);
+            expect(sublinks[1].childElementCount).to.equal(1);
+            expect(sublinks[1].children[0]).to.equal(link3);
+        });
+
+        it("should handle toc entries which don’t have an href", async () => {
+            const manifest = new Manifest({
+                metadata: {
+                    title: "Title"
+                },
+                spine: [
+                    { href: "start.html", title: "Start" },
+                    { href: "item-1.html", title: "Item 1" },
+                    { href: "item-2.html" },
+                    { href: "item-3.html" }
+                ],
+                toc: [
+                    {
+                        title: "Item 1",
+                        children: [
+                            { href: "subitem-1.html", title: "Subitem 1" },
+                            { href: "subitem-2.html", title: "Subitem 2" }
+                        ]
+                    }
+                ]
+            }, new URL("http://example.com/manifest.json"));
+            store.set("manifest", JSON.stringify(manifest));
+
+            (navigator as IFrameNavigator) = await IFrameNavigator.create({
+                element,
+                manifestUrl: new URL("http://example.com/manifest.json"),
+                store,
+                cacher,
+                settings,
+                annotator,
+                paginator,
+                scroller,
+                eventHandler
+            });
+            const toc = element.querySelector(".contents-view") as HTMLDivElement;
+            
+            const list = toc.querySelector("ol") as HTMLOListElement;
+            expect(list.tagName.toLowerCase()).to.equal("ol");
+
+            const links = list.querySelectorAll("li > a");
+            expect(links.length).to.equal(2);
+
+            const link1 = links[0] as HTMLAnchorElement;
+            const link2 = links[1] as HTMLAnchorElement;
+            expect(link1.href).to.equal("http://example.com/subitem-1.html");
+            expect(link1.text).to.equal("Subitem 1");
+            expect(link2.href).to.equal("http://example.com/subitem-2.html");
+            expect(link2.text).to.equal("Subitem 2");
+
+            const spans = list.querySelectorAll("li > span");
+            expect(spans.length).to.equal(1);
+
+            const span1 = spans[0] as HTMLSpanElement;
+            expect(span1.textContent).to.equal("Item 1");
+
+            const sublinks = (spans[0].parentElement as any).querySelectorAll("ol > li");
+            expect(sublinks.length).to.equal(2);
+
+            expect(sublinks[0].childElementCount).to.equal(1);
+            expect(sublinks[0].children[0]).to.equal(link1);
+            expect(sublinks[1].childElementCount).to.equal(1);
+            expect(sublinks[1].children[0]).to.equal(link2);
         });
 
         it("should show and hide when contents control is clicked", async () => {

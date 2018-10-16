@@ -6,7 +6,7 @@
   overflow: scroll;
   top: 3.2rem;
 
-  ul li {
+  ol li {
     margin-top: 0;
     width: 88%;
 
@@ -34,6 +34,15 @@
         background: $mta-black;
         color: $mta-gray;
       }
+    }
+
+    span {
+      color: $mta-black;
+      border-bottom: 1px solid darken($pure-white, 20%);
+      display: block;
+      padding: 1rem;
+      text-decoration: none;
+      width: 100%;
     }
   }
 }
