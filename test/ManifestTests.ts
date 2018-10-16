@@ -49,7 +49,7 @@ describe("Manifest", () => {
         const manifest = new Manifest(manifestJSON, new URL("https://example.com/manifest.json"));
         let store: MemoryStore;
 
-        const mockFetchAPI = (response: Promise<Response>) => {
+        const mockFetchAPI = (response: Promise<any>) => {
             window.fetch = stub().returns(response);
         };
 

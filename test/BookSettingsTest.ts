@@ -6,10 +6,10 @@ import BookView from "../src/BookView";
 import MemoryStore from "../src/MemoryStore";
 
 describe("BookSettings", () => {
-    let start: Sinon.SinonStub;
-    let stop: Sinon.SinonStub;
-    let getCurrentPosition: Sinon.SinonStub;
-    let goToPosition: Sinon.SinonStub;
+    let start: sinon.SinonStub;
+    let stop: sinon.SinonStub;
+    let getCurrentPosition: sinon.SinonStub;
+    let goToPosition: sinon.SinonStub;
 
     class MockBookView implements BookView {
         public id: number;

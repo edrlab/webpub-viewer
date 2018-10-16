@@ -17,39 +17,39 @@ import EventHandler from "../src/EventHandler";
 describe("IFrameNavigator", () => {
     let store: Store;
 
-    let enable: Sinon.SinonStub;
-    let onStatusUpdate: Sinon.SinonStub;
-    let getStatus: Sinon.SinonStub;
+    let enable: sinon.SinonStub;
+    let onStatusUpdate: sinon.SinonStub;
+    let getStatus: sinon.SinonStub;
     let cacher: Cacher;
 
-    let paginatorStart: Sinon.SinonStub;
-    let onFirstPage: Sinon.SinonStub;
-    let onLastPage: Sinon.SinonStub;
-    let goToPreviousPage: Sinon.SinonStub;
-    let goToNextPage: Sinon.SinonStub;
-    let paginatorGoToPosition: Sinon.SinonStub;
-    let paginatorGoToElement: Sinon.SinonStub;
+    let paginatorStart: sinon.SinonStub;
+    let onFirstPage: sinon.SinonStub;
+    let onLastPage: sinon.SinonStub;
+    let goToPreviousPage: sinon.SinonStub;
+    let goToNextPage: sinon.SinonStub;
+    let paginatorGoToPosition: sinon.SinonStub;
+    let paginatorGoToElement: sinon.SinonStub;
     let paginatorCurrentPage: number;
     let paginator: PaginatedBookView;
 
-    let scrollerStart: Sinon.SinonStub;
-    let scrollerAtBottom: Sinon.SinonStub;
+    let scrollerStart: sinon.SinonStub;
+    let scrollerAtBottom: sinon.SinonStub;
     let scroller: ScrollingBookView;
 
-    let getLastReadingPosition: Sinon.SinonStub;
-    let saveLastReadingPosition: Sinon.SinonStub;
+    let getLastReadingPosition: sinon.SinonStub;
+    let saveLastReadingPosition: sinon.SinonStub;
     let annotator: Annotator;
 
     let offlineStatusElement: HTMLElement;
-    let renderControls: Sinon.SinonStub;
-    let onViewChange: Sinon.SinonStub;
-    let onFontSizeChange: Sinon.SinonStub;
-    let getSelectedView: Sinon.SinonStub;
-    let getSelectedFontSize: Sinon.SinonStub;
-    let getOfflineStatusElement: Sinon.SinonStub;
+    let renderControls: sinon.SinonStub;
+    let onViewChange: sinon.SinonStub;
+    let onFontSizeChange: sinon.SinonStub;
+    let getSelectedView: sinon.SinonStub;
+    let getSelectedFontSize: sinon.SinonStub;
+    let getOfflineStatusElement: sinon.SinonStub;
     let settings: BookSettings;
 
-    let setupEvents: Sinon.SinonStub;
+    let setupEvents: sinon.SinonStub;
     let eventHandler: EventHandler;
 
     let element: HTMLElement;

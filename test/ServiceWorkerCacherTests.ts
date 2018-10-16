@@ -9,10 +9,10 @@ import ApplicationCacheCacher from "../src/ApplicationCacheCacher";
 import { CacheStatus } from "../src/Cacher";
 
 describe('ServiceWorkerCacher', () => {
-    let register: Sinon.SinonStub;
-    let match: Sinon.SinonStub;
-    let addAll: Sinon.SinonStub;
-    let open: Sinon.SinonStub;
+    let register: sinon.SinonStub;
+    let match: sinon.SinonStub;
+    let addAll: sinon.SinonStub;
+    let open: sinon.SinonStub;
     let store: MemoryStore;
     let element: HTMLElement;
 
@@ -38,7 +38,7 @@ describe('ServiceWorkerCacher', () => {
         open = stub().returns(new Promise((resolve) => {
             resolve(cache);
         }));
-        window.caches = ({
+        (window as any).caches = ({
             open: open,
             match: match
         } as any);

@@ -1,6 +1,9 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
     "module": "amd",
@@ -9,17 +12,18 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
     "outFile": "dist/webpub-viewer.js",
     "preserveConstEnums": true,
     "sourceMap": true,
-    "strictNullChecks": true,
-    "target": "es5"
+    "strictNullChecks": false,
+    "target": "es5",
+    "lib": [
+      "dom",
+      "es2015"
+    ]
   },
-  "files": [
-    "typings/index.d.ts"
-  ],
   "include": [
     "src/**/*"
   ],

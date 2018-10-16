@@ -5,8 +5,8 @@ import LocalStorageStore from "../src/LocalStorageStore";
 
 describe("LocalStorageStore", () => {
     let store: LocalStorageStore;
-    let getItem: Sinon.SinonStub;
-    let setItem: Sinon.SinonStub;
+    let getItem: sinon.SinonStub;
+    let setItem: sinon.SinonStub;
 
     let mockLocalStorageAPI = () => {
         (window as any).localStorage = ({

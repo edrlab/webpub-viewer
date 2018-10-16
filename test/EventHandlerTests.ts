@@ -7,14 +7,14 @@ import EventHandler from "../src/EventHandler";
 describe("EventHandler", () => {
     let eventHandler: EventHandler;
 
-    let onLeftTap: Sinon.SinonStub;
-    let onMiddleTap: Sinon.SinonStub;
-    let onRightTap: Sinon.SinonStub;
-    let onBackwardSwipe: Sinon.SinonStub;
-    let onForwardSwipe: Sinon.SinonStub;
-    let onLeftHover: Sinon.SinonStub;
-    let onRightHover: Sinon.SinonStub;
-    let onRemoveHover: Sinon.SinonStub;
+    let onLeftTap: sinon.SinonStub;
+    let onMiddleTap: sinon.SinonStub;
+    let onRightTap: sinon.SinonStub;
+    let onBackwardSwipe: sinon.SinonStub;
+    let onForwardSwipe: sinon.SinonStub;
+    let onLeftHover: sinon.SinonStub;
+    let onRightHover: sinon.SinonStub;
+    let onRemoveHover: sinon.SinonStub;
 
     let element: HTMLElement;
     let div: HTMLDivElement;
@@ -23,8 +23,8 @@ describe("EventHandler", () => {
     let parentLink: HTMLAnchorElement;
     let linkWithNoHref: HTMLAnchorElement;
 
-    let linkClicked: Sinon.SinonStub;
-    let parentLinkClicked: Sinon.SinonStub;
+    let linkClicked: sinon.SinonStub;
+    let parentLinkClicked: sinon.SinonStub;
 
     const event = (type: string, x: number = 0, y: number = 0, target: HTMLElement = div) => {
         const event = document.createEvent("UIEvent") as any;
@@ -430,7 +430,7 @@ describe("EventHandler", () => {
         });
 
         describe("click events", () => {
-            let openStub: Sinon.SinonStub;
+            let openStub: sinon.SinonStub;
 
             beforeEach(() => {
                 openStub = stub(window, "open");
