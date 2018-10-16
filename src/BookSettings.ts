@@ -3,6 +3,7 @@ import BookTheme from "./BookTheme";
 import BookFont from "./BookFont";
 import * as HTMLUtilities from "./HTMLUtilities";
 import Store from "./Store";
+import * as IconLib from "./IconLib";
 
 const template = (sections: string) => `
     <ul class="settings-menu" role="menu">
@@ -24,24 +25,6 @@ const offlineTemplate = `
     <li>
         <div class='offline-status'></div>
     </li>
-`;
-
-/* const decreaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="decrease-font-size" class="icon">
-  <title id="decrease-font-size">Decrease Font Size</title>
-    <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-35V28h35Z"/>
-</svg>
-`;
-
-const increaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="increase-font-size" class="icon">
-  <title id="increase-font-size">Increase Font Size</title>
-    <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-15.5V47.49841h-4V32h-15.5V28h15.5V12.49841h4V28h15.5Z"/>
-</svg>
-`; */
-
-const checkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 32" preserveAspectRatio="xMidYMid meet" class="checkedIcon" aria-label="check-icon" role="img">
-  <title>check icon</title>
-  <path d="M18.05257,31.0625,2.00775,15.01814a1,1,0,0,1,0-1.41422l2.535-2.535a1,1,0,0,1,1.4142,0L18.05257,23.16406,40.57154.646a1,1,0,0,1,1.4142,0l2.535,2.535a1,1,0,0,1,0,1.41423Z" />
-</svg>
 `;
 
 export interface BookSettingsConfig {
@@ -173,7 +156,7 @@ export default class BookSettings {
 
         if (this.bookFonts.length > 1) {
             const fontOptions = this.bookFonts.map(bookFont =>
-                optionTemplate("reading-style", bookFont.name, bookFont.label, "menuitem", checkSvg, bookFont.label)
+                optionTemplate("reading-style", bookFont.name, bookFont.label, "menuitem", IconLib.icons.checkDupe, bookFont.label)
             );
             sections.push(sectionTemplate(fontOptions.join("")));
         }
@@ -185,14 +168,14 @@ export default class BookSettings {
 
         if (this.bookThemes.length > 1) {
             const themeOptions = this.bookThemes.map(bookTheme =>
-                optionTemplate("reading-theme", bookTheme.name, bookTheme.label, "menuitem", checkSvg, bookTheme.label)
+                optionTemplate("reading-theme", bookTheme.name, bookTheme.label, "menuitem", IconLib.icons.checkDupe, bookTheme.label)
             );
             sections.push(sectionTemplate(themeOptions.join("")));
         }
 
         if (this.bookViews.length > 1) {
             const viewOptions = this.bookViews.map(bookView =>
-                optionTemplate("reading-style", bookView.name, bookView.label, "menuitem", checkSvg, bookView.label)
+                optionTemplate("reading-style", bookView.name, bookView.label, "menuitem", IconLib.icons.checkDupe, bookView.label)
             );
             sections.push(sectionTemplate(viewOptions.join("")));
         }

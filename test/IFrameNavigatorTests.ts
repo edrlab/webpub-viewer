@@ -1201,7 +1201,7 @@ describe("IFrameNavigator", () => {
             expect(infoBottom.style.height).to.equal("20px");
         });
 
-        it("should show loading message while iframe is loading", async () => {
+        it("should show and animate loading message while iframe is loading", async () => {
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const loading = element.querySelector("div[class=loading]") as any;
             const next = element.querySelector("a[rel=next]") as HTMLAnchorElement;
@@ -1217,8 +1217,10 @@ describe("IFrameNavigator", () => {
             click(next);
             await pause(200);
             expect(loading.style.display).not.to.equal("none");
+            expect(loading.getAttribute("class")).to.contain("is-loading");
             await pause(150);
             expect(loading.style.display).to.equal("none");
+            expect(loading.getAttribute("class")).to.not.contain("is-loading");
         });
 
         it("should change the iframe’s opacity once it is loaded and users settings are applied", async () => {

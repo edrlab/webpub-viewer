@@ -20,4 +20,5 @@ export * from "./PaginatedBookView";
 export * from "./ColumnsPaginatedBookView";
 export * from "./ScrollingBookView";
 export * from "./EventHandler";
+export * from "./IconLib";
 export * from "./IFrameNavigator";
