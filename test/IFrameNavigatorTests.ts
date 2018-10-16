@@ -217,11 +217,11 @@ describe("IFrameNavigator", () => {
         public onFontChange(callback: () => void) {
             onFontChange(callback);
         }
-        public onThemeChange(callback: () => void) {
-            onThemeChange(callback);
-        }
         public onFontSizeChange(callback: () => void) {
             onFontSizeChange(callback);
+        }
+        public onThemeChange(callback: () => void) {
+            onThemeChange(callback);
         }
         public onViewChange(callback: () => void) {
             onViewChange(callback);
@@ -229,11 +229,11 @@ describe("IFrameNavigator", () => {
         public getSelectedFont() {
             return getSelectedFont();
         }
-        public getSelectedTheme() {
-            return getSelectedTheme();
-        }
         public getSelectedFontSize() {
             return getSelectedFontSize();
+        }
+        public getSelectedTheme() {
+            return getSelectedTheme();
         }
         public getSelectedView() {
             return getSelectedView();
@@ -317,10 +317,6 @@ describe("IFrameNavigator", () => {
         scrollerStart = stub();
         scrollerAtBottom = stub().returns(false);
         scroller = new MockScroller();
-
-        day = new MockDayTheme();
-        sepia = new MockSepiaTheme();
-        night = new MockNightTheme();
 
         getLastReadingPosition = stub();
         saveLastReadingPosition = stub().returns(new Promise(resolve => resolve()));

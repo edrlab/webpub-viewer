@@ -1,7 +1,5 @@
 // Variables & Mixins etc.
 
-// TODO: create a better button mixin
-//       use viewport units where applicable
 // Colors
 @import "colors";
 // Type
@@ -28,9 +26,9 @@ ol li {
 }
 
 button {
-  background: $mta-white;
+  background: $ui-white;
   border: 0;
-  color: $mta-green;
+  color: $ui-dark-gray;
   // font-size: 4vw;
   padding: 0.35rem 0.35rem 0.2rem;
   margin: 0;
@@ -38,7 +36,7 @@ button {
 }
 
 a {
-  color: $mta-green;
+  color: $ui-dark-gray;
   text-decoration: none;
 }
 
@@ -73,13 +71,13 @@ a {
   right: 0.5rem;
   padding: env(safe-area-inset-top) 0 0;
   z-index: 10;
-  background-color: $mta-white;
-  color: $mta-green;
+  background-color: $ui-white;
+  color: $ui-dark-gray;
 
   .icon {
     display: inline-block;
-    color: $mta-green;
-    fill: $mta-green;
+    color: $ui-dark-gray;
+    fill: $ui-dark-gray;
     height: 1.5rem;
     width: 1.5rem;
     transition: transform 300ms ease-in-out;
@@ -92,7 +90,7 @@ a {
 }
 
 .controls {
-  color: $mta-green;
+  color: $ui-dark-gray;
   position: fixed;
   right: 0;
   top: 0;
@@ -111,7 +109,7 @@ a {
   }
 
   .links {
-    background-color: $mta-white;
+    background-color: $ui-white;
     height: inherit;
     list-style-type: none;
     margin: 0;
@@ -121,8 +119,8 @@ a {
 
     .icon {
       display: inline-block;
-      color: $mta-green;
-      fill: $mta-green;
+      color: $ui-dark-gray;
+      fill: $ui-dark-gray;
       height: 1.5rem;
       width: 1.5rem;
 
@@ -147,8 +145,8 @@ a {
     }
 
     &.top {
-      background-color: $mta-white;
-      border-bottom: 0.0625rem solid $mta-gray-tint;
+      background-color: $ui-white;
+      border-bottom: 0.0625rem solid $ui-light-gray;
       height: 2.9rem;
       padding: 0.5rem 0 0;
       display: flex;
@@ -188,8 +186,8 @@ a {
     // Bottom Controls
     // the, fixed bar and the arrows.
     &.bottom {
-      background-color: darken($mta-white, 2.5%);
-      border-top: 0.16rem solid $mta-green;
+      background-color: darken($ui-white, 2.5%);
+      border-top: 0.16rem solid $ui-light-gray;
       bottom: 0;
       height: 2.2rem;
       padding-top: 0.625rem;
@@ -233,7 +231,7 @@ a {
         }
 
       @media screen and (min-width: 30rem) {
-        background: $mta-white;
+        background: $ui-white;
         }
 
       .icon {
@@ -285,20 +283,12 @@ a {
 }
 
 .loading {
-  background-color: darken($mta-white, 2.5%);
-  border: 0.0625rem solid $mta-green;
-  border-radius: 0.3125rem;
-  color: $mta-green;
-  font-family: $sans-serif-stack;
-  height: 2.5rem;
-  left: calc(50% - 6.25rem);
-  padding-top: 1.25rem;
   position: fixed;
   width: 100%;
   height: 100vh;
   z-index: 10;
-  background-color: transparentize($mta-white, 0.1);
-  color: $mta-gray;
+  background-color: transparentize($ui-white, 0.1);
+  color: $ui-dark-gray;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -313,13 +303,13 @@ a {
     width: 5rem;
     height: 5rem;
     transform: translate(-2.5rem, -2.5rem);
-    fill: $mta-gray;
+    fill: $ui-dark-gray;
   }
 }
 
 .error {
-  background-color: transparentize($mta-white, 0.125);
-  color: $mta-error-red;
+  background-color: transparentize($ui-white, 0.125);
+  color: $error-red;
   height: 100%;
   padding-top: 40vh;
   position: fixed;
@@ -343,8 +333,8 @@ a {
   }
 
   button {
-    color: $mta-error-red;
-    border: 0.125rem solid $mta-error-red;
+    color: $error-red;
+    border: 0.125rem solid $error-red;
     border-radius: 0.3125rem;
     font-size: 1rem;
     font-weight: 700;
@@ -364,7 +354,7 @@ a {
   text-align: left;
 
   .disabled {
-    background-color: darken($mta-green, 20%);
+    background-color: darken($ui-light-gray, 20%);
     }
 
   &.inactive {
@@ -383,7 +373,7 @@ a {
 // /controls-view
 
 .info {
-  color: $mta-dark-gray;
+  color: $ui-dark-gray;
   margin: 0;
   padding: 0 1.5rem;
   overflow: hidden;
@@ -421,11 +411,11 @@ iframe {
 //  transition: opacity 100ms ease-in; /* This forces relayout, which makes the TOC flash */
 
   &.left-hover {
-    background: linear-gradient(to right, $transparent-mta-gray, $transparent-mta-gray 28%, $mta-white 30%, $mta-white);
+    background: linear-gradient(to right, transparentize($ui-light-gray, 0.1), transparentize($ui-light-gray, 0.1) 28%, $ui-white 30%, $ui-white);
   }
 
   &.right-hover {
-    background: linear-gradient(to left, $transparent-mta-gray, $transparent-mta-gray 28%, $mta-white 30%, $mta-white);
+    background: linear-gradient(to left, transparentize($ui-light-gray, 0.1), transparentize($ui-light-gray, 0.1) 28%, $ui-white 30%, $ui-white);
   }
 }
 
@@ -436,7 +426,7 @@ iframe {
   width: 0.0625rem;
   height: 0.0625rem;
   overflow: hidden;
-  background-color: $mta-white;
+  background-color: $ui-white;
   margin: 0.3125rem;
   padding: 0.3125rem 0.625rem;
   z-index: 4000;
@@ -451,164 +441,163 @@ iframe {
 }
 
 [data-viewer-theme="sepia"] {
-  background-color: $sepia-mode;
+  background-color: $sepia-bg;
 
   button {
-    background: $sepia-mode;
-    color: $mta-green;
+    background: $sepia-bg;
+    color: $ui-dark-gray;
   }
 
   a {
-    color: $mta-green;
+    color: $ui-dark-gray;
   }
 
   .controls-trigger {
-    background: $sepia-mode;
-    color: $mta-green;
+    background: $sepia-bg;
+    color: $ui-dark-gray;
 
     .icon {
-      color: $mta-green;
-      fill: $mta-green;
+      color: $ui-dark-gray;
+      fill: $ui-dark-gray;
     }
   }
 
   .controls {
-    color: $mta-green;
+    color: $ui-dark-gray;
   
     .links {
-      background-color: $sepia-mode;
+      background-color: $sepia-bg;
   
       .icon {
-        color: $mta-green;
-        fill: $mta-green;
+        color: $ui-dark-gray;
+        fill: $ui-dark-gray;
       }
     }
 
     &.top {
-      background-color: $sepia-mode;
-      border-bottom: 0.0625rem solid $mta-green;
+      background-color: $sepia-bg;
+      border-bottom: 0.0625rem solid $ui-light-gray;
     }
 
     &.bottom {
-      background-color: darken($sepia-mode, 2.5%);
-      border-top: 0.16rem solid $mta-green;
+      background-color: darken($sepia-bg, 2.5%);
+      border-top: 0.16rem solid $ui-light-gray;
     }
   }
 
   .loading {
-    background-color: transparentize($sepia-mode, 0.1);
+    background-color: transparentize($sepia-bg, 0.1);
   }
 
   .error {
-    background-color: transparentize($sepia-mode, 0.125);
+    background-color: transparentize($sepia-bg, 0.125);
   
     button {
-      background-color: $mta-white;
+      background-color: $ui-white;
       color: $error-red;
       border: 0.125rem solid $error-red;
     }
   }
 
   .scrolling-suggestion {
-    background-color: $sepia-mode;
+    background-color: $sepia-bg;
   }
 
   .info {
-    color: $mta-green;
+    color: $ui-dark-gray;
   }
 
   iframe {
     &.left-hover {
-      background: linear-gradient(to right, darken($sepia-mode, 10%), darken($sepia-mode, 10%) 28%, $sepia-mode 30%, $sepia-mode);
+      background: linear-gradient(to right, darken($sepia-bg, 10%), darken($sepia-bg, 10%) 28%, $sepia-bg 30%, $sepia-bg);
     }
   
     &.right-hover {
-      background: linear-gradient(to left, darken($sepia-mode, 10%), darken($sepia-mode, 10%) 28%, $sepia-mode 30%, $sepia-mode);
+      background: linear-gradient(to left, darken($sepia-bg, 10%), darken($sepia-bg, 10%) 28%, $sepia-bg 30%, $sepia-bg);
     }
   }
 }
 
 [data-viewer-theme="night"] {
-  background-color: $mta-black;
-  color: $mta-white;
+  background-color: $ui-black;
+  color: $ui-white;
 
   button {
-    background: $mta-black;
-    color: $mta-green;
+    background: $ui-black;
+    color: $ui-light-gray;
   }
 
   a {
-    color: $mta-green;
+    color: $ui-light-gray;
   }
 
   .controls-trigger {
-    background: $mta-black;
-    color: invert($mta-green);
+    background: $ui-black;
+    color: $ui-light-gray;
 
     .icon {
-      color: invert($mta-green);
-      fill: invert($mta-green);
+      color: $ui-light-gray;
+      fill: $ui-light-gray;
     }
   }
 
   .controls {
-    color: $mta-green;
+    color: $ui-light-gray;
   
     .links {
-      background-color: $mta-black;
+      background-color: $ui-black;
   
       .icon {
-        color: $mta-green;
-        fill: $mta-green;
+        color: $ui-light-gray;
+        fill: $ui-light-gray;
       }
     }
 
     &.top {
-      background-color: $mta-black;
-      border-bottom: 0.0625rem solid $mta-green;
+      background-color: $ui-black;
+      border-bottom: 0.0625rem solid $ui-dark-gray;
     }
 
     &.bottom {
-      background-color: lighten($mta-black, 2.5%);
-      border-top: 0.16rem solid $mta-green;
+      background-color: lighten($ui-black, 2.5%);
+      border-top: 0.16rem solid $ui-dark-gray;
     }
   }
 
   .loading {
-    background-color: lighten($mta-black, 10%);
-    border: 0.0625rem solid $mta-green;
-    color: $mta-green;
+    background-color: lighten($ui-black, 10%);
+    color: $ui-light-gray;
 
     .icon {
-      fill: $mta-green;
+      fill: $ui-light-gray;
     }
   }
 
   .error {
-    background-color: transparentize($mta-black, 0.125);
+    background-color: transparentize($ui-black, 0.125);
   
     button {
-      background-color: lighten($mta-black, 10%);
+      background-color: lighten($ui-black, 10%);
       color: $error-red;
       border: 0.125rem solid $error-red;
     }
   }
 
   .scrolling-suggestion {
-    background-color: $mta-black;
+    background-color: $ui-black;
   }
 
   .info {
-    color: $mta-green;
+    color: $ui-light-gray;
   }
 
   iframe {
     &.left-hover {
-      background: linear-gradient(to right, lighten($mta-black, 10%), lighten($mta-black, 10%) 28%, $mta-black 30%, $mta-black);
+      background: linear-gradient(to right, lighten($ui-black, 10%), lighten($ui-black, 10%) 28%, $ui-black 30%, $ui-black);
     }
   
     &.right-hover {
-      background: linear-gradient(to left, lighten($mta-black, 10%), lighten($mta-black, 10%) 28%, $mta-black 30%, $mta-black);
+      background: linear-gradient(to left, lighten($ui-black, 10%), lighten($ui-black, 10%) 28%, $ui-black 30%, $ui-black);
     }
   }
 }

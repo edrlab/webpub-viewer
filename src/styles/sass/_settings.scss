@@ -10,10 +10,10 @@
   user-select: none;
 
   > .settings-menu {
-    background-color: darken($mta-white, 2.5%);
-    border: 0.0625rem solid $mta-gray-tint;
+    background-color: darken($ui-white, 2.5%);
+    border: 0.0625rem solid $ui-light-gray;
     border-radius: 0.375rem;
-    box-shadow: 0 0 4px 1px transparentize($mta-gray-tint, 0.5);
+    box-shadow: 0 0 4px 1px transparentize($ui-light-gray, 0.5);
     right: 0;
     margin: 0 0.25rem;
     padding: 0;
@@ -27,8 +27,8 @@
     box-sizing: border-box;
 
     button {
-      background-color: $mta-white;
-      border: 0.0625rem solid $mta-gray;
+      background-color: $ui-white;
+      border: 0.0625rem solid $ui-light-gray;
       font-size: 0.75rem;
       letter-spacing: 0.07rem;
       padding: 0.5rem 1.5rem;
@@ -38,20 +38,19 @@
 
       svg.checkedIcon {
         // styles the icon that appears next to paginate/scrolling buttons
-        // set a default color of $mta-white, since this should always
+        // set a default color of $ui-white, since this should always
         // show up on a dark color background.
-        color: $mta-white;
+        color: $ui-white;
         display: none;
-        fill: $mta-white;
+        fill: $ui-white;
         height: 0.9rem;
         width: 0.9rem;
-        stroke: $pure-white; /* This one needed else the check is pretty much invisible with transition pack */
       }
 
       // reverse the active state
       &.active {
-        color: $mta-white;
-        background-color: $mta-green;
+        color: $ui-white;
+        background-color: $ui-green;
 
         svg.checkedIcon {
           display: inline-block;
@@ -67,8 +66,8 @@
 
     > li {
       border: 0;
-      background-color: $mta-white;
-      color: $mta-dark-gray;
+      background-color: $ui-white;
+      color: $ui-dark-gray;
       display: block;
       margin: 0.5rem 0;
       padding: 0;
@@ -124,46 +123,47 @@
       }
 
       button.day-theme {
-        background-color: $pure-white;
+        background-color: $ui-white;
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
         border-left: 0;
         border-right: 0;
 
         &.active {
-          color: $mta-green;
+          color: $ui-black;
 
           svg.checkedIcon {
-            fill: $mta-black;
+            fill: $ui-black;
           }
         }
       }
 
       button.sepia-theme {
-        background-color: $sepia-mode;
+        background-color: $sepia-bg;
         border-radius: 0;
 
         &.active {
-          color: $mta-green;
+          color: $ui-black;
 
           svg.checkedIcon {
-            fill: $mta-black;
+            fill: $ui-black;
           }
         }
       }
 
       button.night-theme {
-        background-color: $mta-black;
+        background-color: $ui-black;
+        color: $ui-white;
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         border-left: 0;
         border-right: 0;
 
         &.active {
-          color: $pure-white;
+          color: $ui-white;
 
           svg.checkedIcon {
-            fill: $mta-white;
+            fill: $ui-white;
           }
         }
       }
@@ -182,8 +182,8 @@
       }
 
       .icon {
-        color: $mta-green;
-        fill: $mta-green;
+        color: $ui-dark-gray;
+        fill: $ui-dark-gray;
         height: 1.75rem;
         width: 1.75rem;
 
@@ -199,42 +199,47 @@
 [data-viewer-theme="night"] {
   .settings-view {
     > .settings-menu {
-      background-color: $mta-black;
-      border: 0.0625rem solid $mta-gray-tint;
-      box-shadow: 0 0 4px 1px transparentize($mta-gray-tint, 0.5);
+      background-color: $ui-black;
+      border: 0.0625rem solid $ui-dark-gray;
+      box-shadow: 0 0 4px 1px transparentize($ui-light-gray, 0.5);
   
       button {
-        background-color: lighten($mta-black, 10%);
-        border: 0.0625rem solid darken($mta-gray, 30%);
+        background-color: lighten($ui-black, 10%);
+        border: 0.0625rem solid darken($ui-light-gray, 30%);
   
         svg.checkedIcon {
-          color: $mta-black;
-          fill: $mta-black;
+          color: $ui-black;
+          fill: $ui-black;
         }
   
         // reverse the active state
         &.active {
-          color: $mta-white;
-          background-color: $mta-green;
+          color: $ui-white;
+          background-color: $ui-green;
         }
       }
   
       > li {
         border: 0;
-        background-color: lighten($mta-black, 10%);
-        color: $mta-white;
+        background-color: lighten($ui-black, 10%);
+        color: $ui-white;
       }
   
       .settings-options {
+        button.day-theme,
+        button.sepia-theme {
+          color: $ui-black;
+        }
+
         button.night-theme {
           &.active {
-            background-color: $mta-black;
+            background-color: $ui-black;
           }
         }
 
         .icon {
-          color: $mta-green;
-          fill: $mta-green;
+          color: $ui-white;
+          fill: $ui-white;
         }
       } // / settings-options
     }
