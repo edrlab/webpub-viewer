@@ -80,7 +80,7 @@ For the origin to be considered the same, protocol (`http/https`), host and port
 
 ### Streamed
 
-The `examples/streamed` folder contains the webpub-viewer (`viewer` folder), the r2-streamer-js (ES6/ES2015 bundle in `server` folder) and example files (`epubs` folder).
+The `examples/streamed` folder contains the webpub-viewer (`readers/reader-JBKS` folder), the r2-streamer-js (ES6/ES2015 bundle in `server` folder) and example files (`epubs` folder).
 
 In this example, assets are served by the r2-streamer-js (in-memory model). You can open them using 3 iterations of the webpub-viewer: Hadrien Gardeur’s (the original prototype), NYPL’s, and Jellybooks’.
 
