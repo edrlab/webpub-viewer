@@ -27,6 +27,6 @@ app.use("/TheCallOfTheWild", express.static(__dirname + "/TheCallOfTheWild"));
 app.get('/', function (req, res) {
   res.header("Content-type", "text/html");
   return res.end("<h1>Webpub-viewer on https</h1>" + 
-  "<p><a href='/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2FTheCallOfTheWild%2Fmanifest.json'>Open book with the same origin</a> (should open in Cassis Reader and register Service Workers if the certificate is trusted)</p>" + 
+  "<p><a href='/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2FTheCallOfTheWild%2Fmanifest.json'>Open book with the same origin</a> (should open in Webpub Viewer and register Service Workers if the certificate is trusted)</p>" + 
   "<p><a href='/viewer/?url=https%3A%2F%2Freadium2.herokuapp.com%2Fpub%2FL2FwcC9taXNjL2VwdWJzL2NoaWxkcmVucy1saXRlcmF0dXJlLmVwdWI%3D%2Fmanifest.json'>Open book with a different origin</a> (should fail and throw an error in the browser’s console)</p>");
 });
