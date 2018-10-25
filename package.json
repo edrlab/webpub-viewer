@@ -8,11 +8,18 @@
   "private": true,
   "main": "src/index.js",
   "typings": "src/index.ts",
+  "engines": {
+    "node": ">8.9.0"
+  },
   "scripts": {
     "prepublish": "tsc --p . && tsc --p tsconfig-sw.json && npm run sass && cpx 'dist/*.{css,js}' viewer/",
-    "test": "rimraf lib && tsc --p tsconfig-test.json && mocha --require jsdom-global/register --recursive lib/test",
-    "clean": "rimraf node_modules lib dist",
     "sass": "node-sass --source-map true src/styles/sass/ -o dist/",
+    "test": "rimraf lib && tsc --p tsconfig-test.json && mocha --require jsdom-global/register --recursive lib/test",
+    "examples": "rimraf examples/static/viewer examples/streamed/readers/reader-JBKS && cpx 'viewer/*.{html,css,js}' examples/static/viewer && cpx 'viewer/*.{html,css,js}' examples/streamed/readers/reader-JBKS && cpx 'viewer/*.{css,js}' examples/embedded/alice",
+    "static": "node \"./examples/static/static-server.js\"",
+    "streamed": "node \"./examples/streamed/server/server-cli.inlinesourcemap.js\" ./examples/streamed/epubs/",
+    "embedded": "node \"./examples/embedded/embedded-server.js\"",
+    "clean": "rimraf node_modules lib dist",
     "about": "echo 'Do not update @types/parse5 to version 5 or else it will break jsdom typings!'"
   },
   "dependencies": {
@@ -31,6 +38,7 @@
     "@types/sinon": "^5.0.1",
     "chai": "^4.1.2",
     "cpx": "^1.5.0",
+    "express": "^4.16.4",
     "jsdom": "^9.8.3",
     "jsdom-global": "^2.1.0",
     "mocha": "^5.2.0",

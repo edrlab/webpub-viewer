@@ -11,3 +11,6 @@ src/styles/.sass-cache
 viewer/webpub-viewer.js
 viewer/sw.js
 viewer/main.css
+
+examples/static/viewer/*
+examples/streamed/viewer/*

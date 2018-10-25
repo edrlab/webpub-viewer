@@ -1,7 +1,0 @@
-{
-  "name": "Alice's Adventures in Wonderland",
-  "start_url": "text/index.html",
-  "background_color": "#4976be",
-  "display": "standalone",
-  "publication": "manifest.json"
-}

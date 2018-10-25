@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package version="3.0" unique-identifier="id" xmlns="http://www.idpf.org/2007/opf" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ibooks="http://apple.com/ibooks/html-extensions" prefix="rendition: http://www.idpf.org/vocab/rendition/# ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ibooks="http://apple.com/ibooks/html-extensions" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="id">urn:uuid:3BF6409C-8083-4F96-9497-A69EAB7FA5E5</dc:identifier>
+    <dc:creator id="create1">Jack London</dc:creator>
+    <meta refines="#create1" property="file-as">London, Jack</meta>
+    <dc:title id="t1">The Call of the Wild</dc:title>
+    <meta refines="#t1" property="title-type">main</meta>
+    <dc:language>en</dc:language>
+    <dc:date>2008-07-02</dc:date>
+    <dc:source>http://www.gutenberg.org/files/215/215-h/215-h.htm</dc:source>
+    <meta name="Sigil version" content="0.9.5" />
+    <meta property="dcterms:modified">2018-07-20T11:31:38Z</meta>
+    <dc:subject>Rediscover the Classics with Jellybooks</dc:subject>
+    <meta property="ibooks:version">1.0</meta>
+    <meta property="ibooks:specified-fonts">true</meta>
+    <meta name="cover" content="cover.jpg" />
+  </metadata>
+  <manifest>
+    <item  id="Section001.xhtml" href="Text/Section001.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="Section002.xhtml" href="Text/Section002.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="Section003.xhtml" href="Text/Section003.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="Section004.xhtml" href="Text/Section004.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="Section005.xhtml" href="Text/Section005.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="Section006.xhtml" href="Text/Section006.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="Section007.xhtml" href="Text/Section007.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+    <item  id="navid" href="Text/nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item  id="cover-page" href="Text/cover.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="titlepage" href="Text/titlepage.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="copy" href="Text/copy.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="asterism.svg" href="Images/asterism.svg" media-type="image/svg+xml"/>
+    <item  id="dots.svg" href="Images/dots.svg" media-type="image/svg+xml"/>
+    <item  id="crabapple.css" href="Styles/crabapple.css" media-type="text/css"/>
+    <item  id="cover.jpg" href="Images/cover.jpg" media-type="image/jpeg" properties="cover-image"/>
+  </manifest>
+  <spine toc="ncx">
+    <itemref  idref="cover-page"/>
+    <itemref  idref="titlepage"/>
+    <itemref  idref="Section001.xhtml"/>
+    <itemref  idref="Section002.xhtml"/>
+    <itemref  idref="Section003.xhtml"/>
+    <itemref  idref="Section004.xhtml"/>
+    <itemref  idref="Section005.xhtml"/>
+    <itemref  idref="Section006.xhtml"/>
+    <itemref  idref="Section007.xhtml"/>
+    <itemref  idref="copy"/>
+  </spine>
+  <guide>
+    <reference  type="cover" title="Cover" href="Text/cover.xhtml"/>
+  </guide>
+</package>
