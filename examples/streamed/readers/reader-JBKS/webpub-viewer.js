@@ -1807,11 +1807,13 @@ define("IFrameNavigator", ["require", "exports", "Cacher", "Manifest", "EventHan
         };
         IFrameNavigator.prototype.loadManifest = function () {
             return __awaiter(this, void 0, void 0, function () {
-                var manifest, toc, createTOC_1, upUrl, upLabel, upAriaLabel, upHTML, upParent, fullscreenHTML, fullscreenParent, lastReadingPosition, startLink, startUrl, position;
+                var manifest, toc, createTOC_1, upUrl, upLabel, upAriaLabel, upHTML, upParent, fullscreenHTML, fullscreenParent, lastReadingPosition, startLink, startUrl, position, err_3;
                 var _this = this;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, Manifest_1.default.getManifest(this.manifestUrl, this.store)];
+                        case 0:
+                            _a.trys.push([0, 4, , 5]);
+                            return [4 /*yield*/, Manifest_1.default.getManifest(this.manifestUrl, this.store)];
                         case 1:
                             manifest = _a.sent();
                             toc = manifest.toc;
@@ -1917,13 +1919,18 @@ define("IFrameNavigator", ["require", "exports", "Cacher", "Manifest", "EventHan
                                 this.navigate(position);
                             }
                             return [2 /*return*/, new Promise(function (resolve) { return resolve(); })];
+                        case 4:
+                            err_3 = _a.sent();
+                            this.abortOnError();
+                            return [2 /*return*/, new Promise(function (_, reject) { return reject(err_3); }).catch(function () { })];
+                        case 5: return [2 /*return*/];
                     }
                 });
             });
         };
         IFrameNavigator.prototype.handleIFrameLoad = function () {
             return __awaiter(this, void 0, void 0, function () {
-                var bookViewPosition, currentLocation, elementId, manifest, previous, next, chapterTitle, spineItem, tocItem, err_3;
+                var bookViewPosition, currentLocation, elementId, manifest, previous, next, chapterTitle, spineItem, tocItem, err_4;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -2019,13 +2026,19 @@ define("IFrameNavigator", ["require", "exports", "Cacher", "Manifest", "EventHan
                             Object.defineProperty(this.iframe.contentWindow.navigator, "epubReadingSystem", { value: epubReadingSystem, writable: false });
                             return [2 /*return*/, new Promise(function (resolve) { return resolve(); })];
                         case 5:
-                            err_3 = _a.sent();
-                            this.errorMessage.style.display = "block";
-                            return [2 /*return*/, new Promise(function (_, reject) { return reject(err_3); }).catch(function () { })];
+                            err_4 = _a.sent();
+                            this.abortOnError();
+                            return [2 /*return*/, new Promise(function (_, reject) { return reject(err_4); }).catch(function () { })];
                         case 6: return [2 /*return*/];
                     }
                 });
             });
+        };
+        IFrameNavigator.prototype.abortOnError = function () {
+            this.errorMessage.style.display = "block";
+            if (this.isLoading) {
+                this.hideLoadingMessage();
+            }
         };
         IFrameNavigator.prototype.tryAgain = function () {
             this.iframe.src = this.iframe.src;
@@ -2635,7 +2648,7 @@ define("ServiceWorkerCacher", ["require", "exports", "Cacher", "Manifest"], func
         }
         ServiceWorkerCacher.prototype.enable = function () {
             return __awaiter(this, void 0, void 0, function () {
-                var err_4;
+                var err_5;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0:
@@ -2653,7 +2666,7 @@ define("ServiceWorkerCacher", ["require", "exports", "Cacher", "Manifest"], func
                             this.updateStatus();
                             return [3 /*break*/, 4];
                         case 3:
-                            err_4 = _a.sent();
+                            err_5 = _a.sent();
                             this.cacheStatus = Cacher_2.CacheStatus.Error;
                             this.updateStatus();
                             return [3 /*break*/, 4];
@@ -2664,7 +2677,7 @@ define("ServiceWorkerCacher", ["require", "exports", "Cacher", "Manifest"], func
         };
         ServiceWorkerCacher.prototype.verifyAndCacheManifest = function (manifestUrl) {
             return __awaiter(this, void 0, void 0, function () {
-                var urlsToCache, _i, _a, url, promises, _b, promises_1, promise, err_5;
+                var urlsToCache, _i, _a, url, promises, _b, promises_1, promise, err_6;
                 return __generator(this, function (_c) {
                     switch (_c.label) {
                         case 0: return [4 /*yield*/, navigator.serviceWorker.ready];
@@ -2693,8 +2706,8 @@ define("ServiceWorkerCacher", ["require", "exports", "Cacher", "Manifest"], func
                             return [3 /*break*/, 3];
                         case 6: return [2 /*return*/, new Promise(function (resolve) { return resolve(); })];
                         case 7:
-                            err_5 = _c.sent();
-                            return [2 /*return*/, new Promise(function (_, reject) { return reject(err_5); })];
+                            err_6 = _c.sent();
+                            return [2 /*return*/, new Promise(function (_, reject) { return reject(err_6); })];
                         case 8: return [2 /*return*/];
                     }
                 });

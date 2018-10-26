@@ -508,116 +508,121 @@ export default class IFrameNavigator implements Navigator {
     }
 
     private async loadManifest(): Promise<void> {
-        const manifest: Manifest = await Manifest.getManifest(this.manifestUrl, this.store);
+        try {
+            const manifest: Manifest = await Manifest.getManifest(this.manifestUrl, this.store);
 
-        const toc = manifest.toc;
-        if (toc.length) {
-            this.contentsControl.className = "contents";
+            const toc = manifest.toc;
+            if (toc.length) {
+                this.contentsControl.className = "contents";
 
-            const createTOC = (parentElement: Element, links: Array<Link>) => {
-                const listElement: HTMLOListElement = document.createElement("ol");
-                let lastLink: HTMLAnchorElement | null = null;
-                for (const link of links) {
-                    const listItemElement : HTMLLIElement = document.createElement("li");
-                    const linkElement: HTMLAnchorElement = document.createElement("a");
-                    const spanElement: HTMLSpanElement = document.createElement("span");
-                    linkElement.tabIndex = -1;
-                    let href = "";
-                    if (link.href) {
-                        href = new URL(link.href, this.manifestUrl.href).href;
+                const createTOC = (parentElement: Element, links: Array<Link>) => {
+                    const listElement: HTMLOListElement = document.createElement("ol");
+                    let lastLink: HTMLAnchorElement | null = null;
+                    for (const link of links) {
+                        const listItemElement : HTMLLIElement = document.createElement("li");
+                        const linkElement: HTMLAnchorElement = document.createElement("a");
+                        const spanElement: HTMLSpanElement = document.createElement("span");
+                        linkElement.tabIndex = -1;
+                        let href = "";
+                        if (link.href) {
+                            href = new URL(link.href, this.manifestUrl.href).href;
                     
-                        linkElement.href = href;
-                        linkElement.innerHTML = link.title || "";
-                        listItemElement.appendChild(linkElement);
-                    } else {
-                        spanElement.innerHTML = link.title || "";
-                        listItemElement.appendChild(spanElement);
-                    }
-                    if (link.children && link.children.length > 0) {
-                        createTOC(listItemElement, link.children);
-                    }
-
-                    listElement.appendChild(listItemElement);
-                    lastLink = linkElement;
-                }
-
-                // Trap keyboard focus inside the TOC while it's open.
-                if (lastLink) {
-                    this.setupModalFocusTrap(this.tocView, this.contentsControl, lastLink);
-                }
-
-                listElement.addEventListener("click", (event:Event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    if(event.target && (event.target as HTMLElement).tagName.toLowerCase() === "a") {
-                        let linkElement = event.target as HTMLAnchorElement;
-
-                        if (linkElement.className.indexOf("active") !== -1) {
-                            // This TOC item is already loaded. Hide the TOC
-                            // but don't navigate.
-                            this.hideTOC();
+                            linkElement.href = href;
+                            linkElement.innerHTML = link.title || "";
+                            listItemElement.appendChild(linkElement);
                         } else {
-                            // Set focus back to the contents toggle button so screen readers
-                            // don't get stuck on a hidden link.
-                            this.contentsControl.focus();
-                            this.navigate({
-                                resource: linkElement.href,
-                                position: 0
-                            });
+                            spanElement.innerHTML = link.title || "";
+                            listItemElement.appendChild(spanElement);
                         }
+                        if (link.children && link.children.length > 0) {
+                            createTOC(listItemElement, link.children);
+                        }
+
+                        listElement.appendChild(listItemElement);
+                        lastLink = linkElement;
                     }
-                });
 
-                parentElement.appendChild(listElement);
+                    // Trap keyboard focus inside the TOC while it's open.
+                    if (lastLink) {
+                        this.setupModalFocusTrap(this.tocView, this.contentsControl, lastLink);
+                    }
+
+                    listElement.addEventListener("click", (event:Event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        if(event.target && (event.target as HTMLElement).tagName.toLowerCase() === "a") {
+                            let linkElement = event.target as HTMLAnchorElement;
+
+                            if (linkElement.className.indexOf("active") !== -1) {
+                                // This TOC item is already loaded. Hide the TOC
+                                // but don't navigate.
+                                this.hideTOC();
+                            } else {
+                                // Set focus back to the contents toggle button so screen readers
+                                // don't get stuck on a hidden link.
+                                this.contentsControl.focus();
+                                this.navigate({
+                                    resource: linkElement.href,
+                                    position: 0
+                                });
+                            }
+                        }
+                    });
+
+                    parentElement.appendChild(listElement);
+                }
+                createTOC(this.tocView, toc);
+            } else {
+                (this.contentsControl.parentElement as any).style.display = "none";
             }
-            createTOC(this.tocView, toc);
-        } else {
-            (this.contentsControl.parentElement as any).style.display = "none";
-        }
 
-        if (this.upLinkConfig && this.upLinkConfig.url) {
-            const upUrl = this.upLinkConfig.url;
-            const upLabel = this.upLinkConfig.label || "";
-            const upAriaLabel = this.upLinkConfig.ariaLabel || upLabel;
-            const upHTML = upLinkTemplate(upUrl.href, upLabel, upAriaLabel);
-            const upParent : HTMLLIElement = document.createElement("li");
-            upParent.classList.add("uplink-wrapper");
-            upParent.innerHTML = upHTML;
-            this.links.insertBefore(upParent, this.links.firstChild);
-            this.upLink = HTMLUtilities.findRequiredElement(this.links, "a[rel=up]") as HTMLAnchorElement;
-        }
+            if (this.upLinkConfig && this.upLinkConfig.url) {
+                const upUrl = this.upLinkConfig.url;
+                const upLabel = this.upLinkConfig.label || "";
+                const upAriaLabel = this.upLinkConfig.ariaLabel || upLabel;
+                const upHTML = upLinkTemplate(upUrl.href, upLabel, upAriaLabel);
+                const upParent : HTMLLIElement = document.createElement("li");
+                upParent.classList.add("uplink-wrapper");
+                upParent.innerHTML = upHTML;
+                this.links.insertBefore(upParent, this.links.firstChild);
+                this.upLink = HTMLUtilities.findRequiredElement(this.links, "a[rel=up]") as HTMLAnchorElement;
+            }
 
-        if (this.allowFullscreen && this.canFullscreen) {
-            const fullscreenHTML = `<button id="fullscreen-control" class="fullscreen" aria-hidden="false">${IconLib.icons.expand} ${IconLib.icons.minimize}</button>`;
-            const fullscreenParent : HTMLLIElement = document.createElement("li");
-            fullscreenParent.innerHTML = fullscreenHTML;
-            this.links.appendChild(fullscreenParent);
-            this.fullscreen = HTMLUtilities.findRequiredElement(this.links, "#fullscreen-control") as HTMLButtonElement;
-            this.fullscreen.addEventListener("click", this.toggleFullscreen.bind(this));
-        }
+            if (this.allowFullscreen && this.canFullscreen) {
+                const fullscreenHTML = `<button id="fullscreen-control" class="fullscreen" aria-hidden="false">${IconLib.icons.expand} ${IconLib.icons.minimize}</button>`;
+                const fullscreenParent : HTMLLIElement = document.createElement("li");
+                fullscreenParent.innerHTML = fullscreenHTML;
+                this.links.appendChild(fullscreenParent);
+                this.fullscreen = HTMLUtilities.findRequiredElement(this.links, "#fullscreen-control") as HTMLButtonElement;
+                this.fullscreen.addEventListener("click", this.toggleFullscreen.bind(this));
+            }
 
-        let lastReadingPosition: ReadingPosition | null = null;
-        if (this.annotator) {
-            lastReadingPosition = await this.annotator.getLastReadingPosition() as ReadingPosition | null;
-        }
+            let lastReadingPosition: ReadingPosition | null = null;
+            if (this.annotator) {
+                lastReadingPosition = await this.annotator.getLastReadingPosition() as ReadingPosition | null;
+            }
 
-        const startLink = manifest.getStartLink();
-        let startUrl: string | null = null;
-        if (startLink && startLink.href) {
-            startUrl = new URL(startLink.href, this.manifestUrl.href).href;
-        }
+            const startLink = manifest.getStartLink();
+            let startUrl: string | null = null;
+            if (startLink && startLink.href) {
+                startUrl = new URL(startLink.href, this.manifestUrl.href).href;
+            }
 
-        if (lastReadingPosition) {
-            this.navigate(lastReadingPosition);
-        } else if (startUrl) {
-            const position = {
-                resource: startUrl,
-                position: 0
-            };
-            this.navigate(position);
-        }
+            if (lastReadingPosition) {
+                this.navigate(lastReadingPosition);
+            } else if (startUrl) {
+                const position = {
+                    resource: startUrl,
+                    position: 0
+                };
+                this.navigate(position);
+            }
 
-        return new Promise<void>(resolve => resolve());
+            return new Promise<void>(resolve => resolve());
+        } catch (err) {
+            this.abortOnError();
+            return new Promise<void>((_, reject) => reject(err)).catch(() => {});
+        }
     }
 
     private async handleIFrameLoad(): Promise<void> {
@@ -726,8 +731,15 @@ export default class IFrameNavigator implements Navigator {
 
             return new Promise<void>(resolve => resolve());
         } catch (err) {
-            this.errorMessage.style.display = "block";
+            this.abortOnError();
             return new Promise<void>((_, reject) => reject(err)).catch(() => {});
+        }
+    }
+
+    private abortOnError() {
+        this.errorMessage.style.display = "block";
+        if (this.isLoading) {
+            this.hideLoadingMessage();
         }
     }
 

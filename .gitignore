@@ -13,4 +13,3 @@ viewer/sw.js
 viewer/main.css
 
 examples/static/viewer/*
-examples/streamed/readers/reader-JBKS/*

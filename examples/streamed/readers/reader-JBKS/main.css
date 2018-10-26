@@ -211,6 +211,7 @@ a {
     fill: #5B5852; }
 
 .error {
+  z-index: 20;
   background-color: rgba(255, 255, 255, 0.875);
   color: #d0343a;
   height: 100%;
