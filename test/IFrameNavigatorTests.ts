@@ -77,6 +77,7 @@ describe("IFrameNavigator", () => {
     let eventHandler: EventHandler;
 
     let onFullScreenChange: sinon.SinonStub;
+    let winHistoryChange: sinon.SinonStub;
 
     let element: HTMLElement;
     let navigator: IFrameNavigator;
@@ -345,6 +346,7 @@ describe("IFrameNavigator", () => {
         eventHandler = new MockEventHandler();
 
         onFullScreenChange = stub();
+        winHistoryChange = stub();
 
         const window = jsdom.jsdom("", ({
             // This is useful for debugging errors in an iframe load event.
@@ -1484,9 +1486,19 @@ describe("IFrameNavigator", () => {
         });
 
         it("should show error message when iframe fails to load", async () => {
+            jsdom.changeURL(window, "http://example.com/");
+
             const iframe = element.querySelector("iframe") as HTMLIFrameElement;
             const error = element.querySelector("div[class=error]") as HTMLDivElement;
             const tryAgain = element.querySelector(".try-again") as HTMLButtonElement;
+            const goBack = element.querySelector(".go-back") as HTMLButtonElement;
+
+            // Mocking browser history kinda weirdly to make sure window.history.back() has been called by the “Go back” button – location being unforgeable, spec-compliant implems won’t let us mock it in case upLink is present
+
+            window.history.back = () => {
+                jsdom.changeURL(window, "http://back.com/");
+                return winHistoryChange();
+            }
 
             expect(error.style.display).to.equal("none");
 
@@ -1496,17 +1508,34 @@ describe("IFrameNavigator", () => {
             iframe.src = "http://example.com/item-1.html";
             await pause();
             expect(error.style.display).not.to.equal("none");
+            expect(window.location.href).to.equal("http://example.com/");
 
             // If trying again fails, the error message stays up.
             click(tryAgain);
             await pause();
             expect(error.style.display).not.to.equal("none");
+            expect(window.location.href).to.equal("http://example.com/");
 
             // If trying again succeeds, it goes away.
             saveLastReadingPosition.returns(new Promise<void>(async (resolve) => resolve()));
             click(tryAgain);
             await pause();
             expect(error.style.display).to.equal("none");
+            expect(window.location.href).to.equal("http://example.com/");
+
+            // Make the annotator throw another error to test back button
+            saveLastReadingPosition.throws();
+
+            iframe.src = "http://example.com/item-2.html";
+            await pause();
+            expect(error.style.display).not.to.equal("none");
+            expect(window.location.href).to.equal("http://example.com/");
+
+            // It should go back in the window history
+            click(goBack);
+            await pause();
+            expect(winHistoryChange.callCount).to.equal(1);
+            expect(window.location.href).to.equal("http://back.com/");
         });
     });
 

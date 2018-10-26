@@ -80,6 +80,7 @@ const template = `
         ${IconLib.icons.error}
       </span>
       <span>There was an error loading this page.</span>
+      <button class="go-back">Go back</button>
       <button class="try-again">Try again</button>
     </div>
     <div class="info top">
@@ -178,6 +179,7 @@ export default class IFrameNavigator implements Navigator {
     private loadingMessage: HTMLDivElement;
     private errorMessage: HTMLDivElement;
     private tryAgainButton: HTMLButtonElement;
+    private goBackButton: HTMLButtonElement;
     private infoTop: HTMLDivElement;
     private infoBottom: HTMLDivElement;
     private bookTitle: HTMLSpanElement;
@@ -256,6 +258,7 @@ export default class IFrameNavigator implements Navigator {
             this.loadingMessage = HTMLUtilities.findRequiredElement(element, "div[class=loading]") as HTMLDivElement;
             this.errorMessage = HTMLUtilities.findRequiredElement(element, "div[class=error]") as HTMLDivElement;
             this.tryAgainButton = HTMLUtilities.findRequiredElement(element, "button[class=try-again]") as HTMLButtonElement;
+            this.goBackButton = HTMLUtilities.findRequiredElement(element, "button[class=go-back]") as HTMLButtonElement;
             this.infoTop = HTMLUtilities.findRequiredElement(element, "div[class='info top']") as HTMLDivElement;
             this.infoBottom = HTMLUtilities.findRequiredElement(element, "div[class='info bottom']") as HTMLDivElement;
             this.bookTitle = HTMLUtilities.findRequiredElement(this.infoTop, "span[class=book-title]") as HTMLSpanElement;
@@ -343,6 +346,8 @@ export default class IFrameNavigator implements Navigator {
         this.settingsView.addEventListener("click", this.handleToggleLinksClick.bind(this));
 
         this.tryAgainButton.addEventListener("click", this.tryAgain.bind(this));
+
+        this.goBackButton.addEventListener("click", this.goBack.bind(this));
 
         this.menuControl.addEventListener("click", this.handleToggleLinksClick.bind(this));
 
@@ -746,6 +751,10 @@ export default class IFrameNavigator implements Navigator {
     private tryAgain() {
         this.iframe.src = this.iframe.src;
         this.enableOffline();
+    }
+
+    private goBack() {
+        window.history.back();
     }
 
     private isDisplayed(element: HTMLDivElement | HTMLUListElement) {
