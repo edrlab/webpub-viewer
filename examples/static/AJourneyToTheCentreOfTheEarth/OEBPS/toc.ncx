@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+  <head>
+    <meta content="http://www.gutenberg.org/ebooks/18857" name="dtb:uid"/>
+    <meta content="1" name="dtb:depth"/>
+    <meta content="0" name="dtb:totalPageCount"/>
+    <meta content="0" name="dtb:maxPageNumber"/>
+  </head>
+  <docTitle>
+    <text>A Journey to the Centre of the Earth</text>
+  </docTitle>
+  <navMap>
+    <navPoint id="navPoint1">
+      <navLabel>
+        <text>A Journey to the Centre of the Earth</text>
+      </navLabel>
+      <content src="Text/titlepage.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint2">
+      <navLabel>
+        <text>Chapter 1. My Uncle Makes a Great Discovery</text>
+      </navLabel>
+      <content src="Text/Section0001.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint3">
+      <navLabel>
+        <text>Chapter 2. The Mysterious Parchment</text>
+      </navLabel>
+      <content src="Text/Section0002.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint4">
+      <navLabel>
+        <text>Chapter 3. An Astounding Discovery</text>
+      </navLabel>
+      <content src="Text/Section0003.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint5">
+      <navLabel>
+        <text>Chapter 4. We Start on the Journey</text>
+      </navLabel>
+      <content src="Text/Section0004.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint6">
+      <navLabel>
+        <text>Chapter 5. First Lessons in Climbing</text>
+      </navLabel>
+      <content src="Text/Section0005.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint7">
+      <navLabel>
+        <text>Chapter 6. Our Voyage to Iceland</text>
+      </navLabel>
+      <content src="Text/Section0006.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint8">
+      <navLabel>
+        <text>Chapter 7. Conversation and Discovery</text>
+      </navLabel>
+      <content src="Text/Section0007.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint9">
+      <navLabel>
+        <text>Chapter 8. The Eider-down Hunter—Off at Last</text>
+      </navLabel>
+      <content src="Text/Section0008.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint10">
+      <navLabel>
+        <text>Chapter 9. Our Start—We Meet with Adventures by the Way</text>
+      </navLabel>
+      <content src="Text/Section0009.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint11">
+      <navLabel>
+        <text>Chapter 10. Traveling in Iceland</text>
+      </navLabel>
+      <content src="Text/Section0010.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint12">
+      <navLabel>
+        <text>Chapter 11. We Reach Mount Sneffels—The “Reykir”</text>
+      </navLabel>
+      <content src="Text/Section0011.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint13">
+      <navLabel>
+        <text>Chapter 12. The Ascent of Mount Sneffels</text>
+      </navLabel>
+      <content src="Text/Section0012.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint14">
+      <navLabel>
+        <text>Chapter 13. The Shadow of Scartaris</text>
+      </navLabel>
+      <content src="Text/Section0013.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint15">
+      <navLabel>
+        <text>Chapter 14. The Real Journey Commences</text>
+      </navLabel>
+      <content src="Text/Section0014.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint16">
+      <navLabel>
+        <text>Chapter 15. We Continue Our Descent</text>
+      </navLabel>
+      <content src="Text/Section0015.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint17">
+      <navLabel>
+        <text>Chapter 16. The Eastern Tunnel</text>
+      </navLabel>
+      <content src="Text/Section0016.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint18">
+      <navLabel>
+        <text>Chapter 17. Deeper and Deeper—The Coal Mine</text>
+      </navLabel>
+      <content src="Text/Section0017.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint19">
+      <navLabel>
+        <text>Chapter 18. The Wrong Road!</text>
+      </navLabel>
+      <content src="Text/Section0018.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint20">
+      <navLabel>
+        <text>Chapter 19. The Western Gallery—A New Route</text>
+      </navLabel>
+      <content src="Text/Section0019.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint21">
+      <navLabel>
+        <text>Chapter 20. Water, Where is it? A Bitter Disappointment</text>
+      </navLabel>
+      <content src="Text/Section0020.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint22">
+      <navLabel>
+        <text>Chapter 21. Under the Ocean</text>
+      </navLabel>
+      <content src="Text/Section0021.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint23">
+      <navLabel>
+        <text>Chapter 22. Sunday Below Ground</text>
+      </navLabel>
+      <content src="Text/Section0022.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint24">
+      <navLabel>
+        <text>Chapter 23. Alone</text>
+      </navLabel>
+      <content src="Text/Section0023.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint25">
+      <navLabel>
+        <text>Chapter 24. Lost!</text>
+      </navLabel>
+      <content src="Text/Section0024.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint26">
+      <navLabel>
+        <text>Chapter 25. The Whispering Gallery</text>
+      </navLabel>
+      <content src="Text/Section0025.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint27">
+      <navLabel>
+        <text>Chapter 26. A Rapid Recovery</text>
+      </navLabel>
+      <content src="Text/Section0026.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint28">
+      <navLabel>
+        <text>Chapter 27. The Central Sea</text>
+      </navLabel>
+      <content src="Text/Section0027.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint29">
+      <navLabel>
+        <text>Chapter 28. Launching the Raft</text>
+      </navLabel>
+      <content src="Text/Section0028.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint30">
+      <navLabel>
+        <text>Chapter 29. On the Waters—A Raft Voyage</text>
+      </navLabel>
+      <content src="Text/Section0029.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint31">
+      <navLabel>
+        <text>Chapter 30. Terrific Saurian Combat</text>
+      </navLabel>
+      <content src="Text/Section0030.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint32">
+      <navLabel>
+        <text>Chapter 31. The Sea Monster</text>
+      </navLabel>
+      <content src="Text/Section0031.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint33">
+      <navLabel>
+        <text>Chapter 32. The Battle of the Elements</text>
+      </navLabel>
+      <content src="Text/Section0032.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint34">
+      <navLabel>
+        <text>Chapter 33. Our Route Reversed</text>
+      </navLabel>
+      <content src="Text/Section0033.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint35">
+      <navLabel>
+        <text>Chapter 34. A Voyage of Discovery</text>
+      </navLabel>
+      <content src="Text/Section0034.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint36">
+      <navLabel>
+        <text>Chapter 35. Discovery upon Discovery</text>
+      </navLabel>
+      <content src="Text/Section0035.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint37">
+      <navLabel>
+        <text>Chapter 36. What is it?</text>
+      </navLabel>
+      <content src="Text/Section0036.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint38">
+      <navLabel>
+        <text>Chapter 37. The Mysterious Dagger</text>
+      </navLabel>
+      <content src="Text/Section0037.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint39">
+      <navLabel>
+        <text>Chapter 38. No Outlet—Blasting The Rock</text>
+      </navLabel>
+      <content src="Text/Section0038.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint40">
+      <navLabel>
+        <text>Chapter 39. The Explosion and its Results</text>
+      </navLabel>
+      <content src="Text/Section0039.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint41">
+      <navLabel>
+        <text>Chapter 40. The Ape Gigans</text>
+      </navLabel>
+      <content src="Text/Section0040.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint42">
+      <navLabel>
+        <text>Chapter 41. Hunger</text>
+      </navLabel>
+      <content src="Text/Section0041.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint43">
+      <navLabel>
+        <text>Chapter 42. The Volcanic Shaft</text>
+      </navLabel>
+      <content src="Text/Section0042.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint44">
+      <navLabel>
+        <text>Chapter 43. Daylight at Last</text>
+      </navLabel>
+      <content src="Text/Section0043.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint45">
+      <navLabel>
+        <text>Chapter 44. The Journey Ended</text>
+      </navLabel>
+      <content src="Text/Section0044.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>

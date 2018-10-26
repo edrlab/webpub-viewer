@@ -36,7 +36,7 @@ Examples demonstrate how this webpub-viewer can be used:
 2. with assets served by r2-streamer-js (in-memory model);
 3. embedded in exploded EPUB files themselves.
 
-Example EPUB *The Call of the Wild* has been kindly offered by Jellybooks.
+Example EPUBs *The Call of the Wild* and *A Journey to the Center of the Earth* have been kindly offered by Jellybooks.
 
 ### Static
 

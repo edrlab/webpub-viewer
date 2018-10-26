@@ -23,10 +23,12 @@ server.listen( port, (err) => {
 
 app.use("/viewer", express.static(__dirname + "/viewer"));
 app.use("/TheCallOfTheWild", express.static(__dirname + "/TheCallOfTheWild"));
+app.use("/AJourneyToTheCentreOfTheEarth", express.static(__dirname + "/AJourneyToTheCentreOfTheEarth"));
 
 app.get('/', function (req, res) {
   res.header("Content-type", "text/html");
   return res.end("<h1>Webpub-viewer on https</h1>" + 
-  "<p><a href='/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2FTheCallOfTheWild%2Fmanifest.json'>Open book with the same origin</a> (should open in Webpub Viewer and register Service Workers if the certificate is trusted)</p>" + 
-  "<p><a href='/viewer/?url=https%3A%2F%2Freadium2.herokuapp.com%2Fpub%2FL2FwcC9taXNjL2VwdWJzL2NoaWxkcmVucy1saXRlcmF0dXJlLmVwdWI%3D%2Fmanifest.json'>Open book with a different origin</a> (should fail and throw an error in the browser’s console)</p>");
+  "<p>This example is running with static files on the same origin. Since it is https, Service Workers should register in compatible browsers.</p>" +
+  "<p><a href='/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2FAJourneyToTheCentreOfTheEarth%2Fmanifest.json'>A Journey to the Centre of the Earth</p>" +
+  "<p><a href='/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2FTheCallOfTheWild%2Fmanifest.json'>The Call of the Wild</p>");
 });
