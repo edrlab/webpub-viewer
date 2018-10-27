@@ -24,6 +24,7 @@ server.listen( port, (err) => {
 app.use("/viewer", express.static(__dirname + "/viewer"));
 app.use("/TheCallOfTheWild", express.static(__dirname + "/TheCallOfTheWild"));
 app.use("/AJourneyToTheCentreOfTheEarth", express.static(__dirname + "/AJourneyToTheCentreOfTheEarth"));
+app.use("/backstop", express.static(__dirname + "/backstop"));
 
 app.get('/', function (req, res) {
   res.header("Content-type", "text/html");

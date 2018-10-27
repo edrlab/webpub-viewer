@@ -109,6 +109,62 @@ This example runs on `https` but is using the same certificate as the static exa
 - open https://localhost:1865 in the browser
 - To stop the server, type `ctrl + c`
 
+## Testing
+
+### Unit testing
+
+By running: 
+
+```
+npm test
+```
+
+You’ll launch 200+ automated tests to make sure everything is OK.
+
+### Visual Regression Testing
+
+We are also using [backstopJS](https://github.com/garris/BackstopJS) to test for visual regressions. It can indeed help catch issues with user settings and/or features that would be a lot more difficult to catch in unit testing.
+
+It is preferrable you install backstopjs globally as it is a massive download, and is meant as a command that can be used with different projects – note that if installed locally, it will be tied to npm scripts.
+
+```
+npm install -g backstopjs
+```
+
+Since those tests are relying on Pupeteer, so you’ll also need Chrome/Chromium – ideally latest.
+
+Then you’ll have to launch the `https` server locally with:
+
+```
+npm run static
+```
+
+The first time you run visual regression tests, you’ll need to create reference screenshots with:
+
+```
+npm run visual-test:init
+```
+
+Then
+
+```
+npm run visual-test
+```
+
+This will test different scenarios, with possible interactions from the user e.g. displaying the TOC, changing the font or font-size, picking sepia or night mode…
+
+A browser window/tab will open with the report so that you can take a deeper look.
+
+If you encounter visual inconsistencies backstopJS doesn’t report on your first run, then do:
+
+```
+npm run visual-test:update
+```
+
+This will update the reference screenshots.
+
+You can also use this command when you made a significant cosmetic change or added new features. 
+
 ## Icons
 
 Icons used in the shared version are part of the official [Material Design Icons](https://material.io/tools/icons/?style=outline) collection (outline version).
