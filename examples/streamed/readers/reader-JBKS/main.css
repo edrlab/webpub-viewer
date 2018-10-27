@@ -238,6 +238,8 @@ a {
     font-size: 1rem;
     font-weight: 700;
     padding: 1.4rem; }
+    .error button + button {
+      margin-left: 1rem; }
 
 .controls-view {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
