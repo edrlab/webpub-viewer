@@ -20,6 +20,7 @@
     <item  id="crabapple.css" href="Styles/crabapple.css" media-type="text/css"/>
   </manifest>
   <spine toc="ncx">
-    <itemref  idref="Section001.xhtml"/>
+    <itemref idref="Section001.xhtml"/>
+    <itemref idref="Section002.xhtml"/>
   </spine>
 </package>
