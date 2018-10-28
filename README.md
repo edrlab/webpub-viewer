@@ -1,6 +1,6 @@
 # webpub-viewer
 
-A viewer application for web publications, based on Hadrien Gardeur's proof of concept https://github.com/HadrienGardeur/webpub-viewer.
+A viewer application for web publications, based on [NYPL’s prototype](https://github.com/NYPL-Simplified/webpub-viewer), which is itself based on [Hadrien Gardeur’s proof of concept](https://github.com/HadrienGardeur/webpub-viewer).
 
 ## About the Jellybooks-shared branch
 
@@ -36,11 +36,11 @@ Examples demonstrate how this webpub-viewer can be used:
 2. with assets served by r2-streamer-js (in-memory model);
 3. embedded in exploded EPUB files themselves.
 
-Example EPUBs *The Call of the Wild* and *A Journey to the Center of the Earth* have been kindly offered by Jellybooks.
+Example EPUBs *The Call of the Wild* and *A Journey to the Centre of the Earth* have been kindly offered by Jellybooks.
 
 ### Static
 
-The `examples/static` folder contains the webpub-viewer (`viewer` folder), an example file (`TheCallOfTheWild` folder), and a `static-server.js` script running a local server using Node.js + Express.
+The `examples/static` folder contains the webpub-viewer (`viewer` folder), two example files (`TheCallOfTheWild` and `AJourneyToTheCentreOfTheEarth` folder), and a `static-server.js` script running a local server using Node.js + Express.
 
 This example runs on `https` so you’ll need to trust the provided `webpubViewer.pem` self-signed certificate that node and express use to create an https server.
 
@@ -74,7 +74,7 @@ You might need to make it an exception in your web browser so that it can be tru
 - open https://localhost:3333 in the browser
 - To stop the server, type `ctrl + c`
 
-There is one static example available on the same origin (should work as expected) and another one on a different origin (should fail).
+Both examples are available on the same origin, as cross-origin will be restricted by browsers and throw an error in the viewer.
 
 For the origin to be considered the same, protocol (`http/https`), host and port must be the same. See [web browsers’ same-origin policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy).
 
