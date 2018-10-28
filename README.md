@@ -40,7 +40,7 @@ Example EPUBs *The Call of the Wild* and *A Journey to the Centre of the Earth* 
 
 ### Static
 
-The `examples/static` folder contains the webpub-viewer (`viewer` folder), two example files (`TheCallOfTheWild` and `AJourneyToTheCentreOfTheEarth` folder), and a `static-server.js` script running a local server using Node.js + Express.
+The `examples/static` folder contains the webpub-viewer (`viewer` folder), two example files (`TheCallOfTheWild` and `AJourneyToTheCentreOfTheEarth` folders), and a `static-server.js` script running a local server using Node.js + Express.
 
 This example runs on `https` so you’ll need to trust the provided `webpubViewer.pem` self-signed certificate that node and express use to create an https server.
 
