@@ -7,24 +7,30 @@ import EventHandler from "../src/EventHandler";
 describe("EventHandler", () => {
     let eventHandler: EventHandler;
 
-    let onLeftTap: Sinon.SinonStub;
-    let onMiddleTap: Sinon.SinonStub;
-    let onRightTap: Sinon.SinonStub;
-    let onBackwardSwipe: Sinon.SinonStub;
-    let onForwardSwipe: Sinon.SinonStub;
-    let onLeftHover: Sinon.SinonStub;
-    let onRightHover: Sinon.SinonStub;
-    let onRemoveHover: Sinon.SinonStub;
+    let onLeftTap: sinon.SinonStub;
+    let onMiddleTap: sinon.SinonStub;
+    let onRightTap: sinon.SinonStub;
+    let onBackwardSwipe: sinon.SinonStub;
+    let onForwardSwipe: sinon.SinonStub;
+    let onLeftArrow: sinon.SinonStub;
+    let onRightArrow: sinon.SinonStub;
+    let onLeftHover: sinon.SinonStub;
+    let onRightHover: sinon.SinonStub;
+    let onRemoveHover: sinon.SinonStub;
+    let onInternalLink: sinon.SinonStub;
 
+    let faultyIframe: null;
     let element: HTMLElement;
     let div: HTMLDivElement;
     let span: HTMLSpanElement;
     let link: HTMLAnchorElement;
     let parentLink: HTMLAnchorElement;
     let linkWithNoHref: HTMLAnchorElement;
+    let internalLink: HTMLAnchorElement;
 
-    let linkClicked: Sinon.SinonStub;
-    let parentLinkClicked: Sinon.SinonStub;
+    let linkClicked: sinon.SinonStub;
+    let parentLinkClicked: sinon.SinonStub;
+    let internalLinkClicked: sinon.SinonStub;
 
     const event = (type: string, x: number = 0, y: number = 0, target: HTMLElement = div) => {
         const event = document.createEvent("UIEvent") as any;
@@ -53,18 +59,24 @@ describe("EventHandler", () => {
         onRightTap = stub();
         onBackwardSwipe = stub();
         onForwardSwipe = stub();
+        onLeftArrow = stub();
+        onRightArrow = stub();
         onLeftHover = stub();
         onRightHover = stub();
         onRemoveHover = stub();
+        onInternalLink = stub();
 
         eventHandler.onLeftTap = onLeftTap;
         eventHandler.onMiddleTap = onMiddleTap;
         eventHandler.onRightTap = onRightTap;
         eventHandler.onBackwardSwipe = onBackwardSwipe;
         eventHandler.onForwardSwipe = onForwardSwipe;
+        eventHandler.onLeftArrow = onLeftArrow;
+        eventHandler.onRightArrow = onRightArrow;
         eventHandler.onLeftHover = onLeftHover;
         eventHandler.onRightHover = onRightHover;
         eventHandler.onRemoveHover = onRemoveHover;
+        eventHandler.onInternalLink = onInternalLink;
 
         element = window.document.createElement("div");
 
@@ -95,12 +107,29 @@ describe("EventHandler", () => {
         linkWithNoHref = window.document.createElement("a");
         element.appendChild(linkWithNoHref);
 
+        internalLink = window.document.createElement("a");
+        internalLink.href = "http://example.com#id";
+        link.protocol = "http";
+        link.port = "";
+        link.hostname = "example.com";
+        internalLinkClicked = stub();
+        internalLink.addEventListener("click", internalLinkClicked);
+        element.appendChild(internalLink);
+
         (window as any).devicePixelRatio = 2;
         (window as any).innerWidth = 1024;
         (document.documentElement as any).clientWidth = 1024;
     });
 
     describe("#setupEvents", () => {
+        it("should raise exception if iframe is null", () => {
+            faultyIframe = null;
+            const test = () => {
+                eventHandler.setupEvents(faultyIframe);
+            }
+            expect(test).to.throw("cannot setup events for null");
+        });
+
         describe("mouse events", () => {
             beforeEach(() => {
                 eventHandler.setupEvents(element);
@@ -430,7 +459,7 @@ describe("EventHandler", () => {
         });
 
         describe("click events", () => {
-            let openStub: Sinon.SinonStub;
+            let openStub: sinon.SinonStub;
 
             beforeEach(() => {
                 openStub = stub(window, "open");
@@ -451,7 +480,7 @@ describe("EventHandler", () => {
                 expect(openStub.args[0][0]).to.equal(link.href);
             });
 
-            it("should do nothing on a single click on an internal link", async () => {
+            it("should do nothing on a single click on an internal link without a #fragment", async () => {
                 jsdom.changeURL(window, "http://example.com");
                 event("click", 10, 0, link);
 
@@ -460,12 +489,53 @@ describe("EventHandler", () => {
                 expect(openStub.callCount).to.equal(0);
             });
 
+            it("should handle a single click on an internal link with a #fragment", async () => {
+                event("click", 10, 0, internalLink);
+
+                await pause(250);
+
+                expect(openStub.callCount).to.equal(0);
+                expect(onInternalLink.callCount).to.equal(1);
+            });
+
             it("should do nothing on a single click on a link with no href", async () => {
                 event("click", 10, 0, linkWithNoHref);
 
                 await pause(250);
 
                 expect(openStub.callCount).to.equal(0);
+            });
+        });
+
+        describe("keyboard events", () => {
+            const keyEvent = (type: string, code: number, target: HTMLElement = div) => {
+                const keyEvent = document.createEvent("UIEvent") as any;
+                keyEvent.initEvent(type, true, true);
+                keyEvent.keyCode = code;
+                
+                target.dispatchEvent(keyEvent);
+            };
+
+            beforeEach(() => {
+                eventHandler.setupEvents(element);
+            });
+
+            it("should do nothing if a non-handled key is pressed", () => {
+                keyEvent("keydown", 8);
+                expect(onLeftArrow.callCount).to.equal(0);
+                expect(onRightArrow.callCount).to.equal(0);
+            });
+
+            it("should handle the left arrow key", () => {
+                keyEvent("keydown", 37);
+                expect(onLeftArrow.callCount).to.equal(1);
+                expect(onRightArrow.callCount).to.equal(0);
+            });
+
+            it("should handle the right arrow key", () => {
+                keyEvent("keydown", 39);
+                expect(onLeftArrow.callCount).to.equal(0);
+                expect(onRightArrow.callCount).to.equal(1);
             });
         });
     });

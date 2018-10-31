@@ -12,9 +12,14 @@ export default class EventHandler {
     public onBackwardSwipe: (event: UIEvent) => void = () => {};
     public onForwardSwipe: (event: UIEvent) => void = () => {};
 
+    public onLeftArrow: (event: UIEvent) => void = () => {};
+    public onRightArrow: (event: UIEvent) => void = () => {};
+
     public onLeftHover: () => void = () => {};
     public onRightHover: () => void = () => {};
     public onRemoveHover: () => void = () => {};
+
+    public onInternalLink: (event: UIEvent) => void = () => {};
 
     private static readonly CLICK_PIXEL_TOLERANCE = 10;
     private static readonly TAP_PIXEL_TOLERANCE = 10;
@@ -23,26 +28,25 @@ export default class EventHandler {
     private static readonly DOUBLE_TAP_MS = 200;
     private static readonly SLOW_SWIPE_MS = 500;
 
-    public setupEvents(element: HTMLElement | Document) {
-        if (this.isTouchDevice()) {
+    public setupEvents(element: HTMLElement | Document | null) {
+        if (element !== null) {
             element.addEventListener("touchstart", this.handleTouchEventStart.bind(this));
             element.addEventListener("touchend", this.handleTouchEventEnd.bind(this));
-        } else {
             element.addEventListener("mousedown", this.handleMouseEventStart.bind(this));
             element.addEventListener("mouseup", this.handleMouseEventEnd.bind(this));
             element.addEventListener("mouseenter", this.handleMouseMove.bind(this));
             element.addEventListener("mousemove", this.handleMouseMove.bind(this));
             element.addEventListener("mouseleave", this.handleMouseLeave.bind(this));
+
+            // Most click handling is done in the touchend and mouseup event handlers,
+            // but if there's a click on an external link we need to cancel the click
+            // event to prevent it from opening in the iframe.
+            element.addEventListener("click", this.handleLinks.bind(this));
+
+            element.addEventListener("keydown", this.handleKeyboard.bind(this));
+        } else {
+            throw "cannot setup events for null";
         }
-
-        // Most click handling is done in the touchend and mouseup event handlers,
-        // but if there's a click on an external link we need to cancel the click
-        // event to prevent it from opening in the iframe.
-        element.addEventListener("click", this.handleExternalLinks.bind(this));
-    }
-
-    private isTouchDevice() {
-        return !!('ontouchstart' in window || navigator.maxTouchPoints);
     }
 
     private handleMouseEventStart = (event: MouseEvent): void => {
@@ -97,6 +101,7 @@ export default class EventHandler {
     }
 
     private handleTouchEventEnd = (event: TouchEvent): void => {
+        event.preventDefault();
         if (BrowserUtilities.isZoomed()) {
             return;
         }
@@ -206,6 +211,8 @@ export default class EventHandler {
         }
 
         if (this.checkForLink(this.pendingTouchEventEnd)) {
+            this.handleLinks(this.pendingTouchEventEnd);
+            
             // This was a single tap on a link. Do nothing.
             this.pendingTouchEventEnd = null;
             return;
@@ -237,7 +244,7 @@ export default class EventHandler {
             if (nextElement.tagName.toLowerCase() === "a" && (nextElement as HTMLAnchorElement).href) {
                 return (nextElement as HTMLAnchorElement);
             } else {
-                nextElement = nextElement.parentElement;
+                (nextElement as any) = nextElement.parentElement;
             }
         }
         return null;
@@ -259,7 +266,7 @@ export default class EventHandler {
         this.onRemoveHover();
     }
 
-    private handleExternalLinks = (event: MouseEvent | TouchEvent) : void => {
+    private handleLinks = (event: MouseEvent | TouchEvent): void => {
         const link = this.checkForLink(event);
         if (link) {
             // Open external links in new tabs.
@@ -268,11 +275,30 @@ export default class EventHandler {
                 window.location.port === link.port &&
                 window.location.hostname === link.hostname
             );
+            const isInternal = (link.href.indexOf("#"));
             if (!isSameOrigin) {
                 window.open(link.href, "_blank");
                 event.preventDefault();
                 event.stopPropagation();
+            } else if (isSameOrigin && isInternal !== -1) {
+                this.onInternalLink(event);
+            } else if (isSameOrigin && isInternal === -1) {
+                link.click();
             }
+        }
+    }
+
+    private handleKeyboard = (event: KeyboardEvent): void => {
+        const LEFT_ARROW = 37;
+        const RIGHT_ARROW = 39;
+        const TAB_KEY = 9;
+
+        if (event.keyCode === LEFT_ARROW) {
+            this.onLeftArrow(event);
+        } else if (event.keyCode === RIGHT_ARROW) {
+            this.onRightArrow(event);
+        } else if (event.keyCode === TAB_KEY) {
+            event.preventDefault();
         }
     }
 }

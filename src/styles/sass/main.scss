@@ -1,7 +1,5 @@
 // Variables & Mixins etc.
 
-// TODO: create a better button mixin
-//       use viewport units where applicable
 // Colors
 @import "colors";
 // Type
@@ -11,27 +9,34 @@
 // Global styles           //
 //////////////////////////////
 
+:root {
+  -webkit-text-size-adjust: 100%;
+  zoom: reset;
+}
+
 body {
   font-family: $sans-serif-stack;
   font-size: $basefont;
   margin: 0 auto;
 }
 
-ul li {
+ul li,
+ol li {
   list-style: none;
 }
 
 button {
-  background: $mta-white;
+  background: $ui-white;
   border: 0;
-  color: $mta-green;
+  color: $ui-dark-gray;
   // font-size: 4vw;
   padding: 0.35rem 0.35rem 0.2rem;
+  margin: 0;
   -webkit-appearance: none;
 }
 
 a {
-  color: $mta-green;
+  color: $ui-dark-gray;
   text-decoration: none;
 }
 
@@ -45,6 +50,11 @@ a {
   z-index: 3000;
 }
 
+#viewer {
+  padding: 0 env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  box-sizing: border-box;
+}
+
 //////////////////////////////
 //   Navigation Control     //
 //////////////////////////////
@@ -55,19 +65,51 @@ a {
   width: 0;
 }
 
+.controls-trigger {
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: env(safe-area-inset-top) 0 0;
+  z-index: 10;
+  background-color: $ui-white;
+  color: $ui-dark-gray;
+
+  .icon {
+    display: inline-block;
+    color: $ui-dark-gray;
+    fill: $ui-dark-gray;
+    height: 1.5rem;
+    width: 1.5rem;
+    transition: transform 300ms ease-in-out;
+  }
+
+  .inactive-icon {
+    transition: transform 300ms ease-in-out;
+    transform: rotate(180deg);
+  }
+}
+
 .controls {
-  color: $mta-green;
+  color: $ui-dark-gray;
   position: fixed;
   right: 0;
   top: 0;
   width: 100%;
+  padding: env(safe-area-inset-top) 0 0;
 
-  ul li {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
+
+  ul li,
+  ol li {
     display: inline-block;
   }
 
   .links {
-    background-color: $mta-white;
+    background-color: $ui-white;
     height: inherit;
     list-style-type: none;
     margin: 0;
@@ -77,8 +119,8 @@ a {
 
     .icon {
       display: inline-block;
-      color: $mta-green;
-      fill: $mta-green;
+      color: $ui-dark-gray;
+      fill: $ui-dark-gray;
       height: 1.5rem;
       width: 1.5rem;
 
@@ -100,23 +142,14 @@ a {
         font-size: 0.9rem;
         letter-spacing: 0.07rem;
       }
-
-      &.contents {
-        top: -0.55rem;
-
-        @media screen and (min-width: 30rem) {
-          display: inline-block;
-          position: relative;
-          top: -0.35rem;
-        }
-      }
     }
 
     &.top {
-      background-color: $mta-white;
-      border-bottom: 0.0625rem solid $mta-gray-tint;
+      background-color: $ui-white;
+      border-bottom: 0.0625rem solid $ui-light-gray;
       height: 2.9rem;
       padding: 0.5rem 0 0;
+      display: flex;
 
       &.inactive {
         transition: opacity 100ms cubic-bezier(0.32, 0.76, 1, 1.01);
@@ -127,53 +160,34 @@ a {
       }
 
       > li:nth-child(1) { // this is the back arrow
-        position: relative;
-        text-align: left;
-        right: 0;
-        margin: 0 65vw 0 0;
+        display: inline-block;
+        margin: 0 auto 0 0.625rem;
 
-        @media (min-width: 30rem) {
-          margin-right: 25vw;
-        }
-
-        @media (min-width: 60rem) {
-          margin-right: 60vw;
-        }
-
-        @media (min-width: 87.5rem) {
-          margin-right: 73vw;
+        a[rel="up"] {
+          display: inline-block;
+          padding: 0.35rem 0.35rem 0.2rem;
         }
       }
 
-      @media screen and (min-width: 30rem) {
-        > li:nth-child(1) {
-          background-color: $mta-white;
-          display: inline-block;
-          margin-top: 0.175rem;
-          margin-left: 0.625rem;
+      > li.uplink-wrapper {
+        margin-right: 0;
+      }
 
-          a[rel="up"] {
-            display: inline-block;
-          }
+      > li.uplink-wrapper + li {
+        margin-right: auto;
+      }
 
-          .icon {
-            height: 1.25rem;
-            width: 1.25rem;
-          }
-
-          span {
-            display: inline-block;
-            top: -0.3rem;
-          }
-        }
+      > li:last-child {
+        margin-right: 0.625rem;
+        margin-right: 2.85rem;
       }
     } // / .top
 
     // Bottom Controls
     // the, fixed bar and the arrows.
     &.bottom {
-      background-color: darken($mta-white, 2.5%);
-      border-top: 0.16rem solid $mta-green;
+      background-color: darken($ui-white, 2.5%);
+      border-top: 0.16rem solid $ui-light-gray;
       bottom: 0;
       height: 2.2rem;
       padding-top: 0.625rem;
@@ -217,12 +231,13 @@ a {
         }
 
       @media screen and (min-width: 30rem) {
-        background: $mta-white;
+        background: $ui-white;
         }
 
       .icon {
         height: 1.5rem;
         width: 1.5rem;
+        margin: 0 0.375rem;
 
         @media screen and (min-width: 30rem) {
           position: relative;
@@ -241,29 +256,77 @@ a {
   } // /.links
 } // /.controls
 
+@-webkit-keyframes load {
+  0% {
+    transform: translate(-2.5rem, -2.5rem) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(-2.5rem, -2.5rem) rotate(360deg)
+  }
+}
+
+@keyframes load {
+  0% {
+    transform: translate(-2.5rem, -2.5rem) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(-2.5rem, -2.5rem) rotate(360deg)
+  }
+}
+
+.loading.is-loading {
+  .icon {
+    animation: load 1s ease-in-out infinite;
+  }
+}
+
 .loading {
-  background-color: darken($mta-white, 2.5%);
-  border: 0.0625rem solid $mta-green;
-  border-radius: 0.3125rem;
-  color: $mta-green;
-  font-family: $sans-serif-stack;
-  height: 2.5rem;
-  left: calc(50% - 6.25rem);
-  padding-top: 1.25rem;
   position: fixed;
-  text-align: center;
-  top: calc(50% - 6.25rem);
-  width: 12.5rem;
+  width: 100%;
+  height: 100vh;
+  z-index: 10;
+  background-color: transparentize($ui-white, 0.1);
+  color: $ui-dark-gray;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
+
+  .icon {
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5rem;
+    height: 5rem;
+    transform: translate(-2.5rem, -2.5rem);
+    fill: $ui-dark-gray;
+  }
 }
 
 .error {
-  background-color: transparentize($mta-white, 0.125);
-  color: $mta-error-red;
+  z-index: 20;
+  background-color: transparentize($ui-white, 0.125);
+  color: $error-red;
   height: 100%;
   padding-top: 40vh;
   position: fixed;
   text-align: center;
   width: 100%;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
+
+  .icon {
+    width: 3rem;
+    height: 3rem;
+    fill: $error-red;
+  }
 
   span {
     display: block;
@@ -271,12 +334,16 @@ a {
   }
 
   button {
-    color: $mta-error-red;
-    border: 0.125rem solid $mta-error-red;
+    color: $error-red;
+    border: 0.125rem solid $error-red;
     border-radius: 0.3125rem;
     font-size: 1rem;
     font-weight: 700;
     padding: 1.4rem;
+
+    + button {
+      margin-left: 1rem;
+    }
   }
 }
 
@@ -292,7 +359,7 @@ a {
   text-align: left;
 
   .disabled {
-    background-color: darken($mta-green, 20%);
+    background-color: darken($ui-light-gray, 20%);
     }
 
   &.inactive {
@@ -311,35 +378,49 @@ a {
 // /controls-view
 
 .info {
-  color: $mta-dark-gray;
-  margin: 0 1.5rem;
+  color: $ui-dark-gray;
+  margin: 0;
+  padding: 0 1.5rem;
   overflow: hidden;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
 
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  cursor: default;
+
   &.top {
     line-height: 3;
+    padding-top: env(safe-area-inset-top);
+    min-height: 3.6rem;
   }
 
   &.bottom {
     line-height: 2;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .chapter-position,
   .chapter-title {
     font-size: 0.85rem;
+    font-variant-numeric: lining-nums tabular-nums;
   }
 }
 // /info
 
 iframe {
+  opacity: 0;
+//  transition: opacity 100ms ease-in; /* This forces relayout, which makes the TOC flash */
+
   &.left-hover {
-    background: linear-gradient(to right, $transparent-mta-gray, $transparent-mta-gray 28%, $mta-white 30%, $mta-white);
+    background: linear-gradient(to right, transparentize($ui-light-gray, 0.1), transparentize($ui-light-gray, 0.1) 28%, $ui-white 30%, $ui-white);
   }
 
   &.right-hover {
-    background: linear-gradient(to left, $transparent-mta-gray, $transparent-mta-gray 28%, $mta-white 30%, $mta-white);
+    background: linear-gradient(to left, transparentize($ui-light-gray, 0.1), transparentize($ui-light-gray, 0.1) 28%, $ui-white 30%, $ui-white);
   }
 }
 
@@ -350,7 +431,7 @@ iframe {
   width: 0.0625rem;
   height: 0.0625rem;
   overflow: hidden;
-  background-color: $mta-white;
+  background-color: $ui-white;
   margin: 0.3125rem;
   padding: 0.3125rem 0.625rem;
   z-index: 4000;
@@ -361,6 +442,168 @@ iframe {
     height: auto;
     overflow: visible;
     top: 0.3125rem;
+  }
+}
+
+[data-viewer-theme="sepia"] {
+  background-color: $sepia-bg;
+
+  button {
+    background: $sepia-bg;
+    color: $ui-dark-gray;
+  }
+
+  a {
+    color: $ui-dark-gray;
+  }
+
+  .controls-trigger {
+    background: $sepia-bg;
+    color: $ui-dark-gray;
+
+    .icon {
+      color: $ui-dark-gray;
+      fill: $ui-dark-gray;
+    }
+  }
+
+  .controls {
+    color: $ui-dark-gray;
+  
+    .links {
+      background-color: $sepia-bg;
+  
+      .icon {
+        color: $ui-dark-gray;
+        fill: $ui-dark-gray;
+      }
+    }
+
+    &.top {
+      background-color: $sepia-bg;
+      border-bottom: 0.0625rem solid $ui-light-gray;
+    }
+
+    &.bottom {
+      background-color: darken($sepia-bg, 2.5%);
+      border-top: 0.16rem solid $ui-light-gray;
+    }
+  }
+
+  .loading {
+    background-color: transparentize($sepia-bg, 0.1);
+  }
+
+  .error {
+    background-color: transparentize($sepia-bg, 0.125);
+  
+    button {
+      background-color: $ui-white;
+      color: $error-red;
+      border: 0.125rem solid $error-red;
+    }
+  }
+
+  .scrolling-suggestion {
+    background-color: $sepia-bg;
+  }
+
+  .info {
+    color: $ui-dark-gray;
+  }
+
+  iframe {
+    &.left-hover {
+      background: linear-gradient(to right, darken($sepia-bg, 10%), darken($sepia-bg, 10%) 28%, $sepia-bg 30%, $sepia-bg);
+    }
+  
+    &.right-hover {
+      background: linear-gradient(to left, darken($sepia-bg, 10%), darken($sepia-bg, 10%) 28%, $sepia-bg 30%, $sepia-bg);
+    }
+  }
+}
+
+[data-viewer-theme="night"] {
+  background-color: $ui-black;
+  color: $ui-white;
+
+  button {
+    background: $ui-black;
+    color: $ui-light-gray;
+  }
+
+  a {
+    color: $ui-light-gray;
+  }
+
+  .controls-trigger {
+    background: $ui-black;
+    color: $ui-light-gray;
+
+    .icon {
+      color: $ui-light-gray;
+      fill: $ui-light-gray;
+    }
+  }
+
+  .controls {
+    color: $ui-light-gray;
+  
+    .links {
+      background-color: $ui-black;
+  
+      .icon {
+        color: $ui-light-gray;
+        fill: $ui-light-gray;
+      }
+    }
+
+    &.top {
+      background-color: $ui-black;
+      border-bottom: 0.0625rem solid $ui-dark-gray;
+    }
+
+    &.bottom {
+      background-color: lighten($ui-black, 2.5%);
+      border-top: 0.16rem solid $ui-dark-gray;
+    }
+  }
+
+  .loading {
+    background-color: lighten($ui-black, 10%);
+    color: $ui-light-gray;
+
+    .icon {
+      fill: $ui-light-gray;
+    }
+  }
+
+  .error {
+    background-color: transparentize($ui-black, 0.125);
+  
+    button {
+      background-color: lighten($ui-black, 10%);
+      color: $error-red;
+      border: 0.125rem solid $error-red;
+    }
+  }
+
+  .scrolling-suggestion {
+    background-color: $ui-black;
+  }
+
+  .info {
+    color: $ui-light-gray;
+  }
+
+  iframe {
+    &.left-hover {
+      background: linear-gradient(to right, lighten($ui-black, 10%), lighten($ui-black, 10%) 28%, $ui-black 30%, $ui-black);
+    }
+  
+    &.right-hover {
+      background: linear-gradient(to left, lighten($ui-black, 10%), lighten($ui-black, 10%) 28%, $ui-black 30%, $ui-black);
+    }
   }
 }
 

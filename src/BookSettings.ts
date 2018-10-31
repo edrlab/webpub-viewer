@@ -1,6 +1,9 @@
 import BookView from "./BookView";
+import BookTheme from "./BookTheme";
+import BookFont from "./BookFont";
 import * as HTMLUtilities from "./HTMLUtilities";
 import Store from "./Store";
+import * as IconLib from "./IconLib";
 
 const template = (sections: string) => `
     <ul class="settings-menu" role="menu">
@@ -24,82 +27,82 @@ const offlineTemplate = `
     </li>
 `;
 
-const decreaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="decrease-font-size" class="icon">
-  <title id="decrease-font-size">Decrease Font Size</title>
-    <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-35V28h35Z"/>
-</svg>
-`;
-
-const increaseSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="increase-font-size" class="icon">
-  <title id="increase-font-size">Increase Font Size</title>
-    <path d="M30,0A30,30,0,1,0,60,30,30,30,0,0,0,30,0ZM47.41144,32h-15.5V47.49841h-4V32h-15.5V28h15.5V12.49841h4V28h15.5Z"/>
-</svg>
-`;
-
-const checkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 32" preserveAspectRatio="xMidYMid meet" class="checkedIcon" aria-label="check-icon" role="img">
-  <title>check icon</title>
-  <path d="M18.05257,31.0625,2.00775,15.01814a1,1,0,0,1,0-1.41422l2.535-2.535a1,1,0,0,1,1.4142,0L18.05257,23.16406,40.57154.646a1,1,0,0,1,1.4142,0l2.535,2.535a1,1,0,0,1,0,1.41423Z" />
-</svg>
-`;
-
 export interface BookSettingsConfig {
     /** Store to save the user's selections in. */
     store: Store,
 
-    /** Array of BookViews. */
-    bookViews: BookView[],
+    /** Array of BookFonts */
+    bookFonts: BookFont[],
 
     /** Array of font sizes in pixels sorted from smallest to largest. */
     fontSizesInPixels: number[],
 
     /** Initial font size to use until the user makes a selection. */
-    defaultFontSizeInPixels?: number;
+    defaultFontSizeInPixels?: number,
+
+    /** Array of BookThemes */
+    bookThemes: BookTheme[],
+
+    /** Array of BookViews. */
+    bookViews: BookView[];
 }
 
 export default class BookSettings {
     private readonly store: Store;
-    private readonly bookViews: BookView[];
-    private viewButtons: { [key: string]: HTMLButtonElement };
+    private readonly bookFonts: BookFont[];
+    private fontButtons: { [key: string]: HTMLButtonElement };
     private readonly fontSizes: string[];
     private fontSizeButtons: { [key: string]: HTMLButtonElement };
-    private fontSizeLabel: HTMLLIElement;
+    private readonly bookThemes: BookTheme[];
+    private themeButtons: { [key: string]: HTMLButtonElement };
+    private readonly bookViews: BookView[];
+    private viewButtons: { [key: string]: HTMLButtonElement };
+
     private offlineStatusElement: HTMLElement;
 
-    private viewChangeCallback: () => void = () => {};
+    private fontChangeCallback: () => void = () => {};
     private fontSizeChangeCallback: () => void = () => {};
+    private themeChangeCallback: () => void = () => {};
+    private viewChangeCallback: () => void = () => {};
 
-    private selectedView: BookView;
+    private selectedFont: BookFont;
     private selectedFontSize: string;
+    private selectedTheme: BookTheme;
+    private selectedView: BookView;
 
-    private static readonly SELECTED_VIEW_KEY = "settings-selected-view";
+    private static readonly SELECTED_FONT_KEY = "settings-selected-font";
     private static readonly SELECTED_FONT_SIZE_KEY = "settings-selected-font-size";
+    private static readonly SELECTED_THEME_KEY = "settings-selected-theme";
+    private static readonly SELECTED_VIEW_KEY = "settings-selected-view";
 
     public static async create(config: BookSettingsConfig) {
         const fontSizes = config.fontSizesInPixels.map(fontSize => fontSize + "px");
-        const settings = new this(config.store, config.bookViews, fontSizes);
+        const settings = new this(config.store, config.bookFonts, fontSizes, config.bookThemes, config.bookViews);
         await settings.initializeSelections(config.defaultFontSizeInPixels ? config.defaultFontSizeInPixels + "px" : undefined);
         return settings;
     }
 
-    protected constructor(store: Store, bookViews: BookView[], fontSizes: string[]) {
+    protected constructor(store: Store, bookFonts: BookFont[], fontSizes: string[], bookThemes: BookTheme[], bookViews: BookView[]) {
         this.store = store;
-        this.bookViews = bookViews;
+        this.bookFonts = bookFonts;
         this.fontSizes = fontSizes;
+        this.bookThemes = bookThemes;
+        this.bookViews = bookViews;
     }
 
     private async initializeSelections(defaultFontSize?: string): Promise<void> {
-        if (this.bookViews.length >= 1) {
-            let selectedView = this.bookViews[0];
-            const selectedViewName = await this.store.get(BookSettings.SELECTED_VIEW_KEY);
-            if (selectedViewName) {
-                for (const bookView of this.bookViews) {
-                    if (bookView.name === selectedViewName) {
-                        selectedView = bookView;
+        if (this.bookFonts.length >= 1) {
+            let selectedFont = this.bookFonts[0];
+            const selectedFontName = await this.store.get(BookSettings.SELECTED_FONT_KEY);
+            if (selectedFontName) {
+                for (const bookFont of this.bookFonts) {
+                    if (bookFont.name === selectedFontName) {
+                        selectedFont = bookFont;
                         break;
                     }
                 }
             }
-            this.selectedView = selectedView;
+            this.selectedFont = selectedFont;
         }
 
         if (this.fontSizes.length >= 1) {
@@ -118,40 +121,95 @@ export default class BookSettings {
             }
             this.selectedFontSize = selectedFontSize;
         }
+
+        if (this.bookThemes.length >= 1) {
+            let selectedTheme = this.bookThemes[0];
+            const selectedThemeName = await this.store.get(BookSettings.SELECTED_THEME_KEY);
+            if (selectedThemeName) {
+                for (const bookTheme of this.bookThemes) {
+                    if (bookTheme.name === selectedThemeName) {
+                        selectedTheme = bookTheme;
+                        break;
+                    }
+                }
+            }
+            this.selectedTheme = selectedTheme;
+        }
+
+        if (this.bookViews.length >= 1) {
+            let selectedView = this.bookViews[0];
+            const selectedViewName = await this.store.get(BookSettings.SELECTED_VIEW_KEY);
+            if (selectedViewName) {
+                for (const bookView of this.bookViews) {
+                    if (bookView.name === selectedViewName) {
+                        selectedView = bookView;
+                        break;
+                    }
+                }
+            }
+            this.selectedView = selectedView;
+        }
     }
 
     public renderControls(element: HTMLElement): void {
         const sections = [];
 
-        if (this.bookViews.length > 1) {
-            const viewOptions = this.bookViews.map(bookView =>
-                optionTemplate("reading-style", bookView.name, bookView.label, "menuitem", checkSvg, bookView.label)
+        if (this.bookFonts.length > 1) {
+            const fontOptions = this.bookFonts.map(bookFont =>
+                optionTemplate("reading-style", bookFont.name, bookFont.label, "menuitem", IconLib.icons.checkDupe, bookFont.label)
             );
-            sections.push(sectionTemplate(viewOptions.join("")));
+            sections.push(sectionTemplate(fontOptions.join("")));
         }
 
         if (this.fontSizes.length > 1) {
-            const fontSizeLabel = "<li class='font-size-label'>A</li>";
-            const fontSizeOptions = optionTemplate("font-setting", "decrease", decreaseSvg, "menuitem", "", "decrease-font") + fontSizeLabel + optionTemplate("font-setting", "increase", increaseSvg, "menuitem", "", "increase-font");
+            const fontSizeOptions = optionTemplate("font-setting", "decrease", "A-", "menuitem", "", "decrease-font") + optionTemplate("font-setting", "increase", "A+", "menuitem", "", "increase-font");
             sections.push(sectionTemplate(fontSizeOptions));
+        }
+
+        if (this.bookThemes.length > 1) {
+            const themeOptions = this.bookThemes.map(bookTheme =>
+                optionTemplate("reading-theme", bookTheme.name, bookTheme.label, "menuitem", IconLib.icons.checkDupe, bookTheme.label)
+            );
+            sections.push(sectionTemplate(themeOptions.join("")));
+        }
+
+        if (this.bookViews.length > 1) {
+            const viewOptions = this.bookViews.map(bookView =>
+                optionTemplate("reading-style", bookView.name, bookView.label, "menuitem", IconLib.icons.checkDupe, bookView.label)
+            );
+            sections.push(sectionTemplate(viewOptions.join("")));
         }
         sections.push(offlineTemplate);
 
         element.innerHTML = template(sections.join(""));
-        this.viewButtons = {};
-        if (this.bookViews.length > 1) {
-            for (const bookView of this.bookViews) {
-                this.viewButtons[bookView.name] = HTMLUtilities.findRequiredElement(element, "button[class=" + bookView.name + "]") as HTMLButtonElement;
+
+        this.fontButtons = {};
+        if (this.bookFonts.length > 1) {
+            for (const bookFont of this.bookFonts) {
+                this.fontButtons[bookFont.name] = HTMLUtilities.findRequiredElement(element, "button[class=" + bookFont.name + "]") as HTMLButtonElement;
             }
-            this.updateViewButtons();
+            this.updateFontButtons();
         }
         this.fontSizeButtons = {};
         if (this.fontSizes.length > 1) {
             for (const fontSizeName of ["decrease", "increase"]) {
                 this.fontSizeButtons[fontSizeName] = HTMLUtilities.findRequiredElement(element, "button[class=" + fontSizeName + "]") as HTMLButtonElement;
             }
-            this.fontSizeLabel = HTMLUtilities.findRequiredElement(element, 'li[class="font-size-label"]') as HTMLLIElement;
             this.updateFontSizeButtons();
+        }
+        this.themeButtons = {};
+        if (this.bookThemes.length > 1) {
+            for (const bookTheme of this.bookThemes) {
+                this.themeButtons[bookTheme.name] = HTMLUtilities.findRequiredElement(element, "button[class=" + bookTheme.name + "]") as HTMLButtonElement;
+            }
+            this.updateThemeButtons();
+        }
+        this.viewButtons = {};
+        if (this.bookViews.length > 1) {
+            for (const bookView of this.bookViews) {
+                this.viewButtons[bookView.name] = HTMLUtilities.findRequiredElement(element, "button[class=" + bookView.name + "]") as HTMLButtonElement;
+            }
+            this.updateViewButtons();
         }
 
         this.offlineStatusElement = HTMLUtilities.findRequiredElement(element, 'div[class="offline-status"]') as HTMLElement;
@@ -164,26 +222,33 @@ export default class BookSettings {
         });
     }
 
-    public onViewChange(callback: () => void) {
-        this.viewChangeCallback = callback;
+    public onFontChange(callback: () => void) {
+        this.fontChangeCallback = callback;
     }
 
     public onFontSizeChange(callback: () => void) {
         this.fontSizeChangeCallback = callback;
     }
 
+    public onThemeChange(callback: () => void) {
+        this.themeChangeCallback = callback;
+    }
+
+    public onViewChange(callback: () => void) {
+        this.viewChangeCallback = callback;
+    }
+
     private setupEvents(): void {
-        for (const view of this.bookViews) {
-            const button = this.viewButtons[view.name];
+        for (const font of this.bookFonts) {
+            const button = this.fontButtons[font.name];
             if (button) {
                 button.addEventListener("click", (event: MouseEvent) => {
-                    const position = this.selectedView.getCurrentPosition();
-                    this.selectedView.stop();
-                    view.start(position);
-                    this.selectedView = view;
-                    this.updateViewButtons();
-                    this.storeSelectedView(view);
-                    this.viewChangeCallback();
+                    this.selectedFont.stop();
+                    font.start();
+                    this.selectedFont = font;
+                    this.updateFontButtons();
+                    this.storeSelectedFont(font);
+                    this.fontChangeCallback();
                     event.preventDefault();
                 });
             }
@@ -214,16 +279,47 @@ export default class BookSettings {
                 event.preventDefault();
             });
         }
+
+        for (const theme of this.bookThemes) {
+            const button = this.themeButtons[theme.name];
+            if (button) {
+                button.addEventListener("click", (event: MouseEvent) => {
+                    this.selectedTheme.stop();
+                    theme.start();
+                    this.selectedTheme = theme;
+                    this.updateThemeButtons();
+                    this.storeSelectedTheme(theme);
+                    this.themeChangeCallback();
+                    event.preventDefault();
+                });
+            }
+        }
+
+        for (const view of this.bookViews) {
+            const button = this.viewButtons[view.name];
+            if (button) {
+                button.addEventListener("click", (event: MouseEvent) => {
+                    const position = this.selectedView.getCurrentPosition();
+                    this.selectedView.stop();
+                    view.start(position);
+                    this.selectedView = view;
+                    this.updateViewButtons();
+                    this.storeSelectedView(view);
+                    this.viewChangeCallback();
+                    event.preventDefault();
+                });
+            }
+        }
     }
 
-    private updateViewButtons(): void {
-        for (const view of this.bookViews) {
-            if (view === this.selectedView) {
-                this.viewButtons[view.name].className = view.name + " active";
-                this.viewButtons[view.name].setAttribute("aria-label", view.label + " mode enabled");
+    private updateFontButtons(): void {
+        for (const font of this.bookFonts) {
+            if (font === this.selectedFont) {
+                this.fontButtons[font.name].className = font.name + " active";
+                this.fontButtons[font.name].setAttribute("aria-label", font.label + " font enabled");
             } else {
-                this.viewButtons[view.name].className = view.name;
-                this.viewButtons[view.name].setAttribute("aria-label", view.label + " mode disabled");
+                this.fontButtons[font.name].className = font.name;
+                this.fontButtons[font.name].setAttribute("aria-label", font.label + " font disabled");
             }
         }
     }
@@ -244,23 +340,63 @@ export default class BookSettings {
         }
     }
 
-    public getSelectedView(): BookView {
-        return this.selectedView;
+    private updateThemeButtons(): void {
+        for (const theme of this.bookThemes) {
+            if (theme === this.selectedTheme) {
+                this.themeButtons[theme.name].className = theme.name + " active";
+                this.themeButtons[theme.name].setAttribute("aria-label", theme.label + " mode enabled");
+            } else {
+                this.themeButtons[theme.name].className = theme.name;
+                this.themeButtons[theme.name].setAttribute("aria-label", theme.label + " mode disabled");
+            }
+        }
+    }
+
+    private updateViewButtons(): void {
+        for (const view of this.bookViews) {
+            if (view === this.selectedView) {
+                this.viewButtons[view.name].className = view.name + " active";
+                this.viewButtons[view.name].setAttribute("aria-label", view.label + " mode enabled");
+            } else {
+                this.viewButtons[view.name].className = view.name;
+                this.viewButtons[view.name].setAttribute("aria-label", view.label + " mode disabled");
+            }
+        }
+    }
+
+    public getSelectedFont(): BookFont {
+        return this.selectedFont;
     }
 
     public getSelectedFontSize(): string {
         return this.selectedFontSize;
     }
 
+    public getSelectedTheme(): BookTheme {
+        return this.selectedTheme;
+    }
+
+    public getSelectedView(): BookView {
+        return this.selectedView;
+    }
+
     public getOfflineStatusElement(): HTMLElement {
         return this.offlineStatusElement;
     }
 
-    private async storeSelectedView(view: BookView): Promise<void> {
-        return this.store.set(BookSettings.SELECTED_VIEW_KEY, view.name);
+    private async storeSelectedFont(font: BookFont): Promise<void> {
+        return this.store.set(BookSettings.SELECTED_FONT_KEY, font.name);
     }
 
     private async storeSelectedFontSize(fontSize: string): Promise<void> {
         return this.store.set(BookSettings.SELECTED_FONT_SIZE_KEY, fontSize);
+    }
+
+    private async storeSelectedTheme(theme: BookTheme): Promise<void> {
+        return this.store.set(BookSettings.SELECTED_THEME_KEY, theme.name);
+    }
+
+    private async storeSelectedView(view: BookView): Promise<void> {
+        return this.store.set(BookSettings.SELECTED_VIEW_KEY, view.name);
     }
 };

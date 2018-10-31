@@ -33,33 +33,33 @@ describe("ScrollingBookView", () => {
         it("should set iframe size", () => {
             scroller.sideMargin = 11;
             scroller.height = 70;
-            (iframe.contentDocument.body as any).scrollHeight = 200;
+            ((iframe.contentDocument as any).body as any).scrollHeight = 200;
             (document.documentElement as any).clientWidth = 50;
 
             scroller.start(0);
             expect(iframe.style.height).to.equal("200px");
             expect(iframe.style.width).to.equal("50px");
-            expect(iframe.contentDocument.body.style.width).to.equal("28px");
-            expect(iframe.contentDocument.body.style.marginLeft).to.equal("11px");
-            expect(iframe.contentDocument.body.style.marginRight).to.equal("11px");
+            expect((iframe.contentDocument as any).body.style.width).to.equal("28px");
+            expect((iframe.contentDocument as any).body.style.marginLeft).to.equal("11px");
+            expect((iframe.contentDocument as any).body.style.marginRight).to.equal("11px");
 
             // If the content doesn't fill the page, the iframe height is
             // based on the window.
-            (iframe.contentDocument.body as any).scrollHeight = 20;
+            ((iframe.contentDocument as any).body as any).scrollHeight = 20;
 
             scroller.start(0);
             expect(iframe.style.height).to.equal("70px");
             expect(iframe.style.width).to.equal("50px");
-            expect(iframe.contentDocument.body.style.width).to.equal("28px");
-            expect(iframe.contentDocument.body.style.marginLeft).to.equal("11px");
-            expect(iframe.contentDocument.body.style.marginRight).to.equal("11px");
+            expect((iframe.contentDocument as any).body.style.width).to.equal("28px");
+            expect((iframe.contentDocument as any).body.style.marginLeft).to.equal("11px");
+            expect((iframe.contentDocument as any).body.style.marginRight).to.equal("11px");
         });
 
         it("should set max width and but not height on image in iframe", () => {
             scroller.sideMargin = 11;
             scroller.height = 70;
             (document.documentElement as any).clientWidth = 50;
-            const body = iframe.contentDocument.body;
+            const body = (iframe.contentDocument as any).body;
             const image  = window.document.createElement("img");
             body.appendChild(image);
 
@@ -72,18 +72,18 @@ describe("ScrollingBookView", () => {
     describe("#stop", () => {
         it("should remove styling from iframe", () => {
             scroller.height = 100;
-            (iframe.contentDocument.body as any).scrollHeight = 200;
+            ((iframe.contentDocument as any).body as any).scrollHeight = 200;
             scroller.start(0);
 
             expect(iframe.style.height).not.to.equal("");
             expect(iframe.style.width).not.to.equal("");
-            expect(iframe.contentDocument.body.style.width).not.to.equal("");
+            expect((iframe.contentDocument as any).body.style.width).not.to.equal("");
 
             scroller.stop();
 
             expect(iframe.style.height).to.equal("");
             expect(iframe.style.width).to.equal("");
-            expect(iframe.contentDocument.body.style.width).to.equal("");
+            expect((iframe.contentDocument as any).body.style.width).to.equal("");
         });
     });
 
@@ -184,7 +184,7 @@ describe("ScrollingBookView", () => {
             const element = document.createElement("a");
             element.scrollIntoView = stub();
             element.id = "element";
-            iframe.contentDocument.body.appendChild(element);
+            (iframe.contentDocument as any).body.appendChild(element);
             
             document.body.scrollTop = 0;
             (document.body as any).scrollHeight = 200;
@@ -200,7 +200,7 @@ describe("ScrollingBookView", () => {
             const element = document.createElement("a");
             element.scrollIntoView = stub();
             element.id = "element";
-            iframe.contentDocument.body.appendChild(element);
+            (iframe.contentDocument as any).body.appendChild(element);
             
             document.body.scrollTop = 50;
             (document.body as any).scrollHeight = 200;
@@ -216,7 +216,7 @@ describe("ScrollingBookView", () => {
             const element = document.createElement("a");
             element.scrollIntoView = stub();
             element.id = "element";
-            iframe.contentDocument.body.appendChild(element);
+            (iframe.contentDocument as any).body.appendChild(element);
             
             document.body.scrollTop = 150;
             (document.body as any).scrollHeight = 200;

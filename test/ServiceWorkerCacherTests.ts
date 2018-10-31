@@ -5,16 +5,14 @@ import * as jsdom from "jsdom";
 import ServiceWorkerCacher from "../src/ServiceWorkerCacher";
 import MemoryStore from "../src/MemoryStore";
 import Manifest from "../src/Manifest";
-import ApplicationCacheCacher from "../src/ApplicationCacheCacher";
 import { CacheStatus } from "../src/Cacher";
 
 describe('ServiceWorkerCacher', () => {
-    let register: Sinon.SinonStub;
-    let match: Sinon.SinonStub;
-    let addAll: Sinon.SinonStub;
-    let open: Sinon.SinonStub;
+    let register: sinon.SinonStub;
+    let match: sinon.SinonStub;
+    let addAll: sinon.SinonStub;
+    let open: sinon.SinonStub;
     let store: MemoryStore;
-    let element: HTMLElement;
 
     const mockNavigatorAPI = () => {
         register = stub();
@@ -27,18 +25,14 @@ describe('ServiceWorkerCacher', () => {
     };
 
     const mockCacheAPI = (matchResult: any) => {
-        match = stub().returns(new Promise((resolve) => {
-            resolve(matchResult);
-        }));
-        addAll = stub().returns(new Promise(resolve => resolve()));
+        match = stub().resolves(matchResult);
+        addAll = stub().resolves();
         const cache = ({
             match: match,
             addAll: addAll
         } as any);
-        open = stub().returns(new Promise((resolve) => {
-            resolve(cache);
-        }));
-        window.caches = ({
+        open = stub().resolves(cache);
+        (window as any).caches = ({
             open: open,
             match: match
         } as any);
@@ -52,7 +46,6 @@ describe('ServiceWorkerCacher', () => {
         jsdom.changeURL(window, "https://example.com");
         mockNavigatorAPI();
         store = new MemoryStore();
-        element = document.createElement("div");
     });
 
     describe('#enable', () => {
@@ -65,23 +58,6 @@ describe('ServiceWorkerCacher', () => {
             });
             await cacher.enable();
             expect(register.callCount).to.equal(0);
-        });
-
-        it("should fall back to application cache if the Cache API is not supported and fallback URL is provided", async () => {
-            (window as any).caches = null;
-
-            const appCacheEnableStub = stub(ApplicationCacheCacher.prototype, "enable");
-
-            const cacher = new ServiceWorkerCacher({
-                store,
-                manifestUrl: new URL("https://example.com/manifest.json"),
-                fallbackBookCacheUrl: new URL("https://example.com/fallback.html")
-            });
-            await cacher.enable();
-            expect(register.callCount).to.equal(0);
-            expect(appCacheEnableStub.callCount).to.equal(1);
-
-            appCacheEnableStub.restore();
         });
 
         it("should register the service worker", async () => {
@@ -173,24 +149,6 @@ describe('ServiceWorkerCacher', () => {
     });
 
     describe('#onStatusUpdate', () => {
-        it("should fall back to application cache if the Cache API is not supported and fallback URL is provided", async () => {
-            (window as any).caches = null;
-
-            const appCacheOnStatusUpdateStub = stub(ApplicationCacheCacher.prototype, "onStatusUpdate");
-
-            const cacher = new ServiceWorkerCacher({
-                store,
-                manifestUrl: new URL("https://example.com/manifest.json"),
-                fallbackBookCacheUrl: new URL("https://example.com/fallback.html")
-            });
-            const callback = stub();
-            cacher.onStatusUpdate(callback);
-            expect(appCacheOnStatusUpdateStub.callCount).to.equal(1);
-            expect(appCacheOnStatusUpdateStub.args[0][0]).to.equal(callback);
-
-            appCacheOnStatusUpdateStub.restore();
-        });
-
         it("should provide status updates when downloading and when caching is complete", async () => {
             mockCacheAPI("i'm in the cache");
             const manifest = new Manifest({
@@ -227,8 +185,11 @@ describe('ServiceWorkerCacher', () => {
         });
 
         it("should provide status updates when there's an error", async () => {
-            mockCacheAPI("i'm in the cache");
-            open.returns(new Promise<void>((_, reject) => reject()));
+            process.on('unhandledRejection', (reason) => {
+                console.log('REJECTION', reason)
+            })
+            mockCacheAPI("I'm in the cache");
+            open.returns(new Promise<void>((_, reject) => reject(new Error('Status failure'))).catch(error => {console.log('Caught', error.message)}));
             const cacher = new ServiceWorkerCacher({
                 store,
                 manifestUrl: new URL("https://example.com/manifest.json")
@@ -252,7 +213,7 @@ describe('ServiceWorkerCacher', () => {
 
     describe('#getStatus', () => {
         it("should provide status updates when downloading and when caching is complete", async () => {
-            mockCacheAPI("i'm in the cache");
+            mockCacheAPI("I'm in the cache");
             const manifest = new Manifest({
               spine: [
                   { href: "spine-item-1.html" },
@@ -281,8 +242,11 @@ describe('ServiceWorkerCacher', () => {
         });
 
         it("should provide status updates when there's an error", async () => {
+            process.on('unhandledRejection', (reason) => {
+                console.log('REJECTION', reason)
+            })
             mockCacheAPI("i'm in the cache");
-            open.returns(new Promise<void>((_, reject) => reject()));
+            open.returns(new Promise<void>((_, reject) => reject(new Error('Status failure'))).catch(error => {console.log('Caught', error.message)}));
             const cacher = new ServiceWorkerCacher({
                 store,
                 manifestUrl: new URL("https://example.com/manifest.json")

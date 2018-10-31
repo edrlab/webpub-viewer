@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package version="3.0" unique-identifier="id" xmlns="http://www.idpf.org/2007/opf" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ibooks="http://apple.com/ibooks/html-extensions" prefix="rendition: http://www.idpf.org/vocab/rendition/# ibooks: http://vocabulary.itunes.apple.com/rdf/ibooks/vocabulary-extensions-1.0/" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata xmlns:dcterms="http://purl.org/dc/terms/" xmlns:ibooks="http://apple.com/ibooks/html-extensions" xmlns:opf="http://www.idpf.org/2007/opf" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:identifier id="id">urn:uuid:A0AAF6B6-7B3A-4700-BCC5-71EC15195A9A</dc:identifier>
+    <dc:creator id="create1">Jack London</dc:creator>
+    <meta refines="#create1" property="file-as">London, Jack</meta>
+    <dc:title id="t1">Backstop Test Sample</dc:title>
+    <meta refines="#t1" property="title-type">main</meta>
+    <dc:language>en</dc:language>
+    <dc:date>2008-07-02</dc:date>
+    <meta property="dcterms:modified">2018-07-20T11:31:38Z</meta>
+  </metadata>
+  <manifest>
+    <item  id="Section001.xhtml" href="Text/Section001.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="Section002.xhtml" href="Text/Section002.xhtml" media-type="application/xhtml+xml"/>
+    <item  id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+    <item  id="navid" href="Text/nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
+    <item  id="asterism.svg" href="Images/asterism.svg" media-type="image/svg+xml"/>
+    <item  id="dots.svg" href="Images/dots.svg" media-type="image/svg+xml"/>
+    <item  id="crabapple.css" href="Styles/crabapple.css" media-type="text/css"/>
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="Section001.xhtml"/>
+    <itemref idref="Section002.xhtml"/>
+  </spine>
+</package>

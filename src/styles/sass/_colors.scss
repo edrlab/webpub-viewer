@@ -1,25 +1,13 @@
-// Colors imported from NYPL Toolkit
-// https://github.com/NYPL/design-toolkit/blob/master/sass/_colors.scss
-//@warn "zip";
+$ui-green: #468028;
 
-// MTA Subway-Reads (name subject to change)
-$mta-green: #468028;
+$ui-light-gray: #DADADA;
 
-$mta-green-shade: darken($mta-green, 20%);
+$ui-dark-gray: #5B5852;
 
-$mta-gray: #9d9d9d;
+$ui-white: #fff;
 
-$mta-gray-shade: darken($mta-gray, 20%);
+$ui-black: #111;
 
-$mta-dark-gray: darken($mta-gray, 40%);
+$error-red: #d0343a;
 
-$mta-gray-tint: lighten($mta-gray, 20%);
-
-$transparent-mta-gray: rgba($mta-gray, 0.1);
-
-$mta-white: #fff;
-
-$mta-black: #111;
-
-// MTA Reds
-$mta-error-red: #d0343a;
+$sepia-bg: #f6ecd9;

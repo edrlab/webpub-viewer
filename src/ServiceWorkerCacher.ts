@@ -2,7 +2,6 @@ import Cacher from "./Cacher";
 import { CacheStatus } from "./Cacher";
 import Store from "./Store";
 import Manifest from "./Manifest";
-import ApplicationCacheCacher from "./ApplicationCacheCacher";
 
 export interface ServiceWorkerCacherConfig {
     /** Store to cache the manifest in. */
@@ -29,7 +28,6 @@ export default class ServiceWorkerCacher implements Cacher {
     private readonly store: Store;
     private readonly manifestUrl: URL;
     private readonly areServiceWorkersSupported: boolean;
-    private readonly fallbackCacher: ApplicationCacheCacher | null;
     protected cacheStatus: CacheStatus = CacheStatus.Uncached;
     private statusUpdateCallback: (status: CacheStatus) => void = () => {};
 
@@ -42,16 +40,10 @@ export default class ServiceWorkerCacher implements Cacher {
 
         const protocol = window.location.protocol;
         this.areServiceWorkersSupported = !!navigator.serviceWorker && !!window.caches && (protocol === "https:");
-        if (!this.areServiceWorkersSupported && config.fallbackBookCacheUrl) {
-            this.fallbackCacher = new ApplicationCacheCacher({ bookCacheUrl: config.fallbackBookCacheUrl });
-        }
     }
 
     public async enable(): Promise<void> {
-        if (this.fallbackCacher) {
-            return this.fallbackCacher.enable();
-
-        } else if (this.areServiceWorkersSupported && (this.cacheStatus !== CacheStatus.Downloaded)) {
+        if (this.areServiceWorkersSupported && (this.cacheStatus !== CacheStatus.Downloaded)) {
             this.cacheStatus = CacheStatus.Downloading;
             this.updateStatus();
             navigator.serviceWorker.register(this.serviceWorkerUrl.href);
@@ -123,12 +115,8 @@ export default class ServiceWorkerCacher implements Cacher {
     }
 
     public onStatusUpdate(callback: (status: CacheStatus) => void) {
-        if (this.fallbackCacher) {
-           this.fallbackCacher.onStatusUpdate(callback);
-        } else {
             this.statusUpdateCallback = callback;
             this.updateStatus();
-        }
     }
 
     public getStatus(): CacheStatus {

@@ -1,0 +1,157 @@
+{
+  "id": "Visual-regression-test",
+  "viewports": [
+    {
+      "label": "phone",
+      "width": 375,
+      "height": 667
+    },
+    {
+      "label": "tablet",
+      "width": 1024,
+      "height": 768
+    }
+  ],
+  "onBeforeScript": "puppet/onBefore.js",
+  "onReadyScript": "puppet/onReady.js",
+  "scenarios": [
+    {
+      "label": "Fetch error",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2FPhantomBook%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Loaded",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Navbar",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelector": ".trigger",
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "TOC",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelector": ".contents",
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "TOC in sepia",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelectors": ["#settings-control", ".sepia-theme", ".contents"],
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "TOC in night mode",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelectors": ["#settings-control", ".night-theme", ".contents"],
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Settings",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelector": "#settings-control",
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Serif",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelectors": ["#settings-control", ".serif-font"],
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Sans Serif",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelectors": ["#settings-control", ".sans-font"],
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Decrease font-size",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelectors": ["#settings-control", ".decrease", ".decrease", "#settings-control"],
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Increase font-size",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelectors": ["#settings-control", ".increase", ".increase", "#settings-control"],
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Sepia",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelectors": ["#settings-control", ".sepia-theme"],
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Night",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelectors": ["#settings-control", ".night-theme"],
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    },
+    {
+      "label": "Scroll View",
+      "url": "https://localhost:3333/viewer/?url=https%3A%2F%2Flocalhost%3A3333%2Fbackstop%2Fmanifest.json",
+      "delay": 1000,
+      "selectors": ["viewport"],
+      "clickSelectors": ["#settings-control", ".scrolling-book-view"],
+      "postInteractionWait": 500,
+      "misMatchThreshold" : 0.1
+    }
+  ],
+  "paths": {
+    "bitmaps_reference": "backstop_data/bitmaps_reference",
+    "bitmaps_test": "backstop_data/bitmaps_test",
+    "engine_scripts": "backstop_data/engine_scripts",
+    "html_report": "backstop_data/html_report",
+    "ci_report": "backstop_data/ci_report"
+  },
+  "report": ["browser"],
+  "engine": "puppeteer",
+  "engineOptions": {
+    "args": ["--no-sandbox"]
+  },
+  "asyncCaptureLimit": 5,
+  "asyncCompareLimit": 50,
+  "debug": false,
+  "debugWindow": false
+}

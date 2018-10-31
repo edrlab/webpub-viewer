@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+  <head>
+    <meta content="urn:uuid:A0AAF6B6-7B3A-4700-BCC5-71EC15195A9A" name="dtb:uid"/>
+    <meta content="1" name="dtb:depth"/>
+    <meta content="0" name="dtb:totalPageCount"/>
+    <meta content="0" name="dtb:maxPageNumber"/>
+  </head>
+  <docTitle>
+    <text>Backstop Test Sample</text>
+  </docTitle>
+  <navMap>
+    <navPoint id="navPoint1">
+      <navLabel>
+        <text>Chapter I. Into the Primitive</text>
+      </navLabel>
+      <content src="Text/Section001.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint2">
+      <navLabel>
+        <text>Chapter 2. The Law of Club and Fang</text>
+      </navLabel>
+      <content src="Text/Section002.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>

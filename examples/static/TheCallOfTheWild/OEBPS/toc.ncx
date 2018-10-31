@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ncx version="2005-1" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+  <head>
+    <meta content="urn:uuid:3BF6409C-8083-4F96-9497-A69EAB7FA5E5" name="dtb:uid"/>
+    <meta content="1" name="dtb:depth"/>
+    <meta content="0" name="dtb:totalPageCount"/>
+    <meta content="0" name="dtb:maxPageNumber"/>
+  </head>
+  <docTitle>
+    <text>The Call of the Wild</text>
+  </docTitle>
+  <navMap>
+    <navPoint id="navPoint1">
+      <navLabel>
+        <text>The Call of the Wild</text>
+      </navLabel>
+      <content src="Text/titlepage.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint2">
+      <navLabel>
+        <text>Chapter I. Into the Primitive</text>
+      </navLabel>
+      <content src="Text/Section001.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint3">
+      <navLabel>
+        <text>Chapter II. The Law of Club and Fang</text>
+      </navLabel>
+      <content src="Text/Section002.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint4">
+      <navLabel>
+        <text>Chapter III. The Dominant Primordial Beast</text>
+      </navLabel>
+      <content src="Text/Section003.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint5">
+      <navLabel>
+        <text>Chapter IV. Who Has Won to Mastership</text>
+      </navLabel>
+      <content src="Text/Section004.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint6">
+      <navLabel>
+        <text>Chapter V. The Toil of Trace and Trail</text>
+      </navLabel>
+      <content src="Text/Section005.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint7">
+      <navLabel>
+        <text>Chapter VI. For the Love of a Man</text>
+      </navLabel>
+      <content src="Text/Section006.xhtml"/>
+    </navPoint>
+    <navPoint id="navPoint8">
+      <navLabel>
+        <text>Chapter VII. The Sounding of the Call</text>
+      </navLabel>
+      <content src="Text/Section007.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>

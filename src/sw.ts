@@ -1,7 +1,7 @@
 const CACHE_NAME = "webpub-viewer";
 
 self.addEventListener('activate', () => {
-    self.clients.claim();
+    (self as any).clients.claim();
 });
 
 self.addEventListener('fetch', event => {

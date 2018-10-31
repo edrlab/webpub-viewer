@@ -15,7 +15,7 @@ export default class ScrollingBookView implements BookView {
         this.bookElement.style.height = "";
         this.bookElement.style.width = BrowserUtilities.getWidth() + "px";
 
-        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
+        const body = HTMLUtilities.findRequiredIframeElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
 
         const width = (BrowserUtilities.getWidth() - this.sideMargin * 2) + "px";
         body.style.width = width;
@@ -40,7 +40,7 @@ export default class ScrollingBookView implements BookView {
         this.bookElement.style.height = "";
         this.bookElement.style.width = "";
 
-        const body = HTMLUtilities.findRequiredElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
+        const body = HTMLUtilities.findRequiredIframeElement(this.bookElement.contentDocument, "body") as HTMLBodyElement;
         body.style.width = "";
         body.style.marginLeft = "";
         body.style.marginRight = "";
@@ -65,7 +65,7 @@ export default class ScrollingBookView implements BookView {
     }
 
     public goToElement(elementId: string) {
-        const element = this.bookElement.contentDocument.getElementById(elementId);
+        const element = (this.bookElement.contentDocument as any).getElementById(elementId);
         if (element) {
             // Put the element as close to the top as possible.
             element.scrollIntoView();

@@ -1,6 +1,9 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "typeRoots": [
+      "node_modules/@types"
+    ],
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
     "module": "amd",
@@ -15,11 +18,12 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "target": "es5"
+    "target": "es5",
+    "lib": [
+      "dom",
+      "es2015"
+    ]
   },
-  "files": [
-    "typings/index.d.ts"
-  ],
   "include": [
     "src/**/*"
   ],

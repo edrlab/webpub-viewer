@@ -6,6 +6,7 @@ import MemoryStore from "../src/MemoryStore";
 
 describe("Manifest", () => {
     let manifest: Manifest;
+    let webManifest: Manifest;
     let emptyManifest: Manifest;
 
     beforeEach(() => {
@@ -17,6 +18,34 @@ describe("Manifest", () => {
                 { href: "a-link.html" }
             ],
             spine: [
+                { href: "spine-item-1.html" },
+                { href: "spine-item-2.html" },
+                { href: "spine-item-3.html" }
+            ],
+            resources: [
+                { href: "contents.html", rel: ["contents"] },
+                { href: "cover.jpg" }
+            ],
+            toc: [
+                { href: "spine-item-1.html", title: "Chapter 1" },
+                {
+                    href: "spine-item-2.html",
+                    title: "Chapter 2",
+                    children: [
+                        { href: "spine-item-3.html", title: "Chapter 3" }
+                    ]
+                }
+            ],
+        }, new URL("http://example.com/manifest.json"));
+
+        webManifest = new Manifest({
+            metadata: {
+                title: "Alice's Adventures in Wonderland"
+            },
+            links: [
+                { href: "a-link.html" }
+            ],
+            readingOrder: [
                 { href: "spine-item-1.html" },
                 { href: "spine-item-2.html" },
                 { href: "spine-item-3.html" }
@@ -49,19 +78,14 @@ describe("Manifest", () => {
         const manifest = new Manifest(manifestJSON, new URL("https://example.com/manifest.json"));
         let store: MemoryStore;
 
-        const mockFetchAPI = (response: Promise<Response>) => {
-            window.fetch = stub().returns(response);
-        };
-
         beforeEach(() => {
             store = new MemoryStore();
         });
 
         describe("if fetching the manifest fails", () => {
-            const fetchFailure = new Promise((_, reject) => reject());
 
             beforeEach(() => {
-                mockFetchAPI(fetchFailure);
+                window.fetch = stub().rejects();
             })
 
             it("should return cached manifest from local store", async () => {
@@ -89,9 +113,8 @@ describe("Manifest", () => {
                     return new Promise(resolve => resolve(manifestJSON));
                 }
             } as any);
-            const fetchSuccess = new Promise(resolve => resolve(fetchResponse));
 
-            mockFetchAPI(fetchSuccess);
+            window.fetch = stub().resolves(fetchResponse);
 
             const response: Manifest = await Manifest.getManifest(new URL("https://example.com/manifest.json"), store);
             expect(response).to.deep.equal(manifest);
@@ -122,6 +145,9 @@ describe("Manifest", () => {
         it("should store spine", () => {
             expect(manifest.spine.length).to.equal(3);
             expect(manifest.spine[0].href).to.equal("spine-item-1.html");
+
+            expect(webManifest.spine.length).to.equal(3);
+            expect(webManifest.spine[0].href).to.equal("spine-item-1.html");
         });
 
         it("should store resources", () => {
@@ -140,6 +166,10 @@ describe("Manifest", () => {
             const start = manifest.getStartLink() as Link;
             expect(start).not.to.be.null;
             expect(start.href).to.equal("spine-item-1.html");
+
+            const webStart = webManifest.getStartLink() as Link;
+            expect(webStart).not.to.be.null;
+            expect(webStart.href).to.equal("spine-item-1.html");
         });
 
         it("should return null if spine is empty", () => {
@@ -157,16 +187,30 @@ describe("Manifest", () => {
             previous = manifest.getPreviousSpineItem("http://example.com/spine-item-3.html") as Link;
             expect(previous).not.to.be.null;
             expect(previous.href).to.equal("spine-item-2.html");
+
+            let webPrevious = webManifest.getPreviousSpineItem("http://example.com/spine-item-2.html") as Link;
+            expect(webPrevious).not.to.be.null;
+            expect(webPrevious.href).to.equal("spine-item-1.html");            
+
+            webPrevious = webManifest.getPreviousSpineItem("http://example.com/spine-item-3.html") as Link;
+            expect(webPrevious).not.to.be.null;
+            expect(webPrevious.href).to.equal("spine-item-2.html");
         });
 
         it("should return null for first spine item", () => {
             const previous = manifest.getPreviousSpineItem("http://example.com/spine-item-1.html");
             expect(previous).to.be.null;
+
+            const webPrevious = webManifest.getPreviousSpineItem("http://example.com/spine-item-1.html");
+            expect(webPrevious).to.be.null;
         });
 
         it("should return null for item not in the spine", () => {
             const previous = manifest.getPreviousSpineItem("http://example.com/toc.html");
             expect(previous).to.be.null;
+
+            const webPrevious = webManifest.getPreviousSpineItem("http://example.com/toc.html");
+            expect(webPrevious).to.be.null;
         });
     });
 
@@ -179,16 +223,30 @@ describe("Manifest", () => {
             next = manifest.getNextSpineItem("http://example.com/spine-item-2.html") as Link;
             expect(next).not.to.be.null;
             expect(next.href).to.equal("spine-item-3.html");
+
+            let webNext = webManifest.getNextSpineItem("http://example.com/spine-item-1.html") as Link;
+            expect(webNext).not.to.be.null;
+            expect(webNext.href).to.equal("spine-item-2.html");
+
+            webNext = webManifest.getNextSpineItem("http://example.com/spine-item-2.html") as Link;
+            expect(webNext).not.to.be.null;
+            expect(webNext.href).to.equal("spine-item-3.html");
         });
 
         it("should return null for last spine item", () => {
             const next = manifest.getNextSpineItem("http://example.com/spine-item-3.html");
             expect(next).to.be.null;
+
+            const webNext = webManifest.getNextSpineItem("http://example.com/spine-item-3.html");
+            expect(webNext).to.be.null;
         });
 
         it("should return null for item not in the spine", () => {
             const next = manifest.getNextSpineItem("http://example.com/toc.html");
             expect(next).to.be.null;
+
+            const webNext = webManifest.getNextSpineItem("http://example.com/toc.html");
+            expect(webNext).to.be.null;
         });
     });
 
@@ -201,11 +259,22 @@ describe("Manifest", () => {
             item = manifest.getSpineItem("http://example.com/spine-item-2.html") as Link;
             expect(item).not.to.be.null;
             expect(item.href).to.equal("spine-item-2.html");
+
+            let webItem = webManifest.getSpineItem("http://example.com/spine-item-1.html") as Link;
+            expect(webItem).not.to.be.null;
+            expect(webItem.href).to.equal("spine-item-1.html");
+
+            webItem = webManifest.getSpineItem("http://example.com/spine-item-2.html") as Link;
+            expect(webItem).not.to.be.null;
+            expect(webItem.href).to.equal("spine-item-2.html");
         });
 
         it("should return null for item not in the spine", () => {
             const item = manifest.getSpineItem("http://example.com/toc.html");
             expect(item).to.be.null;
+
+            const webItem = webManifest.getSpineItem("http://example.com/toc.html");
+            expect(webItem).to.be.null;
         });
     });
 

@@ -1,0 +1,434 @@
+{
+  "@context": [
+    "https://readium.org/webpub-manifest/context.jsonld"
+  ],
+  "metadata": {
+    "@type": "http://schema.org/Book",
+    "title": "A Journey to the Centre of the Earth",
+    "identifier": "http://www.gutenberg.org/ebooks/18857",
+    "author": {
+      "name": "Jules Verne"
+    },
+    "language": [
+      "en"
+    ],
+    "modified": "2018-10-26T12:03:01.433Z",
+    "published": "2006-07-17T22:00:00.000Z",
+    "source": "http://www.gutenberg.org/files/18857/18857-h/18857-h.htm",
+    "subject": [
+      {
+        "name": "Rediscover the Classics with Jellybooks"
+      }
+    ]
+  },
+  "links": [
+    {
+      "href": "manifest.json",
+      "type": "application/webpub+json",
+      "rel": "self"
+    }
+  ],
+  "readingOrder": [
+    {
+      "href": "OEBPS/Text/cover.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/titlepage.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0001.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0002.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0003.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0004.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0005.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0006.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0007.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0008.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0009.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0010.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0011.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0012.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0013.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0014.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0015.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0016.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0017.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0018.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0019.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0020.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0021.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0022.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0023.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0024.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0025.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0026.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0027.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0028.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0029.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0030.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0031.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0032.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0033.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0034.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0035.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0036.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0037.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0038.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0039.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0040.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0041.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0042.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0043.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/Section0044.xhtml",
+      "type": "application/xhtml+xml"
+    },
+    {
+      "href": "OEBPS/Text/copy.xhtml",
+      "type": "application/xhtml+xml"
+    }
+  ],
+  "resources": [
+    {
+      "href": "OEBPS/toc.ncx",
+      "type": "application/x-dtbncx+xml"
+    },
+    {
+      "href": "OEBPS/Text/nav.xhtml",
+      "type": "application/xhtml+xml",
+      "rel": "contents"
+    },
+    {
+      "href": "OEBPS/Images/asterism.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "href": "OEBPS/Images/dots.svg",
+      "type": "image/svg+xml"
+    },
+    {
+      "href": "OEBPS/Styles/crabapple.css",
+      "type": "text/css"
+    },
+    {
+      "href": "OEBPS/Images/cover.jpg",
+      "type": "image/jpeg",
+      "height": 1902,
+      "width": 1323,
+      "rel": "cover"
+    }
+  ],
+  "toc": [
+    {
+      "href": "OEBPS/Text/titlepage.xhtml",
+      "title": "A Journey to the Centre of the Earth"
+    },
+    {
+      "href": "OEBPS/Text/Section0001.xhtml",
+      "title": "Chapter 1. My Uncle Makes a Great Discovery"
+    },
+    {
+      "href": "OEBPS/Text/Section0002.xhtml",
+      "title": "Chapter 2. The Mysterious Parchment"
+    },
+    {
+      "href": "OEBPS/Text/Section0003.xhtml",
+      "title": "Chapter 3. An Astounding Discovery"
+    },
+    {
+      "href": "OEBPS/Text/Section0004.xhtml",
+      "title": "Chapter 4. We Start on the Journey"
+    },
+    {
+      "href": "OEBPS/Text/Section0005.xhtml",
+      "title": "Chapter 5. First Lessons in Climbing"
+    },
+    {
+      "href": "OEBPS/Text/Section0006.xhtml",
+      "title": "Chapter 6. Our Voyage to Iceland"
+    },
+    {
+      "href": "OEBPS/Text/Section0007.xhtml",
+      "title": "Chapter 7. Conversation and Discovery"
+    },
+    {
+      "href": "OEBPS/Text/Section0008.xhtml",
+      "title": "Chapter 8. The Eider-down Hunter—Off at Last"
+    },
+    {
+      "href": "OEBPS/Text/Section0009.xhtml",
+      "title": "Chapter 9. Our Start—We Meet with Adventures by the Way"
+    },
+    {
+      "href": "OEBPS/Text/Section0010.xhtml",
+      "title": "Chapter 10. Traveling in Iceland"
+    },
+    {
+      "href": "OEBPS/Text/Section0011.xhtml",
+      "title": "Chapter 11. We Reach Mount Sneffels—The “Reykir”"
+    },
+    {
+      "href": "OEBPS/Text/Section0012.xhtml",
+      "title": "Chapter 12. The Ascent of Mount Sneffels"
+    },
+    {
+      "href": "OEBPS/Text/Section0013.xhtml",
+      "title": "Chapter 13. The Shadow of Scartaris"
+    },
+    {
+      "href": "OEBPS/Text/Section0014.xhtml",
+      "title": "Chapter 14. The Real Journey Commences"
+    },
+    {
+      "href": "OEBPS/Text/Section0015.xhtml",
+      "title": "Chapter 15. We Continue Our Descent"
+    },
+    {
+      "href": "OEBPS/Text/Section0016.xhtml",
+      "title": "Chapter 16. The Eastern Tunnel"
+    },
+    {
+      "href": "OEBPS/Text/Section0017.xhtml",
+      "title": "Chapter 17. Deeper and Deeper—The Coal Mine"
+    },
+    {
+      "href": "OEBPS/Text/Section0018.xhtml",
+      "title": "Chapter 18. The Wrong Road!"
+    },
+    {
+      "href": "OEBPS/Text/Section0019.xhtml",
+      "title": "Chapter 19. The Western Gallery—A New Route"
+    },
+    {
+      "href": "OEBPS/Text/Section0020.xhtml",
+      "title": "Chapter 20. Water, Where is it? A Bitter Disappointment"
+    },
+    {
+      "href": "OEBPS/Text/Section0021.xhtml",
+      "title": "Chapter 21. Under the Ocean"
+    },
+    {
+      "href": "OEBPS/Text/Section0022.xhtml",
+      "title": "Chapter 22. Sunday Below Ground"
+    },
+    {
+      "href": "OEBPS/Text/Section0023.xhtml",
+      "title": "Chapter 23. Alone"
+    },
+    {
+      "href": "OEBPS/Text/Section0024.xhtml",
+      "title": "Chapter 24. Lost!"
+    },
+    {
+      "href": "OEBPS/Text/Section0025.xhtml",
+      "title": "Chapter 25. The Whispering Gallery"
+    },
+    {
+      "href": "OEBPS/Text/Section0026.xhtml",
+      "title": "Chapter 26. A Rapid Recovery"
+    },
+    {
+      "href": "OEBPS/Text/Section0027.xhtml",
+      "title": "Chapter 27. The Central Sea"
+    },
+    {
+      "href": "OEBPS/Text/Section0028.xhtml",
+      "title": "Chapter 28. Launching the Raft"
+    },
+    {
+      "href": "OEBPS/Text/Section0029.xhtml",
+      "title": "Chapter 29. On the Waters—A Raft Voyage"
+    },
+    {
+      "href": "OEBPS/Text/Section0030.xhtml",
+      "title": "Chapter 30. Terrific Saurian Combat"
+    },
+    {
+      "href": "OEBPS/Text/Section0031.xhtml",
+      "title": "Chapter 31. The Sea Monster"
+    },
+    {
+      "href": "OEBPS/Text/Section0032.xhtml",
+      "title": "Chapter 32. The Battle of the Elements"
+    },
+    {
+      "href": "OEBPS/Text/Section0033.xhtml",
+      "title": "Chapter 33. Our Route Reversed"
+    },
+    {
+      "href": "OEBPS/Text/Section0034.xhtml",
+      "title": "Chapter 34. A Voyage of Discovery"
+    },
+    {
+      "href": "OEBPS/Text/Section0035.xhtml",
+      "title": "Chapter 35. Discovery upon Discovery"
+    },
+    {
+      "href": "OEBPS/Text/Section0036.xhtml",
+      "title": "Chapter 36. What is it?"
+    },
+    {
+      "href": "OEBPS/Text/Section0037.xhtml",
+      "title": "Chapter 37. The Mysterious Dagger"
+    },
+    {
+      "href": "OEBPS/Text/Section0038.xhtml",
+      "title": "Chapter 38. No Outlet—Blasting The Rock"
+    },
+    {
+      "href": "OEBPS/Text/Section0039.xhtml",
+      "title": "Chapter 39. The Explosion and its Results"
+    },
+    {
+      "href": "OEBPS/Text/Section0040.xhtml",
+      "title": "Chapter 40. The Ape Gigans"
+    },
+    {
+      "href": "OEBPS/Text/Section0041.xhtml",
+      "title": "Chapter 41. Hunger"
+    },
+    {
+      "href": "OEBPS/Text/Section0042.xhtml",
+      "title": "Chapter 42. The Volcanic Shaft"
+    },
+    {
+      "href": "OEBPS/Text/Section0043.xhtml",
+      "title": "Chapter 43. Daylight at Last"
+    },
+    {
+      "href": "OEBPS/Text/Section0044.xhtml",
+      "title": "Chapter 44. The Journey Ended"
+    }
+  ],
+  "landmarks": []
+}

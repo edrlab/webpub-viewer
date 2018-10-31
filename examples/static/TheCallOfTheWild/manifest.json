@@ -1,0 +1,142 @@
+{
+  "@context": "http://readium.org/webpub/default.jsonld",
+  "metadata": {
+      "@type": "http://schema.org/Book",
+      "title": "The Call of the Wild",
+      "identifier": "urn:uuid:3BF6409C-8083-4F96-9497-A69EAB7FA5E5",
+      "author": {
+          "name": "Jack London"
+      },
+      "language": [
+          "en"
+      ],
+      "modified": "2018-08-02T07:59:41.111Z",
+      "published": "2008-07-01T22:00:00.000Z",
+      "source": "http://www.gutenberg.org/files/215/215-h/215-h.htm",
+      "subject": [
+          {
+              "name": "Rediscover the Classics with Jellybooks"
+          }
+      ]
+  },
+  "links": [
+      {
+          "href": "manifest.json",
+          "type": "application/webpub+json",
+          "templated": false,
+          "rel": "self"
+      }
+  ],
+  "readingOrder": [
+      {
+          "href": "OEBPS/Text/cover.xhtml",
+          "type": "application/xhtml+xml"
+      },
+      {
+          "href": "OEBPS/Text/titlepage.xhtml",
+          "type": "application/xhtml+xml"
+      },
+      {
+          "href": "OEBPS/Text/Section001.xhtml",
+          "type": "application/xhtml+xml"
+      },
+      {
+          "href": "OEBPS/Text/Section002.xhtml",
+          "type": "application/xhtml+xml"
+      },
+      {
+          "href": "OEBPS/Text/Section003.xhtml",
+          "type": "application/xhtml+xml"
+      },
+      {
+          "href": "OEBPS/Text/Section004.xhtml",
+          "type": "application/xhtml+xml"
+      },
+      {
+          "href": "OEBPS/Text/Section005.xhtml",
+          "type": "application/xhtml+xml"
+      },
+      {
+          "href": "OEBPS/Text/Section006.xhtml",
+          "type": "application/xhtml+xml"
+      },
+      {
+          "href": "OEBPS/Text/Section007.xhtml",
+          "type": "application/xhtml+xml"
+      },
+      {
+          "href": "OEBPS/Text/copy.xhtml",
+          "type": "application/xhtml+xml"
+      }
+  ],
+  "resources": [
+      {
+          "href": "OEBPS/toc.ncx",
+          "type": "application/x-dtbncx+xml"
+      },
+      {
+          "href": "OEBPS/Text/nav.xhtml",
+          "type": "application/xhtml+xml",
+          "rel": "contents"
+      },
+      {
+          "href": "OEBPS/Images/asterism.svg",
+          "type": "image/svg+xml"
+      },
+      {
+          "href": "OEBPS/Images/dots.svg",
+          "type": "image/svg+xml"
+      },
+      {
+          "href": "OEBPS/Styles/crabapple.css",
+          "type": "text/css"
+      },
+      {
+          "href": "OEBPS/Images/cover.jpg",
+          "type": "image/jpeg",
+          "height": 1902,
+          "width": 1323,
+          "rel": "cover"
+      }
+  ],
+  "toc": [
+      {
+          "href": "OEBPS/Text/titlepage.xhtml",
+          "title": "The Call of the Wild"
+      },
+      {
+          "href": "OEBPS/Text/Section001.xhtml",
+          "title": "Chapter I. Into the Primitive"
+      },
+      {
+          "href": "OEBPS/Text/Section002.xhtml",
+          "title": "Chapter II. The Law of Club and Fang"
+      },
+      {
+          "href": "OEBPS/Text/Section003.xhtml",
+          "title": "Chapter III. The Dominant Primordial Beast"
+      },
+      {
+          "href": "OEBPS/Text/Section004.xhtml",
+          "title": "Chapter IV. Who Has Won to Mastership"
+      },
+      {
+          "href": "OEBPS/Text/Section005.xhtml",
+          "title": "Chapter V. The Toil of Trace and Trail"
+      },
+      {
+          "href": "OEBPS/Text/Section006.xhtml",
+          "title": "Chapter VI. For the Love of a Man"
+      },
+      {
+          "href": "OEBPS/Text/Section007.xhtml",
+          "title": "Chapter VII. The Sounding of the Call"
+      }
+  ],
+  "landmarks": [
+      {
+          "href": "OEBPS/Text/cover.xhtml",
+          "title": "Cover"
+      }
+  ]
+}

@@ -1,0 +1,506 @@
+@charset "UTF-8";
+/* Crabapple template
+   Version 1.0
+   Based on Blitz           */
+/* NAMESPACES */
+@namespace h "http://www.w3.org/1999/xhtml/";
+@namespace epub "http://www.idpf.org/2007/ops";
+@namespace svg "http://www.w3.org/2000/svg";
+/* RESET */
+aside,
+blockquote,
+div,
+figure,
+figcaption,
+footer,
+h1,
+h2,
+h3,
+hr,
+li,
+nav,
+ol,
+p,
+section,
+ul {
+  margin: 0;
+  padding: 0;
+  font-size: 1em;
+  line-height: inherit;
+  text-indent: 0;
+  font-style: normal;
+  font-weight: normal;
+}
+article,
+aside,
+figure,
+figcaption,
+footer,
+header,
+main,
+nav,
+section {
+  display: block;
+}
+[hidden] {
+  display: none;
+}
+h1,
+h2,
+h3 {
+  text-align: left;
+}
+nav[epub|type~="toc"] ol {
+  list-style: none !important;
+}
+nav[epub|type~="landmarks"],
+nav[epub|type~="page-list"] {
+  display: none;
+}
+a,
+abbr,
+b,
+cite,
+em,
+i,
+q,
+small,
+span,
+strong,
+sub,
+sup {
+  font-size: inherit;
+  vertical-align: baseline;
+  font-style: inherit;
+  font-weight: inherit;
+  color: inherit;
+  text-decoration: none;
+}
+q {
+  quotes: none;
+}
+body > :last-child,
+body > section > :last-child {
+  margin-bottom: 0;
+}
+/* PAGE LAYOUT */
+@page {
+  margin: 24px 0;
+  padding: 0;
+}
+body {
+  font-size: 100%;
+  line-height: 1.5;
+  margin: 0 16px;
+  padding: 0;
+  widows: 2;
+  orphans: 2;
+}
+/* Global scope */
+@supports (max-width: 60ch) {
+  section {
+    max-width: 65ch;
+    margin: 0 auto;
+  }
+}
+body {
+  font-family: "Minion Pro", "Iowan Old Style", Palatino, "Palatino Linotype", "Palatino Nova", "BN Amasis", Cambria, FreeSerif, "Times New Roman", serif;
+}
+@supports (font-variant-numeric: proportional-nums) {
+  body {
+    font-variant-numeric: oldstyle-nums proportional-nums;
+  }
+}
+@supports (font-variant-numeric: proportional-nums) {
+  h1,
+  h2,
+  h3 {
+    font-variant-numeric: oldstyle-nums proportional-nums;
+  }
+}
+@supports (font-variant-numeric: tabular-nums) {
+  table {
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+}
+h1,
+h2,
+h3,
+blockquote p,
+td,
+.center-aligned,
+.right-aligned {
+  adobe-hyphenate: none;
+  -ms-hyphens: none;
+  -moz-hyphens: none;
+  -webkit-hyphens: none;
+  -epub-hyphens: none;
+  hyphens: none;
+}
+h1,
+h2,
+h3,
+hr,
+figure,
+table {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  page-break-after: avoid;
+  break-after: avoid;
+}
+/* Wrappers */
+.doc-titlepage .doc-title {
+  margin-top: 20%;
+}
+.doc-titlepage .doc-author {
+  margin-top: 20%;
+}
+.doc-titlepage .doc-translator {
+  margin-top: 20%;
+}
+@supports ((display: -webkit-flex) or (display: flex)) {
+  .doc-titlepage {
+    min-height: 95vh;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -webkit-justify-content: space-around;
+    justify-content: space-around;
+  }
+  .doc-titlepage .doc-title {
+    margin-top: 0;
+  }
+  .doc-titlepage .doc-author {
+    margin-top: 0;
+  }
+  .doc-titlepage .doc-translator {
+    margin-top: 0;
+  }
+}
+.doc-dedication p {
+  margin-top: 20%;
+  text-indent: 0;
+  text-align: right;
+  font-style: italic;
+}
+.doc-part {
+  padding-top: 20%;
+}
+.doc-copyright {
+  padding-top: 20%;
+}
+.wrap-image {
+  margin: 1.5em 0;
+}
+.doc-epigraph {
+  margin: 1.5em 5% 3em 5%;
+}
+.doc-epigraph p {
+  text-indent: 0;
+  font-style: italic;
+}
+.doc-epigraph p i,
+.doc-epigraph p em,
+.doc-epigraph p cite {
+  font-style: normal;
+}
+.doc-epigraph .poem-title {
+  font-style: normal;
+}
+.doc-epigraph .poem-title i,
+.doc-epigraph .poem-title em,
+.doc-epigraph .poem-title cite {
+  font-style: italic;
+}
+.leftpad p {
+  white-space: pre-wrap;
+  -ms-tab-size: 2;
+  -moz-tab-size: 2;
+  -webkit-tab-size: 2;
+  tab-size: 2;
+  text-indent: 0;
+  margin-left: 1em;
+}
+.poem {
+  margin: 0 5%;
+}
+.poem p {
+  text-indent: -5%;
+  margin-left: 5%;
+}
+.doc-epigraph.poem {
+  margin: 1.5em 5% 3em 5%;
+}
+.doc-epigraph.poem p {
+  text-indent: -5%;
+  margin-left: 5%;
+}
+.stanza {
+  margin: 1.5em 0;
+}
+/* Headings */
+.doc-title {
+  font-size: 1.75em;
+  line-height: 1.71428571;
+  text-indent: 0;
+  text-align: center;
+}
+.doc-subtitle {
+  display: block;
+  font-size: 0.875em;
+  line-height: 1.71428571;
+  margin-top: 1.5em;
+}
+.part-title {
+  font-size: 1.75em;
+  line-height: 1.71428571;
+  margin-top: 0em;
+  margin-bottom: 0em;
+  text-indent: 0;
+  text-align: center;
+  text-transform: lowercase;
+  font-variant: small-caps;
+  letter-spacing: 0.0625em;
+}
+@supports (font-variant-caps: small-caps) {
+  .part-title {
+    letter-spacing: 0;
+  }
+}
+.chapter-title {
+  font-size: 1.5em;
+  line-height: 1;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  text-indent: 0;
+  text-align: center;
+  text-transform: lowercase;
+  font-variant: small-caps;
+  letter-spacing: 0.0625em;
+}
+@supports (font-variant-caps: small-caps) {
+  .chapter-title {
+    letter-spacing: 0;
+  }
+}
+.subchapter-title {
+  font-size: 1.25em;
+  line-height: 1.2;
+  margin-top: 1.2em;
+  margin-bottom: 1.2em;
+}
+/* Semantics */
+/* Block */
+p {
+  text-indent: 1em;
+}
+.doc-author {
+  text-indent: 0;
+  text-align: center;
+  text-transform: lowercase;
+  font-variant: small-caps;
+  letter-spacing: 0.0625em;
+  font-size: 1.25em;
+  line-height: 1.2;
+}
+@supports (font-variant-caps: small-caps) {
+  .doc-author {
+    letter-spacing: 0;
+  }
+}
+.doc-translator {
+  text-indent: 0;
+  text-align: center;
+  font-size: 0.875em;
+  line-height: 1.71428571;
+}
+.footnote {
+  font-size: 0.875em;
+  line-height: 1.71428571;
+  text-indent: -5%;
+  margin-left: 5%;
+  margin-top: 0.75em;
+}
+.letter {
+  margin: 0 5%;
+}
+.closing {
+  margin: 1.5em 5%;
+  text-indent: 0;
+  text-align: right;
+  page-break-before: avoid;
+  break-before: avoid;
+}
+.inscription {
+  font-family: "Trajan Pro", Optima, Candara, Arial, sans-serif;
+  font-variant: small-caps;
+}
+.poem-title {
+  margin: 1.5em 0 0 0;
+}
+/* Inline */
+a {
+  font-weight: bold;
+  color: inherit;
+  -webkit-text-fill-color: inherit;
+}
+i,
+cite,
+em {
+  font-style: italic;
+}
+i i,
+i cite,
+i em,
+cite i,
+cite cite,
+cite em,
+em i,
+em cite,
+em em {
+  font-style: normal;
+}
+b,
+strong {
+  font-weight: bold;
+}
+small {
+  font-size: 0.8125em;
+}
+sup {
+  font-size: 75%;
+  line-height: 1.2;
+  vertical-align: super;
+  vertical-align: 33%;
+}
+/* Utils */
+.center-aligned {
+  text-indent: 0;
+  text-align: center;
+}
+.right-aligned {
+  text-indent: 0;
+  text-align: right;
+}
+.mt-normal {
+  margin-top: 1.5em;
+}
+.vm-normal {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+.border-top {
+  border-top: 1px solid currentColor;
+}
+.larger {
+  font-size: larger;
+}
+.smaller {
+  font-size: smaller;
+}
+.no-indent {
+  text-indent: 0;
+}
+.small-caps {
+  text-transform: lowercase;
+  font-variant: small-caps;
+  letter-spacing: 0.0625em;
+}
+@supports (font-variant-caps: small-caps) {
+  .small-caps {
+    letter-spacing: 0;
+  }
+}
+/* FIGURES + IMAGES  */
+figure {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  margin: 1.5em 0;
+}
+figcaption,
+.caption {
+  font-size: 0.875em;
+  line-height: 1.71428571;
+  text-indent: 0;
+}
+img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+img.portrait {
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+  max-height: 95%;
+}
+.float-left img,
+.float-right img {
+  width: 100%;
+}
+@supports (height: 99vh) {
+  img.portrait {
+    height: 99vh;
+  }
+}
+/* HORIZONTAL RULES — CONTEXT BREAKS */
+hr.footnote-rule {
+  width: 25%;
+  margin-top: 1.4375em;
+  margin-bottom: 1.4375em;
+  height: 0;
+  border: none;
+  border-top: 0.125em solid currentColor;
+  opacity: 0.5;
+}
+hr.epigraph-dots {
+  width: 15em;
+  max-width: 100%;
+  margin: 1.5em 0;
+  height: 1.5em;
+  border: none;
+  background: transparent url("../Images/dots.svg") repeat-x left;
+  background-size: 1.5em 1.5em;
+  overflow: hidden;
+}
+hr.asterism {
+  width: auto;
+  border: none;
+  margin: 1.5em 0;
+  height: 1.5em;
+  text-indent: 0;
+  text-align: center;
+  background: transparent url("../Images/asterism.svg") no-repeat center;
+  background-size: 2.5em 1.25em;
+  overflow: hidden;
+  opacity: 0.7;
+}
+/* Bookish typesetting (justified + hyphens) */
+body {
+  text-align: justify;
+  adobe-hyphenate: auto;
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  -epub-hyphens: auto;
+  hyphens: auto;
+  -ms-hyphenate-limit-lines: 2;
+  -moz-hyphenate-limit-lines: 2;
+  -webkit-hyphenate-limit-lines: 2;
+  hyphenate-limit-lines: 2;
+  -ms-hyphenate-limit-chars: 6 3 2;
+  -moz-hyphenate-limit-chars: 6 3 2;
+  -webkit-hyphenate-limit-before: 3;
+  -webkit-hyphenate-limit-after: 2;
+  hyphenate-limit-chars: 6 3 2;
+  -ms-hyphenate-limit-zone: 10%;
+  -moz-hyphenate-limit-zone: 10%;
+  -webkit-hyphenate-limit-zone: 10%;
+  hyphenate-limit-zone: 10%;
+  -ms-hyphenate-limit-last: always;
+  -moz-hyphenate-limit-last: always;
+  -webkit-hyphenate-limit-last: always;
+  hyphenate-limit-last: always;
+}
