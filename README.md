@@ -2,19 +2,15 @@
 
 A viewer application for web publications, based on [NYPL’s prototype](https://github.com/NYPL-Simplified/webpub-viewer), which is itself based on [Hadrien Gardeur’s proof of concept](https://github.com/HadrienGardeur/webpub-viewer).
 
-## About the Jellybooks-shared branch
-
-This branch is meant to host changes and improvements that [Jellybooks](https://www.jellybooks.com) can share with the larger community.
-
 ## Quickstart
 
-Clone this repo, `cd` the directory, checkout the `jellybooks-branch` then
+Clone this repo, `cd` the directory, checkout the `master` then
 
 ```
 npm install
 ```
 
-This should run the `npm prepublish` script as well, transpiling the TS and SASS files into the `dist` and `viewer` folders.
+This should run the `npm run build` script as well, transpiling the TS and SASS files into the `dist` and `viewer` folders.
 
 You can run automated tests with
 
@@ -25,7 +21,7 @@ npm test
 and transpile at any time with
 
 ```
-npm run prepublish
+npm run build
 ```
 
 ## Examples
@@ -80,9 +76,9 @@ For the origin to be considered the same, protocol (`http/https`), host and port
 
 ### Streamed
 
-The `examples/streamed` folder contains the webpub-viewer (`readers/reader-JBKS` folder), the r2-streamer-js (ES6/ES2015 bundle in `server` folder) and example files (`epubs` folder).
+The `examples/streamed` folder contains the webpub-viewer (`misc/readers/reader-NYPL` folder) and example files (`epubs` folder).
 
-In this example, assets are served by the r2-streamer-js (in-memory model). You can open them using 3 iterations of the webpub-viewer: Hadrien Gardeur’s (the original prototype), NYPL’s, and Jellybooks’.
+In this example, assets are served by the r2-streamer-js (in-memory model). You can open them using different reader implementations. This iteration of webpub-viewer is labelled as "Reader NYPL".
 
 This example runs on `http` to get around Service Workers issues across all available readers so you don’t need to do anything.
 
