@@ -11,11 +11,30 @@
   -ms-user-select: none;
   user-select: none;
 
+  ol {
+    padding: 0;
+    margin-left: 1.25rem;
+
+    @media screen and (min-width: 60rem) {
+      margin-left: 2rem;
+    }
+  }
+
+  > ol {
+    margin-bottom: 3.2rem; // same value as top above
+    margin-right: 1.25rem;
+
+    @media screen and (min-width: 60rem) {
+      margin-right: 2rem;
+    }
+  }
+
   ol li {
     margin-top: 0;
-    width: 88%;
+    display: block;
 
     a {
+      box-sizing: border-box;
       color: $ui-dark-gray;
       border-bottom: 1px solid darken($ui-white, 20%);
       display: block;
@@ -42,6 +61,7 @@
     }
 
     span {
+      box-sizing: border-box;
       color: $ui-dark-gray;
       border-bottom: 1px solid darken($ui-white, 20%);
       display: block;
