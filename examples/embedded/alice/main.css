@@ -409,10 +409,23 @@ iframe {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none; }
+  .contents-view ol {
+    padding: 0;
+    margin-left: 1.25rem; }
+    @media screen and (min-width: 60rem) {
+      .contents-view ol {
+        margin-left: 2rem; } }
+  .contents-view > ol {
+    margin-bottom: 3.2rem;
+    margin-right: 1.25rem; }
+    @media screen and (min-width: 60rem) {
+      .contents-view > ol {
+        margin-right: 2rem; } }
   .contents-view ol li {
     margin-top: 0;
-    width: 88%; }
+    display: block; }
     .contents-view ol li a {
+      box-sizing: border-box;
       color: #5B5852;
       border-bottom: 1px solid #cccccc;
       display: block;
@@ -430,6 +443,7 @@ iframe {
         background: #111;
         color: #DADADA; }
     .contents-view ol li span {
+      box-sizing: border-box;
       color: #5B5852;
       border-bottom: 1px solid #cccccc;
       display: block;
