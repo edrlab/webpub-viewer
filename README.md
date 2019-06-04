@@ -14,7 +14,7 @@ Clone this repo, `cd` the directory, checkout the `master` then
 npm install
 ```
 
-This should run the `npm prepare` script as well, building the app with webpack, transpiling the TS and SASS files into the `dist` and `viewer` folders.
+This should run the npm `prepare` script as well, building the app with webpack, transpiling the TS and SASS files into the `dist` and `viewer` folders.
 
 You can run automated tests with
 
