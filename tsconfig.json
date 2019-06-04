@@ -6,7 +6,7 @@
     ],
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "amd",
+    "module": "es6",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
@@ -14,7 +14,7 @@
     "noImplicitThis": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "outFile": "dist/webpub-viewer.js",
+    "outDir": "./lib/",
     "preserveConstEnums": true,
     "sourceMap": true,
     "strictNullChecks": true,
@@ -24,9 +24,6 @@
       "es2015"
     ]
   },
-  "include": [
-    "src/**/*"
-  ],
   "exclude": [
     "src/sw.ts"
   ]

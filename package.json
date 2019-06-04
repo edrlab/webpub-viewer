@@ -12,7 +12,8 @@
     "node": ">8.0.0"
   },
   "scripts": {
-    "prepublish": "tsc --p . && tsc --p tsconfig-sw.json && npm run sass && cpx 'dist/*.{css,js}' viewer/",
+    "prepare": "npm run build",
+    "build": "webpack && tsc --p tsconfig-sw.json && npm run sass && cpx 'dist/*.{css,js}' viewer/",
     "sass": "node-sass --source-map true src/styles/sass/ -o dist/",
     "test": "rimraf lib && tsc --p tsconfig-test.json && mocha --require jsdom-global/register --recursive lib/test",
     "visual-test": "backstop test",
@@ -49,6 +50,9 @@
     "requirejs": "^2.3.2",
     "rimraf": "^2.6.2",
     "sinon": "^6.0.1",
-    "typescript": "^2.9.2"
+    "ts-loader": "^6.0.2",
+    "typescript": "^2.9.2",
+    "webpack": "^4.32.2",
+    "webpack-cli": "^3.3.2"
   }
 }
