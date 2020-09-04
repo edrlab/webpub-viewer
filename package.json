@@ -45,7 +45,7 @@
     "jsdom": "^9.8.3",
     "jsdom-global": "^2.1.0",
     "mocha": "^5.2.0",
-    "node-sass": "^4.9.3",
+    "node-sass": "^4.13.1",
     "requirejs": "^2.3.2",
     "rimraf": "^2.6.2",
     "sinon": "^6.0.1",
