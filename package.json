@@ -44,7 +44,7 @@
     "express": "^4.16.4",
     "jsdom": "^9.8.3",
     "jsdom-global": "^2.1.0",
-    "mocha": "^5.2.0",
+    "mocha": "^10.2.0",
     "node-sass": "^4.9.3",
     "requirejs": "^2.3.2",
     "rimraf": "^2.6.2",
